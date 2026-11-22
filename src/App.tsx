@@ -21,7 +21,8 @@ interface Prefs {
   showZero: boolean;
 }
 
-const DEFAULT_PREFS: Prefs = { chronicle: "interlude", cls: {}, ranges: {}, type: "all", showZero: false };
+/** C1 unless the visitor already picked a chronicle (saved in localStorage on every pick). */
+const DEFAULT_PREFS: Prefs = { chronicle: "c1", cls: {}, ranges: {}, type: "all", showZero: false };
 
 const rangeKey = (slug: string, cls: string) => `${slug}/${cls}`;
 
@@ -284,8 +285,8 @@ export default function App() {
     <>
       <header className="top">
         <a className="brand" href={hrefFor(activeSlug)}>
-          <h1>Kalkulator SP</h1>
-          <span className="sub">Lineage II · C1 – Interlude</span>
+          <h1>Lineage 2 skills SP</h1>
+          <span className="sub">Kalkulator SP skili · C1 – High Five</span>
         </a>
         <nav className="seg chronicles" aria-label="Kronika">
           {(chronicles ?? []).map((c) => (

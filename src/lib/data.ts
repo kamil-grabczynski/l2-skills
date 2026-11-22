@@ -5,10 +5,10 @@ const BASE = import.meta.env.BASE_URL;
 export const skillIconUrl = (file: string) => `${BASE}icons/skills/${file}`;
 export const classIconUrl = (icon: string) => `${BASE}icons/classes/${icon}.svg`;
 
-export const RACE_ORDER = ["Human", "Elf", "Elven", "Dark Elf", "Dark Elven", "Orc", "Dwarf", "Dwarven"];
+export const RACE_ORDER = ["Human", "Elf", "Elven", "Dark Elf", "Dark Elven", "Orc", "Dwarf", "Dwarven", "Kamael"];
 export const RACE_PL: Record<string, string> = {
   Human: "Człowiek", Elf: "Elf", Elven: "Elf", "Dark Elf": "Mroczny Elf", "Dark Elven": "Mroczny Elf",
-  Orc: "Ork", Dwarf: "Krasnolud", Dwarven: "Krasnolud",
+  Orc: "Ork", Dwarf: "Krasnolud", Dwarven: "Krasnolud", Kamael: "Kamael",
 };
 export const raceLabel = (race: string) => RACE_PL[race] ?? race;
 export const raceRank = (race: string) => {
@@ -82,4 +82,9 @@ export function defaultClass(data: ChronicleData): string {
   return data.classes.fighter ? "fighter" : Object.keys(data.classes)[0];
 }
 
-export const chronicleLabel = (slug: string) => (slug === "interlude" ? "Interlude" : slug.toUpperCase());
+/** Short tab labels, as the wiki abbreviates the chronicles. */
+const CHRONICLE_SHORT: Record<string, string> = {
+  interlude: "IL", kamael: "K", hellbound: "HB", gracia1: "G1", gracia2: "G2",
+  "gracia-final": "GF", "gracia-epilogue": "GE", freya: "F", "hi-five": "H5",
+};
+export const chronicleLabel = (slug: string) => CHRONICLE_SHORT[slug] ?? slug.toUpperCase();

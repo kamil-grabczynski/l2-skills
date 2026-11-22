@@ -1,6 +1,6 @@
-# L2 Skills – SP calculator
+# Lineage 2 skills SP
 
-SP calculator for Lineage II chronicles C1 – Interlude. Pick a class, a character level range and the skills you want; the app sums the SP you need.
+SP calculator for Lineage II chronicles C1 – High Five. Pick a class, a character level range and the skills you want; the app sums the SP you need.
 
 Skill data and icons are stored in `public/`, so the app makes no external requests at runtime.
 
