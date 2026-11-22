@@ -161,7 +161,8 @@ input[type=range] { width: 100%; accent-color: var(--accent); }
 .books .lv { color: var(--muted); font-size: 12px; }
 
 /* ---------- skills toolbar ---------- */
-.skills { padding: 0; overflow: clip; }
+.skills { padding: 0; overflow: clip; min-width: 0; }
+.layout > * { min-width: 0; }
 .toolbar {
   display: flex; flex-direction: column; gap: 8px; padding: 10px 12px; border-bottom: 1px solid var(--line);
   position: sticky; top: 0; background: var(--panel); z-index: 3;
@@ -185,6 +186,52 @@ input[type=range] { width: 100%; accent-color: var(--accent); }
   .toolbar { position: static; }
   .lvl-head { top: 0; }
 }
+
+/* ---------- view tabs ---------- */
+.view-tabs { display: flex; gap: 4px; padding: 10px 12px 0; border-bottom: 1px solid var(--line); background: var(--panel); }
+.view-tabs button {
+  border: 1px solid transparent; border-bottom: 0; background: none; border-radius: 8px 8px 0 0;
+  padding: 8px 14px; font-weight: 600; color: var(--muted); margin-bottom: -1px;
+}
+.view-tabs button:hover { color: var(--text); }
+.view-tabs button[aria-selected="true"] { background: var(--panel-2); border-color: var(--line); color: var(--accent); }
+
+/* ---------- chronicle comparison ---------- */
+.evo { padding: 12px; }
+.evo-head { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: flex-start; justify-content: space-between; }
+.evo-head .hint { margin: 2px 0 0; }
+.evo-head > div { flex: 1 1 240px; min-width: 0; }
+.evo-head input { flex: 0 1 240px; min-width: 0; }
+@media (max-width: 600px) { .evo-head input { flex: 1 1 100%; } }
+.evo-legend { display: flex; flex-wrap: wrap; gap: 6px 14px; margin: 10px 0; font-size: 12px; color: var(--muted); }
+.evo-legend i { font-style: normal; display: inline-block; min-width: 26px; text-align: center; border-radius: 5px; padding: 0 4px; margin-right: 4px; }
+.evo-scroll { overflow: auto; max-height: calc(100vh - 160px); border: 1px solid var(--line); border-radius: 10px; }
+.evo-table { border-collapse: separate; border-spacing: 0; font-size: 12px; font-variant-numeric: tabular-nums; min-width: 100%; }
+.evo-table th, .evo-table td { border-bottom: 1px solid var(--line); padding: 4px 6px; text-align: center; white-space: nowrap; }
+.evo-table thead th { position: sticky; top: 0; z-index: 2; background: var(--panel-2); }
+.evo-table thead th button { border: 0; background: none; font-weight: 700; color: var(--muted); padding: 2px 4px; border-radius: 5px; }
+.evo-table thead th button:hover { color: var(--text); }
+.evo-table thead th.active button { background: var(--accent); color: var(--accent-ink); }
+.evo-table .sk {
+  position: sticky; left: 0; z-index: 1; background: var(--panel); text-align: left;
+  display: flex; align-items: center; gap: 8px; min-width: 210px; font-weight: 600;
+}
+.evo-table thead .sk { z-index: 3; background: var(--panel-2); display: table-cell; }
+.evo-table .sk .icon { width: 22px; height: 22px; border-radius: 4px; }
+@media (max-width: 600px) { .evo-table .sk { min-width: 150px; white-space: normal; } }
+.evo-table tr.grp th {
+  position: sticky; left: 0; display: table-cell; background: var(--accent-soft); color: var(--accent);
+  font-size: 12px; text-transform: uppercase; letter-spacing: .4px; padding: 6px 8px;
+}
+.evo-table tr.grp .count { color: var(--muted); font-weight: 400; }
+.evo-table td.active { box-shadow: inset 1px 0 0 var(--accent), inset -1px 0 0 var(--accent); }
+.yes { color: var(--text); font-weight: 600; background: color-mix(in srgb, var(--accent) 10%, transparent); }
+.yes.new { background: var(--good); color: var(--panel); }
+.yes.up { background: color-mix(in srgb, var(--good) 30%, transparent); }
+.yes.down { background: color-mix(in srgb, #c0392b 25%, transparent); }
+.yes .arrow { font-size: 9px; margin-left: 2px; }
+.no { color: var(--muted); opacity: .6; }
+.na { color: var(--muted); opacity: .35; }
 
 /* ---------- states ---------- */
 .skill-list { transition: opacity .15s; }

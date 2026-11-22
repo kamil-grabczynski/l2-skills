@@ -9,6 +9,7 @@ import { fmt } from "./lib/format";
 import { Sidebar, type Totals } from "./components/Sidebar";
 import { ClassPicker } from "./components/ClassPicker";
 import { ChronicleBar } from "./components/ChronicleBar";
+import { ChronicleTable } from "./components/ChronicleTable";
 import { SkillToolbar } from "./components/SkillToolbar";
 import { SkillList, type Section, type SkillActions } from "./components/SkillList";
 
@@ -20,10 +21,12 @@ interface Prefs {
   ranges: Record<string, LevelRange>;
   type: SkillType;
   showZero: boolean;
+  /** right panel: skill selection or the per-chronicle comparison */
+  view: "skills" | "chronicles";
 }
 
 /** C1 unless the visitor already picked a chronicle (saved in localStorage on every pick). */
-const DEFAULT_PREFS: Prefs = { chronicle: "c1", cls: {}, ranges: {}, type: "all", showZero: false };
+const DEFAULT_PREFS: Prefs = { chronicle: "c1", cls: {}, ranges: {}, type: "all", showZero: false, view: "skills" };
 
 const rangeKey = (slug: string, cls: string) => `${slug}/${cls}`;
 
@@ -316,6 +319,24 @@ export default function App() {
             />
 
             <section className="panel skills" aria-label="Skile">
+              <div className="view-tabs" role="tablist" aria-label="Widok">
+                <button type="button" role="tab" aria-selected={prefs.view !== "chronicles"} onClick={() => setPrefs((p) => ({ ...p, view: "skills" }))}>
+                  Skile do nauczenia
+                </button>
+                <button type="button" role="tab" aria-selected={prefs.view === "chronicles"} onClick={() => setPrefs((p) => ({ ...p, view: "chronicles" }))}>
+                  Nowe skile w kronikach
+                </button>
+              </div>
+              {prefs.view === "chronicles" ? (
+                <ChronicleTable
+                  cls={cls}
+                  className={data.classes[cls].name}
+                  chronicles={chronicles ?? []}
+                  active={data.slug}
+                  onPickChronicle={pickChronicle}
+                />
+              ) : (
+              <>
               <SkillToolbar
                 search={search}
                 type={prefs.type}
@@ -344,6 +365,8 @@ export default function App() {
                 actions={actions}
                 stale={stale}
               />
+              </>
+              )}
             </section>
           </main>
 

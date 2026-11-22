@@ -1,4 +1,4 @@
-import type { ChronicleData, ChronicleRef, Preset, Row } from "../types";
+import type { ChronicleData, ChronicleRef, Evolution, Preset, Row } from "../types";
 
 const BASE = import.meta.env.BASE_URL;
 
@@ -27,6 +27,15 @@ async function getJson<T>(path: string): Promise<T> {
 }
 
 export const loadIndex = () => getJson<ChronicleRef[]>("data/index.json");
+
+let evolution: Promise<Evolution> | null = null;
+export function loadEvolution(): Promise<Evolution> {
+  if (!evolution) {
+    evolution = getJson<Evolution>("data/evolution.json");
+    evolution.catch(() => (evolution = null));
+  }
+  return evolution;
+}
 
 const cache = new Map<string, Promise<ChronicleData>>();
 export function loadChronicle(slug: string): Promise<ChronicleData> {

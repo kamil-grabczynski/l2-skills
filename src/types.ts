@@ -65,3 +65,12 @@ export interface Preset extends LevelRange {
 
 /** Excluded skill levels: "id:lv" -> 1 */
 export type OffMap = Record<string, 1>;
+
+/** public/data/evolution.json: skills a class path gained after C1, per chronicle. */
+export interface Evolution {
+  /** chronicle slugs in release order */
+  chronicles: string[];
+  skills: Record<string, { n: string; i: string }>;
+  /** class -> [skill id, max skill level per chronicle (0 = missing, null = class missing)] */
+  classes: Record<string, [number, (number | null)[]][]>;
+}
