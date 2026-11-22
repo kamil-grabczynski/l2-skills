@@ -7,18 +7,21 @@ interface Props {
   data: ChronicleData;
   /** last class used in this chronicle, highlighted with its path */
   current: string | null;
+  /** race tab picked last (kept across chronicles; matched by its label since the wiki names vary) */
+  race?: string;
+  onRace: (race: string) => void;
   onPick: (cls: string) => void;
 }
 
 /** Start page: class tree per race, with search across all races. */
-export function ClassPicker({ data, current, onPick }: Props) {
+export function ClassPicker({ data, current, race, onRace, onPick }: Props) {
   const races = useMemo(
     () => [...new Set(Object.values(data.classes).map((c) => c.race))].sort((a, b) => raceRank(a) - raceRank(b)),
     [data],
   );
-  const [race, setRace] = useState(() => (current && data.classes[current]?.race) || races[0]);
   const [query, setQuery] = useState("");
-  const activeRace = races.includes(race) ? race : races[0];
+  const wantedRace = race ?? (current ? data.classes[current]?.race : undefined);
+  const activeRace = races.find((r) => wantedRace && raceLabel(r) === raceLabel(wantedRace)) ?? races[0];
 
   const chain = useMemo(() => new Set(current && data.classes[current] ? chainOf(data, current) : []), [data, current]);
 
@@ -94,7 +97,7 @@ export function ClassPicker({ data, current, onPick }: Props) {
               key={r}
               aria-pressed={!q && r === activeRace}
               onClick={() => {
-                setRace(r);
+                onRace(r);
                 setQuery("");
               }}
             >

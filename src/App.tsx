@@ -19,6 +19,8 @@ interface Prefs {
   cls: Record<string, string>;
   /** class the visitor picked last; kept when switching chronicles (or its nearest ancestor if missing there) */
   wanted?: string;
+  /** race tab on the class picker */
+  race?: string;
   /** level range per "chronicle/class"; missing = the class's own profession range */
   ranges: Record<string, LevelRange>;
   type: SkillType;
@@ -105,7 +107,7 @@ export default function App() {
   const pickClass = useCallback(
     (c: string) => {
       if (!data) return;
-      setPrefs((p) => ({ ...withoutRange(p, rangeKey(data.slug, c)), wanted: c }));
+      setPrefs((p) => ({ ...withoutRange(p, rangeKey(data.slug, c)), wanted: c, race: data.classes[c]?.race ?? p.race }));
       navigate(data.slug, c);
       window.scrollTo({ top: 0 });
     },
@@ -319,6 +321,8 @@ export default function App() {
           key={data.slug}
           data={data}
           current={prefs.wanted && data.classes[prefs.wanted] ? prefs.wanted : (prefs.cls[data.slug] ?? null)}
+          race={prefs.race}
+          onRace={(r) => setPrefs((p) => ({ ...p, race: r }))}
           onPick={pickClass}
         />
       )}
