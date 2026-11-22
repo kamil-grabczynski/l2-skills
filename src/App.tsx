@@ -12,6 +12,7 @@ import { ChronicleBar } from "./components/ChronicleBar";
 import { ChronicleTable } from "./components/ChronicleTable";
 import { SkillToolbar } from "./components/SkillToolbar";
 import { SkillList, type Section, type SkillActions } from "./components/SkillList";
+import { Analytics } from "@vercel/analytics/react";
 
 interface Prefs {
   chronicle: string;
@@ -311,6 +312,12 @@ export default function App() {
         </a>
       </header>
       <ChronicleBar chronicles={chronicles ?? []} active={activeSlug} onPick={pickChronicle} />
+      {/* Vercel Web Analytics: the app routes in the URL hash, so page views are reported per hash route */}
+      <Analytics
+        mode={import.meta.env.DEV ? "development" : "production"}
+        route={view === "loading" ? null : view === "calc" ? "/[chronicle]/[class]" : "/[chronicle]"}
+        path={view === "loading" ? null : view === "calc" ? `/${activeSlug}/${cls}` : `/${activeSlug}`}
+      />
 
       {error && <div className="error">Błąd: {error}</div>}
 
