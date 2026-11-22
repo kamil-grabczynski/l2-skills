@@ -288,6 +288,16 @@ input[type=range] { width: 100%; accent-color: var(--accent); }
 .skill-pop .sp-head span { display: block; font-size: 11px; color: var(--muted); }
 .skill-pop p { margin: 0; line-height: 1.4; }
 .skill-pop small { display: block; margin-top: 6px; font-size: 10px; color: var(--muted); }
+.sp-levels { margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--line); }
+.sp-levels-title { display: block; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .4px; color: var(--muted); margin-bottom: 6px; }
+.sp-levels-list { display: flex; flex-wrap: wrap; gap: 4px; }
+.sp-lv {
+  display: inline-flex; align-items: baseline; gap: 5px; font-size: 11px; white-space: nowrap;
+  background: var(--panel-2); border: 1px solid var(--line); border-radius: 6px; padding: 1px 6px 1px 2px;
+  font-variant-numeric: tabular-nums;
+}
+.sp-lv b { background: var(--accent); color: var(--accent-ink); border-radius: 4px; padding: 0 4px; font-size: 11px; }
+.sp-lv em { font-style: normal; color: var(--muted); font-size: 10px; }
 .evo-tile .ti { position: relative; display: inline-block; }
 .evo-tile .icon { width: 42px; height: 42px; border-radius: 8px; display: block; border: 2px solid transparent; }
 .evo-tile.new .icon { border-color: var(--good); }

@@ -1,7 +1,8 @@
-import { useDeferredValue, useEffect, useMemo, useState } from "react";
+import { useDeferredValue, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import type { ChronicleData, ChronicleRef, Evolution } from "../types";
-import { chronicleLabel, loadChronicle, loadEvolution } from "../lib/data";
+import { buildRows, chainOf, chronicleLabel, loadChronicle, loadEvolution } from "../lib/data";
 import { readJson, writeJson } from "../lib/storage";
+import { fmt } from "../lib/format";
 import { ClassIcon, SkillIcon } from "./ClassIcon";
 
 interface Props {
@@ -100,6 +101,7 @@ export function ChronicleTable({ cls, data, chain, onPickClass, onChangeClass, c
         <div className="status">{q ? `Brak skili pasujących do „${query}”.` : "Ta klasa nie dostała żadnych nowych skili po C1."}</div>
       ) : mode === "icons" ? (
         <IconCards
+          cls={cls}
           rows={rows}
           cols={cols}
           evo={evo}
@@ -116,6 +118,7 @@ export function ChronicleTable({ cls, data, chain, onPickClass, onChangeClass, c
 }
 
 interface ViewProps {
+  cls?: string;
   rows: Row[];
   cols: { slug: string; i: number }[];
   evo: Evolution;
@@ -137,10 +140,10 @@ interface Tip {
   rect: DOMRect;
 }
 
-function IconCards({ rows, cols, evo, names, active, skillName, onPickChronicle }: ViewProps) {
+function IconCards({ cls = "", rows, cols, evo, names, active, skillName, onPickChronicle }: ViewProps) {
   const [tip, setTip] = useState<Tip | null>(null);
-  const [desc, setDesc] = useState<{ key: string; text: string; passive: boolean } | null>(null);
-  const tipKey = tip ? `${tip.descSlug}:${tip.id}:${tip.descLv}` : "";
+  const [desc, setDesc] = useState<(Desc & { key: string }) | null>(null);
+  const tipKey = tip ? `${cls}:${tip.descSlug}:${tip.id}:${tip.descLv}` : "";
 
   useEffect(() => {
     if (!tip) return;
@@ -148,9 +151,20 @@ function IconCards({ rows, cols, evo, names, active, skillName, onPickChronicle 
     loadChronicle(tip.descSlug).then(
       (d) => {
         const sk = d.skills[tip.id];
-        if (alive) setDesc({ key: tipKey, text: sk?.d[tip.descLv] ?? "", passive: !!sk?.p });
+        // character level at which each skill level is learned, for this class path in that chronicle
+        const own = d.classes[cls] ? buildRows(d, chainOf(d, cls)).filter((r) => r.id === tip.id) : [];
+        own.sort((a, b) => a.lv - b.lv);
+        const levels: Learn[] = [];
+        for (const r of own) {
+          const last = levels[levels.length - 1];
+          if (last && last.l === r.l && last.to === r.lv - 1) {
+            last.to = r.lv;
+            last.sp += r.sp;
+          } else levels.push({ l: r.l, from: r.lv, to: r.lv, sp: r.sp });
+        }
+        if (alive) setDesc({ key: tipKey, text: sk?.d[tip.descLv] ?? "", passive: !!sk?.p, levels });
       },
-      () => alive && setDesc({ key: tipKey, text: "", passive: false }),
+      () => alive && setDesc({ key: tipKey, text: "", passive: false, levels: [] }),
     );
     return () => {
       alive = false;
@@ -298,26 +312,44 @@ function IconCards({ rows, cols, evo, names, active, skillName, onPickChronicle 
   );
 }
 
-const POP_W = 300;
+const POP_W = 320;
+
+/** Skill levels learned at one character level. */
+interface Learn {
+  l: number;
+  from: number;
+  to: number;
+  sp: number;
+}
+
+interface Desc {
+  text: string;
+  passive: boolean;
+  levels: Learn[];
+}
 
 interface PopoverProps {
   tip: Tip;
   name: string;
   icon: string;
   chronicle: string;
-  desc: { text: string; passive: boolean } | null;
+  desc: Desc | null;
 }
 
 function SkillPopover({ tip, name, icon, chronicle, desc }: PopoverProps) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [h, setH] = useState(0);
+  // measure before paint so the popover can flip above the tile or shift to stay on screen
+  useLayoutEffect(() => {
+    if (ref.current) setH(ref.current.offsetHeight);
+  });
   const r = tip.rect;
   const left = Math.max(8, Math.min(r.left + r.width / 2 - POP_W / 2, window.innerWidth - POP_W - 8));
-  // below the tile, or above it when there is no room underneath
-  const below = r.bottom + 180 < window.innerHeight;
-  const style: React.CSSProperties = below
-    ? { left, top: r.bottom + 8, width: POP_W }
-    : { left, top: r.top - 8, width: POP_W, transform: "translateY(-100%)" };
+  const vh = window.innerHeight;
+  const top =
+    r.bottom + 8 + h <= vh - 8 ? r.bottom + 8 : r.top - 8 - h >= 8 ? r.top - 8 - h : Math.max(8, vh - h - 8);
   return (
-    <div className="skill-pop" role="tooltip" style={style}>
+    <div className="skill-pop" role="tooltip" ref={ref} style={{ left, top, width: POP_W, visibility: h ? "visible" : "hidden" }}>
       <div className="sp-head">
         <SkillIcon file={icon} />
         <div>
@@ -332,6 +364,23 @@ function SkillPopover({ tip, name, icon, chronicle, desc }: PopoverProps) {
       <small>
         {tip.descSlug !== tip.slug ? `Opis z ${chronicleLabel(tip.descSlug)}, Lv ${tip.descLv}` : `Opis dla Lv ${tip.descLv}`}
       </small>
+      {desc && desc.levels.length > 0 && (
+        <div className="sp-levels">
+          <span className="sp-levels-title">
+            Poziom postaci → poziom skila{tip.descSlug !== tip.slug ? ` (${chronicleLabel(tip.descSlug)})` : ""}
+          </span>
+          <div className="sp-levels-list">
+            {desc.levels.map((x) => (
+              <span key={`${x.l}-${x.from}`} className="sp-lv">
+                <b>{x.l}</b>
+                Lv {x.from}
+                {x.to !== x.from ? `–${x.to}` : ""}
+                <em>{fmt(x.sp)} SP</em>
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
