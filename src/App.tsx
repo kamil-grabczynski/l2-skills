@@ -304,7 +304,8 @@ export default function App() {
 
       {view === "calc" && data && cls && (
         <>
-          <main className="layout">
+          <main className={`layout${prefs.view === "chronicles" ? " single" : ""}`}>
+            {prefs.view !== "chronicles" && (
             <Sidebar
               data={data}
               cls={cls}
@@ -318,6 +319,7 @@ export default function App() {
               onRange={setRange}
               onGotoLevel={gotoLevel}
             />
+            )}
 
             <section className="panel skills" aria-label="Skile">
               <div className="view-tabs" role="tablist" aria-label="Widok">
@@ -331,7 +333,10 @@ export default function App() {
               {prefs.view === "chronicles" ? (
                 <ChronicleTable
                   cls={cls}
-                  className={data.classes[cls].name}
+                  data={data}
+                  chain={chain}
+                  onPickClass={pickClass}
+                  onChangeClass={() => navigate(data.slug)}
                   chronicles={chronicles ?? []}
                   active={data.slug}
                   onPickChronicle={pickChronicle}
@@ -371,10 +376,10 @@ export default function App() {
             </section>
           </main>
 
-          <div className="mobile-bar" aria-hidden="true">
+          {prefs.view !== "chronicles" && <div className="mobile-bar" aria-hidden="true">
             <span>Potrzebne SP</span>
             <strong>{fmt(totals.sp)}</strong>
-          </div>
+          </div>}
         </>
       )}
     </>

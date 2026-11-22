@@ -54,7 +54,7 @@ button { cursor: pointer; }
 
 /* ---------- chronicle bar ---------- */
 .chronicle-bar {
-  display: flex; align-items: center; gap: 6px; padding: 10px 20px; overflow-x: auto; scrollbar-width: thin;
+  display: flex; flex-wrap: wrap; align-items: center; gap: 6px; padding: 10px 20px;
   background: var(--panel-2); border-bottom: 1px solid var(--line);
 }
 .cb-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; color: var(--muted); margin-right: 4px; flex: none; }
@@ -90,6 +90,8 @@ button { cursor: pointer; }
   padding: 16px 20px; max-width: 1400px; margin: 0 auto;
 }
 @media (max-width: 860px) { .layout { grid-template-columns: 1fr; padding: 12px 16px 72px; } }
+.layout.single { grid-template-columns: 1fr; }
+@media (max-width: 860px) { .layout.single { padding-bottom: 16px; } }
 .panel { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; box-shadow: var(--shadow); }
 .controls { padding: 14px; align-self: start; position: sticky; top: 12px; max-height: calc(100vh - 24px); overflow: auto; }
 @media (max-width: 860px) { .controls { position: static; max-height: none; } }
@@ -233,18 +235,27 @@ input[type=range] { width: 100%; accent-color: var(--accent); }
 .no { color: var(--muted); opacity: .6; }
 .na { color: var(--muted); opacity: .35; }
 
+.evo-chain { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; margin: 8px 0 2px; }
+.evo-chain button {
+  display: inline-flex; align-items: center; gap: 6px; border: 1px solid var(--line); background: var(--panel-2);
+  border-radius: 999px; padding: 3px 10px 3px 3px; font-weight: 600; font-size: 13px;
+}
+.evo-chain button:hover { border-color: var(--accent); }
+.evo-chain button[aria-current="true"] { border-color: var(--accent); background: var(--accent); color: var(--accent-ink); }
+.evo-chain .cls-icon-sm { width: 24px; height: 24px; border-radius: 999px; }
+.evo-chain .cls-icon-sm img { width: 16px; height: 16px; }
+.evo-chain .evo-change { padding: 3px 10px; margin-left: 6px; color: var(--accent); border-color: var(--accent); background: none; }
 .evo-tools { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
 .evo-tools input { flex: 0 1 220px; min-width: 0; }
 @media (max-width: 600px) { .evo-tools, .evo-tools input { flex: 1 1 100%; } }
 
 /* icon cards, one per chronicle */
-/* chronicles run left -> right like a timeline; each column lists that chronicle's skill icons */
+/* chronicles left -> right, wrapping to the next row when they do not fit */
 .evo-cards {
-  position: relative; display: flex; align-items: stretch; gap: 10px; margin-top: 12px;
-  overflow-x: auto; padding: 2px 2px 10px; scroll-snap-type: x proximity; scrollbar-width: thin;
+  display: flex; flex-wrap: wrap; align-items: stretch; gap: 10px; margin-top: 12px;
 }
-.evo-card { flex: 0 0 216px; scroll-snap-align: start; border: 1px solid var(--line); border-radius: 12px; background: var(--panel); overflow: hidden; display: flex; flex-direction: column; }
-.evo-card.quiet { flex-basis: 128px; }
+.evo-card { flex: 1 1 200px; max-width: 280px; border: 1px solid var(--line); border-radius: 12px; background: var(--panel); overflow: hidden; display: flex; flex-direction: column; }
+.evo-card.quiet { flex: 0 1 128px; }
 .evo-card.active { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-soft); }
 .evo-card header { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; padding: 10px 12px; background: var(--panel-2); border-bottom: 1px solid var(--line); }
 .evo-card.quiet header { background: none; }
