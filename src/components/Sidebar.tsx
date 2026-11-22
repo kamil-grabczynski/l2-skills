@@ -40,9 +40,8 @@ export function Sidebar(p: Props) {
         <span className="cc-text">
           <span className="cc-tier">{TIER_LABEL[p.chain.length - 1]}</span>
           <strong>{c.name}</strong>
-          <span className="cc-race">
-            {raceLabel(c.race)} · {p.data.name}
-          </span>
+          <span className="cc-race">{raceLabel(c.race)}</span>
+          <span className="chron-badge sm">{p.data.name}</span>
         </span>
         <span className="cc-change">Zmień</span>
       </button>

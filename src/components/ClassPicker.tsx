@@ -71,8 +71,10 @@ export function ClassPicker({ data, current, onPick }: Props) {
       <section className="panel picker-panel" aria-label="Wybór klasy">
         <div className="picker-head">
           <div>
-            <h2>Wybierz klasę</h2>
-            <p className="hint">{data.name} · kliknij klasę, aby policzyć potrzebne SP</p>
+            <h2>
+              Wybierz klasę <span className="chron-badge">{data.name}</span>
+            </h2>
+            <p className="hint">Kliknij klasę, aby policzyć potrzebne SP</p>
           </div>
           <input
             type="search"

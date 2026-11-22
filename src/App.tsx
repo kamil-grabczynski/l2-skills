@@ -1,13 +1,14 @@
 import { useCallback, useDeferredValue, useEffect, useMemo, useRef, useState } from "react";
 import type { ChronicleData, ChronicleRef, LevelRange, Row, SkillType } from "./types";
 import {
-  buildRows, chainOf, chronicleLabel, defaultClass, loadChronicle, loadIndex, maxLevelOf, presetsFor,
+  buildRows, chainOf, defaultClass, loadChronicle, loadIndex, maxLevelOf, presetsFor,
 } from "./lib/data";
 import { usePersistentState, useSelection } from "./lib/storage";
 import { hrefFor, navigate, useHashRoute } from "./lib/route";
 import { fmt } from "./lib/format";
 import { Sidebar, type Totals } from "./components/Sidebar";
 import { ClassPicker } from "./components/ClassPicker";
+import { ChronicleBar } from "./components/ChronicleBar";
 import { SkillToolbar } from "./components/SkillToolbar";
 import { SkillList, type Section, type SkillActions } from "./components/SkillList";
 
@@ -288,14 +289,8 @@ export default function App() {
           <h1>Lineage 2 skills SP</h1>
           <span className="sub">Kalkulator SP skili · C1 – High Five</span>
         </a>
-        <nav className="seg chronicles" aria-label="Kronika">
-          {(chronicles ?? []).map((c) => (
-            <button type="button" key={c.slug} title={c.name} aria-pressed={c.slug === activeSlug} onClick={() => pickChronicle(c.slug)}>
-              {chronicleLabel(c.slug)}
-            </button>
-          ))}
-        </nav>
       </header>
+      <ChronicleBar chronicles={chronicles ?? []} active={activeSlug} onPick={pickChronicle} />
 
       {error && <div className="error">Błąd: {error}</div>}
 
@@ -358,7 +353,6 @@ export default function App() {
           </div>
         </>
       )}
-
     </>
   );
 }
