@@ -10,7 +10,8 @@ interface Props {
   data: ChronicleData;
   /** class path root -> cls */
   chain: string[];
-  onPickClass: (cls: string) => void;
+  /** since = first chronicle that has the class (used when the current chronicle does not) */
+  onPickClass: (cls: string, since: string) => void;
   onChangeClass: () => void;
   chronicles: ChronicleRef[];
   active: string;
@@ -20,6 +21,35 @@ interface Props {
 type Row = [number, (number | null)[]];
 type Mode = "icons" | "table";
 
+/**
+ * Class path for the header: ancestors of the class, and from the 2nd profession on also its later
+ * professions (e.g. Gladiator -> Duelist), even if the current chronicle does not have them yet.
+ */
+function useClassPath(cls: string) {
+  const [info, setInfo] = useState<Evolution["classInfo"] | null>(null);
+  useEffect(() => {
+    loadEvolution().then((e) => setInfo(e.classInfo), () => setInfo(null));
+  }, []);
+  return useMemo(() => {
+    if (!info || !info[cls]) return null;
+    const up: string[] = [];
+    for (let c: string | null = cls; c && info[c]; c = info[c].p) up.unshift(c);
+    const down: string[] = [];
+    if (up.length >= 3) {
+      const walk = (c: string) =>
+        Object.keys(info)
+          .filter((k) => info[k].p === c)
+          .sort()
+          .forEach((k) => {
+            down.push(k);
+            walk(k);
+          });
+      walk(cls);
+    }
+    return [...up, ...down].map((c) => ({ c, n: info[c].n, i: info[c].i, s: info[c].s }));
+  }, [info, cls]);
+}
+
 /** "C1: Harbingers of War" -> "Harbingers of War" */
 const shortName = (name = "") => name.replace(/^C\d:\s*/, "");
 
@@ -28,6 +58,7 @@ const prevLevel = (lv: (number | null)[], i: number) => lv.slice(0, i).filter((x
 
 /** Skills a class gained after C1, shown per chronicle (C2 ... H5) as icon cards or as a table. */
 export function ChronicleTable({ cls, data, chain, onPickClass, onChangeClass, chronicles, active, onPickChronicle }: Props) {
+  const evoPath = useClassPath(cls);
   const [evo, setEvo] = useState<Evolution | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [query, setQuery] = useState("");
@@ -65,12 +96,18 @@ export function ChronicleTable({ cls, data, chain, onPickClass, onChangeClass, c
         <div>
           <strong>Skile dodane po C1</strong>
           <div className="evo-chain" aria-label="Ścieżka klasy">
-            {chain.map((c, i) => (
-              <span key={c} className="chain-item">
+            {(evoPath ?? chain.map((c) => ({ c, n: data.classes[c].name, i: data.classes[c].icon ?? "", s: data.slug }))).map((x, i) => (
+              <span key={x.c} className="chain-item">
                 {i > 0 && <span className="sep">›</span>}
-                <button type="button" aria-current={c === cls} onClick={() => onPickClass(c)}>
-                  <ClassIcon icon={data.classes[c].icon} size="sm" />
-                  {data.classes[c].name}
+                <button
+                  type="button"
+                  aria-current={x.c === cls}
+                  title={data.classes[x.c] ? undefined : `Klasa od ${chronicleLabel(x.s)}`}
+                  onClick={() => onPickClass(x.c, x.s)}
+                >
+                  <ClassIcon icon={x.i} size="sm" />
+                  {x.n}
+                  {!data.classes[x.c] && <small className="since">od {chronicleLabel(x.s)}</small>}
                 </button>
               </span>
             ))}

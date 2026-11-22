@@ -244,6 +244,7 @@ input[type=range] { width: 100%; accent-color: var(--accent); }
 .evo-chain button[aria-current="true"] { border-color: var(--accent); background: var(--accent); color: var(--accent-ink); }
 .evo-chain .cls-icon-sm { width: 24px; height: 24px; border-radius: 999px; }
 .evo-chain .cls-icon-sm img { width: 16px; height: 16px; }
+.evo-chain .since { font-size: 10px; font-weight: 400; opacity: .75; }
 .evo-chain .evo-change { padding: 3px 10px; margin-left: 6px; color: var(--accent); border-color: var(--accent); background: none; }
 .evo-tools { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
 .evo-tools input { flex: 0 1 220px; min-width: 0; }

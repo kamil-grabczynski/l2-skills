@@ -17,6 +17,8 @@ interface Prefs {
   chronicle: string;
   /** last class per chronicle (highlighted on the picker) */
   cls: Record<string, string>;
+  /** class the visitor picked last; kept when switching chronicles (or its nearest ancestor if missing there) */
+  wanted?: string;
   /** level range per "chronicle/class"; missing = the class's own profession range */
   ranges: Record<string, LevelRange>;
   type: SkillType;
@@ -103,11 +105,21 @@ export default function App() {
   const pickClass = useCallback(
     (c: string) => {
       if (!data) return;
-      setPrefs((p) => withoutRange(p, rangeKey(data.slug, c)));
+      setPrefs((p) => ({ ...withoutRange(p, rangeKey(data.slug, c)), wanted: c }));
       navigate(data.slug, c);
       window.scrollTo({ top: 0 });
     },
     [data, setPrefs],
+  );
+
+  /** Pick a class that may not exist in the current chronicle: then open the first chronicle that has it. */
+  const pickClassAnywhere = useCallback(
+    (c: string, since: string) => {
+      if (data?.classes[c]) return pickClass(c);
+      setPrefs((p) => ({ ...withoutRange(p, rangeKey(since, c)), wanted: c }));
+      navigate(since, c);
+    },
+    [data, pickClass, setPrefs],
   );
 
   const pickChronicle = useCallback(
@@ -116,17 +128,19 @@ export default function App() {
         navigate(slug);
         return;
       }
-      // stay in the calculator: same class if the chronicle has it, else the one used there last
+      // stay in the calculator with the same class; if the chronicle does not have it yet (e.g. a 3rd class
+      // before C4), use its nearest ancestor there. The picked class is remembered for later chronicles.
       try {
         const d = await loadChronicle(slug);
-        const target = cls && d.classes[cls] ? cls : prefs.cls[slug] && d.classes[prefs.cls[slug]] ? prefs.cls[slug] : defaultClass(d);
+        const path = [prefs.wanted, ...(data && cls ? chainOf(data, cls).reverse() : [])];
+        const target = path.find((c): c is string => !!c && !!d.classes[c]) ?? defaultClass(d);
         setPrefs((p) => withoutRange(p, rangeKey(slug, target)));
         navigate(slug, target);
       } catch (e) {
         setError((e as Error).message);
       }
     },
-    [view, cls, prefs.cls, setPrefs],
+    [view, cls, data, prefs.wanted, setPrefs],
   );
 
   // ---------- derived data ----------
@@ -300,7 +314,14 @@ export default function App() {
 
       {view === "loading" && !error && <div className="loading">Ładowanie danych…</div>}
 
-      {view === "picker" && data && <ClassPicker key={data.slug} data={data} current={prefs.cls[data.slug] ?? null} onPick={pickClass} />}
+      {view === "picker" && data && (
+        <ClassPicker
+          key={data.slug}
+          data={data}
+          current={prefs.wanted && data.classes[prefs.wanted] ? prefs.wanted : (prefs.cls[data.slug] ?? null)}
+          onPick={pickClass}
+        />
+      )}
 
       {view === "calc" && data && cls && (
         <>
@@ -335,7 +356,7 @@ export default function App() {
                   cls={cls}
                   data={data}
                   chain={chain}
-                  onPickClass={pickClass}
+                  onPickClass={pickClassAnywhere}
                   onChangeClass={() => navigate(data.slug)}
                   chronicles={chronicles ?? []}
                   active={data.slug}

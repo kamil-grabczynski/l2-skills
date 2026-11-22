@@ -73,4 +73,6 @@ export interface Evolution {
   skills: Record<string, { n: string; i: string }>;
   /** class -> [skill id, max skill level per chronicle (0 = missing, null = class missing)] */
   classes: Record<string, [number, (number | null)[]][]>;
+  /** class -> name, icon, parent (newest chronicle) and s = first chronicle that has the class */
+  classInfo: Record<string, { n: string; i: string; p: string | null; s: string }>;
 }
