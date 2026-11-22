@@ -1,4 +1,4 @@
-import { useDeferredValue, useEffect, useMemo, useState } from "react";
+import { useDeferredValue, useEffect, useMemo, useRef, useState } from "react";
 import type { ChronicleRef, Evolution } from "../types";
 import { chronicleLabel, loadEvolution } from "../lib/data";
 import { readJson, writeJson } from "../lib/storage";
@@ -61,7 +61,7 @@ export function ChronicleTable({ cls, className, chronicles, active, onPickChron
           <strong>Skile dodane po C1 · {className}</strong>
           <p className="hint">
             {mode === "icons"
-              ? "Co doszło, urosło lub zniknęło w każdej kronice. Kliknij kronikę, aby ją wybrać."
+              ? "Kroniki od lewej do prawej: co doszło, urosło lub zniknęło. Przewiń w bok; kliknij kronikę, aby ją wybrać."
               : "Liczba w komórce to maksymalny poziom skila w danej kronice. Kliknij kronikę w nagłówku, aby ją wybrać."}
           </p>
         </div>
@@ -108,6 +108,14 @@ interface ViewProps {
 }
 
 function IconCards({ rows, cols, evo, names, active, skillName, onPickChronicle }: ViewProps) {
+  const strip = useRef<HTMLDivElement>(null);
+  // bring the selected chronicle's column into view in the horizontal strip
+  useEffect(() => {
+    const box = strip.current;
+    const card = box?.querySelector<HTMLElement>(".evo-card.active");
+    if (box && card) box.scrollTo({ left: card.offsetLeft - 8, behavior: "smooth" });
+  }, [active]);
+
   const cards = cols.map(({ slug, i }) => {
     const added: [number, number][] = [];
     const up: [number, number, number][] = [];
@@ -138,7 +146,7 @@ function IconCards({ rows, cols, evo, names, active, skillName, onPickChronicle 
   );
 
   return (
-    <div className="evo-cards">
+    <div className="evo-cards" ref={strip}>
       {cards.map((c) => {
         const changes = c.added.length + c.up.length + c.down.length + c.removed.length;
         return (
