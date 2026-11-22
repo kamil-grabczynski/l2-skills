@@ -1,4 +1,6 @@
 node_modules/
 dist/
-scraper/cache/
+# data scraper is kept only locally
+scraper/
+tsconfig.tsbuildinfo
 .claude/
