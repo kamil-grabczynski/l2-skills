@@ -2,6 +2,7 @@ import type { ChronicleData, LevelRange, Preset, Row } from "../types";
 import { raceLabel, TIER_LABEL } from "../lib/data";
 import { fmt } from "../lib/format";
 import { ClassIcon } from "./ClassIcon";
+import { LevelInput } from "./LevelInput";
 
 export interface Totals {
   sp: number;
@@ -30,7 +31,6 @@ const narrow = () => typeof window !== "undefined" && window.matchMedia?.("(max-
 
 export function Sidebar(p: Props) {
   const c = p.data.classes[p.cls];
-  const num = (v: string) => Math.max(1, Math.min(99, parseInt(v, 10) || 1));
   let cum = 0;
 
   return (
@@ -76,10 +76,26 @@ export function Sidebar(p: Props) {
         </div>
         <div className="range-row">
           <label>
-            od <input type="number" min={1} max={99} value={p.range.from} onChange={(e) => p.onRange({ ...p.range, from: num(e.target.value) })} />
+            od{" "}
+            <LevelInput
+              label="Od poziomu"
+              value={p.range.from}
+              min={1}
+              max={99}
+              acceptsLive={(n) => n <= p.range.to}
+              onCommit={(n) => p.onRange({ from: Math.min(n, p.range.to), to: Math.max(n, p.range.to) })}
+            />
           </label>
           <label>
-            do <input type="number" min={1} max={99} value={p.range.to} onChange={(e) => p.onRange({ ...p.range, to: num(e.target.value) })} />
+            do{" "}
+            <LevelInput
+              label="Do poziomu"
+              value={p.range.to}
+              min={1}
+              max={99}
+              acceptsLive={(n) => n >= p.range.from}
+              onCommit={(n) => p.onRange({ from: Math.min(n, p.range.from), to: Math.max(n, p.range.from) })}
+            />
           </label>
         </div>
         <input
