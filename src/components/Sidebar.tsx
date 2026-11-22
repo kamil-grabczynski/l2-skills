@@ -111,7 +111,7 @@ export function Sidebar(p: Props) {
           <strong>{fmt(p.totals.books.length)}</strong>
         </div>
         <div className="stat">
-          <span>Pominięte SP</span>
+          <span>Niezaznaczone SP</span>
           <strong>{fmt(p.totals.skipped)}</strong>
         </div>
       </div>

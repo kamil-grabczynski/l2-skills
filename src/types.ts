@@ -63,8 +63,8 @@ export interface Preset extends LevelRange {
   label: string;
 }
 
-/** Excluded skill levels: "id:lv" -> 1 */
-export type OffMap = Record<string, 1>;
+/** Skill levels counted in the SP sum: "id:lv" -> 1. Nothing is selected by default. */
+export type SelMap = Record<string, 1>;
 
 /** public/data/evolution.json: skills a class path gained after C1, per chronicle. */
 export interface Evolution {

@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import type { OffMap } from "../types";
+import type { SelMap } from "../types";
 
 /** localStorage can throw (private mode, blocked site data) - every access is guarded. */
 export function readJson<T>(key: string, fallback: T): T {
@@ -39,21 +39,21 @@ export function usePersistentState<T>(key: string, initial: T) {
   return [value, setValue] as const;
 }
 
-const EMPTY: OffMap = {};
+const EMPTY: SelMap = {};
 
 /**
- * Excluded skill levels for one chronicle + class. Read synchronously on key change so switching
+ * Selected skill levels for one chronicle + class. Read synchronously on key change so switching
  * class never renders a frame with another class's selection.
  */
 export function useSelection(key: string | null) {
-  const [byKey, setByKey] = useState<Record<string, OffMap>>({});
-  const off = key ? (byKey[key] ?? readJson<OffMap>(key, EMPTY)) : EMPTY;
+  const [byKey, setByKey] = useState<Record<string, SelMap>>({});
+  const sel = key ? (byKey[key] ?? readJson<SelMap>(key, EMPTY)) : EMPTY;
 
   // the updater must stay pure (StrictMode runs it twice), so storage is written in an effect
   const update = useCallback(
-    (fn: (cur: OffMap) => OffMap) => {
+    (fn: (cur: SelMap) => SelMap) => {
       if (!key) return;
-      setByKey((all) => ({ ...all, [key]: fn(all[key] ?? readJson<OffMap>(key, EMPTY)) }));
+      setByKey((all) => ({ ...all, [key]: fn(all[key] ?? readJson<SelMap>(key, EMPTY)) }));
     },
     [key],
   );
@@ -65,5 +65,5 @@ export function useSelection(key: string | null) {
     else removeKey(key);
   }, [key, changed]);
 
-  return [off, update] as const;
+  return [sel, update] as const;
 }

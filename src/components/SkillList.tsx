@@ -1,5 +1,5 @@
 import { memo } from "react";
-import type { ChronicleData, OffMap, Row } from "../types";
+import type { ChronicleData, Row, SelMap } from "../types";
 import { fmt, short } from "../lib/format";
 import { SkillIcon } from "./ClassIcon";
 import { TriCheckbox } from "./TriCheckbox";
@@ -21,7 +21,7 @@ export interface SkillActions {
 interface ListProps {
   data: ChronicleData;
   sections: Section[];
-  off: OffMap;
+  sel: SelMap;
   collapsed: Set<number>;
   opened: Set<string>;
   /** skill id -> number of its levels inside the level range (for "select everywhere") */
@@ -30,7 +30,7 @@ interface ListProps {
   stale: boolean;
 }
 
-export function SkillList({ data, sections, off, collapsed, opened, levelsInRange, actions, stale }: ListProps) {
+export function SkillList({ data, sections, sel, collapsed, opened, levelsInRange, actions, stale }: ListProps) {
   return (
     <div className={`skill-list${stale ? " stale" : ""}`}>
       {sections.map((s) => (
@@ -38,7 +38,7 @@ export function SkillList({ data, sections, off, collapsed, opened, levelsInRang
           key={s.l}
           data={data}
           section={s}
-          off={off}
+          sel={sel}
           closed={collapsed.has(s.l)}
           opened={opened}
           levelsInRange={levelsInRange}
@@ -52,14 +52,14 @@ export function SkillList({ data, sections, off, collapsed, opened, levelsInRang
 interface SectionProps {
   data: ChronicleData;
   section: Section;
-  off: OffMap;
+  sel: SelMap;
   closed: boolean;
   opened: Set<string>;
   levelsInRange: Map<number, number>;
   actions: SkillActions;
 }
 
-function LevelSection({ data, section, off, closed, opened, levelsInRange, actions }: SectionProps) {
+function LevelSection({ data, section, sel, closed, opened, levelsInRange, actions }: SectionProps) {
   const { l, groups } = section;
   let n = 0, on = 0, sp = 0, total = 0;
   const classes = new Set<string>();
@@ -68,7 +68,7 @@ function LevelSection({ data, section, off, closed, opened, levelsInRange, actio
       n++;
       total += r.sp;
       classes.add(data.classes[r.cls].name);
-      if (!off[r.key]) {
+      if (sel[r.key]) {
         on++;
         sp += r.sp;
       }
@@ -101,7 +101,7 @@ function LevelSection({ data, section, off, closed, opened, levelsInRange, actio
               key={g[0].id}
               l={l}
               group={g}
-              mask={g.map((r) => (off[r.key] ? "0" : "1")).join("")}
+              mask={g.map((r) => (sel[r.key] ? "1" : "0")).join("")}
               open={opened.has(`${l}:${g[0].id}`)}
               books={data.books}
               everywhere={levelsInRange.get(g[0].id) ?? 0}

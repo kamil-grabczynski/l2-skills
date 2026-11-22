@@ -233,6 +233,49 @@ input[type=range] { width: 100%; accent-color: var(--accent); }
 .no { color: var(--muted); opacity: .6; }
 .na { color: var(--muted); opacity: .35; }
 
+.evo-tools { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.evo-tools input { flex: 0 1 220px; min-width: 0; }
+@media (max-width: 600px) { .evo-tools, .evo-tools input { flex: 1 1 100%; } }
+
+/* icon cards, one per chronicle */
+.evo-cards { display: flex; flex-direction: column; gap: 10px; margin-top: 12px; }
+.evo-card { border: 1px solid var(--line); border-radius: 12px; background: var(--panel); overflow: hidden; }
+.evo-card.active { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-soft); }
+.evo-card header { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 8px 12px; background: var(--panel-2); }
+.evo-card.quiet header { background: none; }
+.evo-card.quiet { opacity: .7; }
+.ec-title { display: inline-flex; align-items: baseline; gap: 10px; border: 0; background: none; padding: 0; text-align: left; }
+.ec-title b {
+  display: inline-grid; place-items: center; min-width: 34px; padding: 2px 8px; border-radius: 999px;
+  background: var(--panel-3); color: var(--text); font-size: 13px;
+}
+.evo-card.active .ec-title b { background: var(--accent); color: var(--accent-ink); }
+.ec-title span { font-weight: 600; }
+.ec-title:hover span { color: var(--accent); }
+.ec-count { font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.ec-body { padding: 10px 12px 12px; display: flex; flex-direction: column; gap: 10px; }
+.ec-label { display: block; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .4px; color: var(--muted); margin-bottom: 6px; }
+.ec-tiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(84px, 1fr)); gap: 8px; }
+.evo-tile { display: flex; flex-direction: column; align-items: center; gap: 4px; text-align: center; min-width: 0; }
+.evo-tile .ti { position: relative; display: inline-block; }
+.evo-tile .icon { width: 42px; height: 42px; border-radius: 8px; display: block; border: 2px solid transparent; }
+.evo-tile.new .icon { border-color: var(--good); }
+.evo-tile.up .icon { border-color: var(--accent); }
+.evo-tile.down .icon { border-color: #c0392b; }
+.evo-tile.removed .icon { filter: grayscale(1); opacity: .45; }
+.evo-tile .lvb {
+  position: absolute; right: -6px; bottom: -4px; min-width: 18px; padding: 0 4px; border-radius: 999px;
+  font-size: 10px; line-height: 16px; background: var(--panel-3); color: var(--text); border: 1px solid var(--line);
+}
+.evo-tile.new .lvb { background: var(--good); color: var(--panel); border-color: var(--good); }
+.evo-tile.up .lvb { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+.evo-tile.removed .lvb { background: #c0392b; color: #fff; border-color: #c0392b; }
+.evo-tile .tn {
+  font-size: 11px; line-height: 1.25; color: var(--text); max-width: 100%;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+}
+.evo-tile.removed .tn { color: var(--muted); text-decoration: line-through; }
+
 /* ---------- states ---------- */
 .skill-list { transition: opacity .15s; }
 .skill-list.stale { opacity: .6; }

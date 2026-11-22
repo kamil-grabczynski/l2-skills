@@ -56,7 +56,7 @@ export function SkillToolbar(p: Props) {
         <div className="btns">
           <button type="button" onClick={p.onAllOn}>Zaznacz widoczne</button>
           <button type="button" onClick={p.onAllOff}>Odznacz widoczne</button>
-          <button type="button" onClick={p.onReset} title="Przywróć domyślne (wszystko zaznaczone)">Reset</button>
+          <button type="button" onClick={p.onReset} title="Odznacz wszystkie skile tej klasy">Wyczyść</button>
           <button type="button" onClick={p.onCollapseAll}>{p.allCollapsed ? "Rozwiń poziomy" : "Zwiń poziomy"}</button>
         </div>
       </div>

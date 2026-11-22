@@ -149,7 +149,8 @@ export default function App() {
     [key, setPrefs],
   );
 
-  const [off, updateOff] = useSelection(cls && activeSlug ? `spcalc:sel2:${activeSlug}:${cls}` : null);
+  // v3: selection stores the skill levels that ARE counted (default: none)
+  const [sel, updateSel] = useSelection(cls && activeSlug ? `spcalc:sel3:${activeSlug}:${cls}` : null);
 
   const inRange = useMemo(() => rows.filter((r) => r.l >= from && r.l <= to), [rows, from, to]);
 
@@ -159,7 +160,7 @@ export default function App() {
     const per = new Map<number, number>();
     const books: Row[] = [];
     for (const r of inRange) {
-      if (off[r.key]) {
+      if (!sel[r.key]) {
         skipped += r.sp;
         continue;
       }
@@ -171,7 +172,7 @@ export default function App() {
     }
     books.sort((a, b) => a.l - b.l);
     return { sp, skipped, levels, skills: ids.size, perLevel: [...per.entries()].sort((a, b) => a[0] - b[0]), books };
-  }, [inRange, off]);
+  }, [inRange, sel]);
 
   // The list follows range/search with deferred values so typing and dragging the slider stay smooth.
   const listRange = useDeferredValue(range);
@@ -223,16 +224,16 @@ export default function App() {
   const actions: SkillActions = useMemo(
     () => ({
       setKeys: (keys, on) =>
-        updateOff((cur) => {
+        updateSel((cur) => {
           const next = { ...cur };
           for (const k of keys) {
-            if (on) delete next[k];
-            else next[k] = 1;
+            if (on) next[k] = 1;
+            else delete next[k];
           }
           return next;
         }),
       toggleKey: (key) =>
-        updateOff((cur) => {
+        updateSel((cur) => {
           const next = { ...cur };
           if (next[key]) delete next[key];
           else next[key] = 1;
@@ -246,12 +247,12 @@ export default function App() {
           return n;
         }),
       setSkillEverywhere: (id, on) =>
-        updateOff((cur) => {
+        updateSel((cur) => {
           const next = { ...cur };
           for (const r of inRangeRef.current) {
             if (r.id !== id) continue;
-            if (on) delete next[r.key];
-            else next[r.key] = 1;
+            if (on) next[r.key] = 1;
+            else delete next[r.key];
           }
           return next;
         }),
@@ -262,7 +263,7 @@ export default function App() {
           return n;
         }),
     }),
-    [updateOff],
+    [updateSel],
   );
 
   const allCollapsed = sections.length > 0 && sections.every((s) => collapsed.has(s.l));
@@ -347,7 +348,7 @@ export default function App() {
                 onShowZero={(v) => setPrefs((p) => ({ ...p, showZero: v }))}
                 onAllOn={() => actions.setKeys(visibleRef.current.map((r) => r.key), true)}
                 onAllOff={() => actions.setKeys(visibleRef.current.map((r) => r.key), false)}
-                onReset={() => updateOff(() => ({}))}
+                onReset={() => updateSel(() => ({}))}
                 onCollapseAll={() => setCollapsed(allCollapsed ? new Set() : new Set(sections.map((s) => s.l)))}
               />
               <div className="status">
@@ -358,7 +359,7 @@ export default function App() {
               <SkillList
                 data={data}
                 sections={sections}
-                off={off}
+                sel={sel}
                 collapsed={collapsed}
                 opened={opened}
                 levelsInRange={levelsInRange}
