@@ -1,6 +1,6 @@
 import { useDeferredValue, useEffect, useMemo, useState } from "react";
 import type { ChronicleData, ChronicleRef, Evolution } from "../types";
-import { chronicleLabel, loadEvolution } from "../lib/data";
+import { chronicleLabel, loadChronicle, loadEvolution } from "../lib/data";
 import { readJson, writeJson } from "../lib/storage";
 import { ClassIcon, SkillIcon } from "./ClassIcon";
 
@@ -125,36 +125,108 @@ interface ViewProps {
   onPickChronicle: (slug: string) => void;
 }
 
+/** Skill shown in the hover popover: description is read from the chronicle where that level exists. */
+interface Tip {
+  id: number;
+  /** chronicle of the card */
+  slug: string;
+  /** chronicle + skill level whose description is shown (for a removed skill: the last one that had it) */
+  descSlug: string;
+  descLv: number;
+  info: string;
+  rect: DOMRect;
+}
+
 function IconCards({ rows, cols, evo, names, active, skillName, onPickChronicle }: ViewProps) {
+  const [tip, setTip] = useState<Tip | null>(null);
+  const [desc, setDesc] = useState<{ key: string; text: string; passive: boolean } | null>(null);
+  const tipKey = tip ? `${tip.descSlug}:${tip.id}:${tip.descLv}` : "";
+
+  useEffect(() => {
+    if (!tip) return;
+    let alive = true;
+    loadChronicle(tip.descSlug).then(
+      (d) => {
+        const sk = d.skills[tip.id];
+        if (alive) setDesc({ key: tipKey, text: sk?.d[tip.descLv] ?? "", passive: !!sk?.p });
+      },
+      () => alive && setDesc({ key: tipKey, text: "", passive: false }),
+    );
+    return () => {
+      alive = false;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tipKey]);
+
+  // the popover is positioned from the tile's rect, so drop it when the page moves
+  useEffect(() => {
+    if (!tip) return;
+    const hide = () => setTip(null);
+    window.addEventListener("scroll", hide, true);
+    window.addEventListener("resize", hide);
+    return () => {
+      window.removeEventListener("scroll", hide, true);
+      window.removeEventListener("resize", hide);
+    };
+  }, [tip]);
+
+  const lastWith = (lv: (number | null)[], i: number) => {
+    for (let j = i - 1; j >= 0; j--) if (lv[j]) return j;
+    return i;
+  };
 
   const cards = cols.map(({ slug, i }) => {
-    const added: [number, number][] = [];
-    const up: [number, number, number][] = [];
-    const down: [number, number, number][] = [];
-    const removed: [number, number][] = [];
+    type Item = { id: number; v: number; prev: number; descSlug: string; descLv: number };
+    const added: Item[] = [];
+    const up: Item[] = [];
+    const down: Item[] = [];
+    const removed: Item[] = [];
     let classExists = false;
     for (const [id, lv] of rows) {
       const v = lv[i];
       if (v === null) continue;
       classExists = true;
       const prev = prevLevel(lv, i);
-      if (v && !prev) added.push([id, v]);
-      else if (v && v > prev) up.push([id, prev, v]);
-      else if (v && v < prev) down.push([id, prev, v]);
-      else if (!v && prev) removed.push([id, prev]);
+      const item = { id, v: v ?? 0, prev, descSlug: slug, descLv: v ?? 0 };
+      if (v && !prev) added.push(item);
+      else if (v && v > prev) up.push(item);
+      else if (v && v < prev) down.push(item);
+      else if (!v && prev) removed.push({ ...item, descSlug: evo.chronicles[lastWith(lv, i)], descLv: prev });
     }
     return { slug, added, up, down, removed, classExists };
   });
 
-  const tile = (id: number, kind: string, badge: string, title: string) => (
-    <div key={`${kind}-${id}`} className={`evo-tile ${kind}`} title={title}>
-      <span className="ti">
-        <SkillIcon file={evo.skills[id]?.i ?? ""} />
-        <b className="lvb">{badge}</b>
-      </span>
-      <span className="tn">{skillName(id)}</span>
-    </div>
-  );
+  const tile = (
+    slug: string,
+    it: { id: number; descSlug: string; descLv: number },
+    kind: string,
+    badge: string,
+    info: string,
+  ) => {
+    const show = (el: HTMLElement) =>
+      setTip({ id: it.id, slug, descSlug: it.descSlug, descLv: it.descLv, info, rect: el.getBoundingClientRect() });
+    const isOpen = tip?.id === it.id && tip.slug === slug;
+    return (
+      <button
+        type="button"
+        key={`${kind}-${it.id}`}
+        className={`evo-tile ${kind}`}
+        aria-label={`${skillName(it.id)}: ${info}`}
+        aria-expanded={isOpen}
+        onMouseEnter={(e) => show(e.currentTarget)}
+        onMouseLeave={() => setTip(null)}
+        onFocus={(e) => show(e.currentTarget)}
+        onBlur={() => setTip(null)}
+        onClick={(e) => (isOpen ? setTip(null) : show(e.currentTarget))}
+      >
+        <span className="ti">
+          <SkillIcon file={evo.skills[it.id]?.i ?? ""} />
+          <b className="lvb">{badge}</b>
+        </span>
+        <span className="tn">{skillName(it.id)}</span>
+      </button>
+    );
+  };
 
   return (
     <div className="evo-cards">
@@ -187,25 +259,25 @@ function IconCards({ rows, cols, evo, names, active, skillName, onPickChronicle 
                 {c.added.length > 0 && (
                   <div className="ec-group">
                     <span className="ec-label">Nowe</span>
-                    <div className="ec-tiles">{c.added.map(([id, v]) => tile(id, "new", String(v), `${skillName(id)} · nowy, max Lv ${v}`))}</div>
+                    <div className="ec-tiles">{c.added.map((it) => tile(c.slug, it, "new", String(it.v), `nowy, max Lv ${it.v}`))}</div>
                   </div>
                 )}
                 {c.up.length > 0 && (
                   <div className="ec-group">
                     <span className="ec-label">Wyższy poziom</span>
-                    <div className="ec-tiles">{c.up.map(([id, p, v]) => tile(id, "up", `${v}`, `${skillName(id)} · max Lv ${p} → ${v}`))}</div>
+                    <div className="ec-tiles">{c.up.map((it) => tile(c.slug, it, "up", String(it.v), `max Lv ${it.prev} → ${it.v}`))}</div>
                   </div>
                 )}
                 {c.down.length > 0 && (
                   <div className="ec-group">
                     <span className="ec-label">Niższy poziom</span>
-                    <div className="ec-tiles">{c.down.map(([id, p, v]) => tile(id, "down", `${v}`, `${skillName(id)} · max Lv ${p} → ${v}`))}</div>
+                    <div className="ec-tiles">{c.down.map((it) => tile(c.slug, it, "down", String(it.v), `max Lv ${it.prev} → ${it.v}`))}</div>
                   </div>
                 )}
                 {c.removed.length > 0 && (
                   <div className="ec-group">
                     <span className="ec-label">Usunięte</span>
-                    <div className="ec-tiles">{c.removed.map(([id, p]) => tile(id, "removed", "✕", `${skillName(id)} · usunięty (był Lv ${p})`))}</div>
+                    <div className="ec-tiles">{c.removed.map((it) => tile(c.slug, it, "removed", "✕", `usunięty (był Lv ${it.prev})`))}</div>
                   </div>
                 )}
               </div>
@@ -213,6 +285,53 @@ function IconCards({ rows, cols, evo, names, active, skillName, onPickChronicle 
           </section>
         );
       })}
+      {tip && (
+        <SkillPopover
+          tip={tip}
+          name={skillName(tip.id)}
+          icon={evo.skills[tip.id]?.i ?? ""}
+          chronicle={`${chronicleLabel(tip.slug)} · ${shortName(names.get(tip.slug))}`}
+          desc={desc && desc.key === tipKey ? desc : null}
+        />
+      )}
+    </div>
+  );
+}
+
+const POP_W = 300;
+
+interface PopoverProps {
+  tip: Tip;
+  name: string;
+  icon: string;
+  chronicle: string;
+  desc: { text: string; passive: boolean } | null;
+}
+
+function SkillPopover({ tip, name, icon, chronicle, desc }: PopoverProps) {
+  const r = tip.rect;
+  const left = Math.max(8, Math.min(r.left + r.width / 2 - POP_W / 2, window.innerWidth - POP_W - 8));
+  // below the tile, or above it when there is no room underneath
+  const below = r.bottom + 180 < window.innerHeight;
+  const style: React.CSSProperties = below
+    ? { left, top: r.bottom + 8, width: POP_W }
+    : { left, top: r.top - 8, width: POP_W, transform: "translateY(-100%)" };
+  return (
+    <div className="skill-pop" role="tooltip" style={style}>
+      <div className="sp-head">
+        <SkillIcon file={icon} />
+        <div>
+          <b>{name}</b>
+          <span>
+            {chronicle} · {tip.info}
+            {desc && <> · {desc.passive ? "pasywny" : "aktywny"}</>}
+          </span>
+        </div>
+      </div>
+      <p>{desc ? desc.text || "Brak opisu." : "Ładowanie opisu…"}</p>
+      <small>
+        {tip.descSlug !== tip.slug ? `Opis z ${chronicleLabel(tip.descSlug)}, Lv ${tip.descLv}` : `Opis dla Lv ${tip.descLv}`}
+      </small>
     </div>
   );
 }
