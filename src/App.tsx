@@ -13,6 +13,7 @@ import { ChronicleTable } from "./components/ChronicleTable";
 import { SkillToolbar } from "./components/SkillToolbar";
 import { SkillList, type Section, type SkillActions } from "./components/SkillList";
 import { Analytics } from "@vercel/analytics/react";
+import { SpeedInsights } from "@vercel/speed-insights/react";
 
 interface Prefs {
   chronicle: string;
@@ -318,6 +319,8 @@ export default function App() {
         route={view === "loading" ? null : view === "calc" ? "/[chronicle]/[class]" : "/[chronicle]"}
         path={view === "loading" ? null : view === "calc" ? `/${activeSlug}/${cls}` : `/${activeSlug}`}
       />
+      {/* Vercel Speed Insights: Web Vitals grouped by the same hash routes */}
+      <SpeedInsights route={view === "loading" ? null : view === "calc" ? "/[chronicle]/[class]" : "/[chronicle]"} />
 
       {error && <div className="error">Błąd: {error}</div>}
 
