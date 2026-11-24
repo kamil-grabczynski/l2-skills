@@ -378,6 +378,9 @@ input[type=checkbox] { width: 18px; height: 18px; accent-color: var(--accent); f
 .details td.n { text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; }
 .details tr.off td { color: var(--muted); }
 .details .desc { color: var(--muted); }
+.effect { margin-top: 2px; color: var(--good); font-weight: 600; }
+.usage { margin-top: 2px; color: var(--muted); font-size: 11px; }
+.brief { margin-top: 2px; font-size: 12px; line-height: 1.35; color: var(--muted); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 .details .acts { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
 .details .acts button { border: 1px solid var(--line); background: var(--panel-2); border-radius: 6px; padding: 3px 8px; font-size: 12px; }
 .details .acts button:hover { border-color: var(--accent); }

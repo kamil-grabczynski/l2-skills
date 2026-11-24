@@ -1,6 +1,6 @@
 import { memo } from "react";
 import type { ChronicleData, Row, SelMap } from "../types";
-import { fmt, short } from "../lib/format";
+import { fmt, short, skillMeta } from "../lib/format";
 import { SkillIcon } from "./ClassIcon";
 import { TriCheckbox } from "./TriCheckbox";
 
@@ -139,6 +139,10 @@ const SkillRow = memo(function SkillRow({ l, group, mask, open, books, everywher
     }
   });
 
+  // what the highest level of this row gives, visible without opening the details
+  const top = group[group.length - 1].lv;
+  const brief = sk.e?.[top] ?? sk.d[top] ?? "";
+
   return (
     <div className={`skill${on ? "" : " off"}${open ? " open" : ""}`}>
       <div className="skill-main">
@@ -154,6 +158,12 @@ const SkillRow = memo(function SkillRow({ l, group, mask, open, books, everywher
               {open ? "zwiń ▴" : "szczegóły ▾"}
             </button>
           </div>
+          {!open && brief && (
+            <div className="brief" title={brief}>
+              {group.length > 1 && <b>Lv {top}: </b>}
+              {brief}
+            </div>
+          )}
           {group.length > 1 && (
             <div className="chips">
               {group.map((r, i) => (
@@ -162,7 +172,8 @@ const SkillRow = memo(function SkillRow({ l, group, mask, open, books, everywher
                   key={r.key}
                   className={`chip${isOn(i) ? " on" : ""}${r.book ? " book" : ""}`}
                   aria-pressed={isOn(i)}
-                  title={`${sk.n} Lv ${r.lv}: ${fmt(r.sp)} SP${r.book ? ` · ${books[r.book] ?? ""}` : ""}`}
+                  title={`${sk.n} Lv ${r.lv}: ${fmt(r.sp)} SP${r.book ? ` · ${books[r.book] ?? ""}` : ""}
+${sk.e?.[r.lv] ?? sk.d[r.lv] ?? ""}`}
                   onClick={() => actions.toggleKey(r.key)}
                 >
                   <b>Lv {r.lv}</b>
@@ -193,7 +204,9 @@ const SkillRow = memo(function SkillRow({ l, group, mask, open, books, everywher
                   <td>Lv {r.lv}</td>
                   <td className="n">{fmt(r.sp)} SP</td>
                   <td className="desc">
-                    {sk.d[r.lv] ?? ""}
+                    {sk.d[r.lv]}
+                    {sk.e?.[r.lv] && <div className="effect">{sk.e[r.lv]}</div>}
+                    {sk.m?.[r.lv] && <div className="usage">{skillMeta(sk.m[r.lv])}</div>}
                     {r.book > 0 && (
                       <>
                         <br />

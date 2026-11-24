@@ -2,7 +2,7 @@ import { useDeferredValue, useEffect, useLayoutEffect, useMemo, useRef, useState
 import type { ChronicleData, ChronicleRef, Evolution } from "../types";
 import { buildRows, chainOf, chronicleLabel, loadChronicle, loadEvolution } from "../lib/data";
 import { readJson, writeJson } from "../lib/storage";
-import { fmt } from "../lib/format";
+import { fmt, skillMeta } from "../lib/format";
 import { ClassIcon, SkillIcon } from "./ClassIcon";
 
 interface Props {
@@ -199,9 +199,9 @@ function IconCards({ cls = "", rows, cols, evo, names, active, skillName, onPick
             last.sp += r.sp;
           } else levels.push({ l: r.l, from: r.lv, to: r.lv, sp: r.sp });
         }
-        if (alive) setDesc({ key: tipKey, text: sk?.d[tip.descLv] ?? "", passive: !!sk?.p, levels });
+        if (alive) setDesc({ key: tipKey, text: sk?.d[tip.descLv] ?? "", effect: sk?.e?.[tip.descLv] ?? "", usage: skillMeta(sk?.m?.[tip.descLv]), passive: !!sk?.p, levels });
       },
-      () => alive && setDesc({ key: tipKey, text: "", passive: false, levels: [] }),
+      () => alive && setDesc({ key: tipKey, text: "", effect: "", usage: "", passive: false, levels: [] }),
     );
     return () => {
       alive = false;
@@ -361,6 +361,9 @@ interface Learn {
 
 interface Desc {
   text: string;
+  /** exact effect values and usage data, "" when there are none */
+  effect: string;
+  usage: string;
   passive: boolean;
   levels: Learn[];
 }
@@ -397,7 +400,9 @@ function SkillPopover({ tip, name, icon, chronicle, desc }: PopoverProps) {
           </span>
         </div>
       </div>
-      <p>{desc ? desc.text || "Brak opisu." : "Ładowanie opisu…"}</p>
+      <p>{desc ? desc.text || (desc.effect ? "" : "Brak opisu.") : "Ładowanie opisu…"}</p>
+      {desc?.effect && <p className="effect">{desc.effect}</p>}
+      {desc?.usage && <p className="usage">{desc.usage}</p>}
       <small>
         {tip.descSlug !== tip.slug ? `Opis z ${chronicleLabel(tip.descSlug)}, Lv ${tip.descLv}` : `Opis dla Lv ${tip.descLv}`}
       </small>

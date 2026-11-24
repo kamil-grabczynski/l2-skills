@@ -14,7 +14,14 @@ export interface SkillInfo {
   p: 0 | 1;
   /** description per skill level */
   d: Record<string, string>;
+  /** exact effect values per skill level, absent when the description already lists them */
+  e?: Record<string, string>;
+  /** usage data per skill level (active skills) */
+  m?: Record<string, SkillMeta>;
 }
+
+/** [mp, hp, cast s, reuse s, cast range, area kind, area radius, duration s, success chance %, 1 = toggle?] */
+export type SkillMeta = [number, number, number, number, number, string, number, number, number, 1?];
 
 /** [learn level, skill id, skill level, sp, spellbook item id?] */
 export type RawRow = [number, number, number, number, number?];
