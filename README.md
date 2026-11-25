@@ -17,7 +17,7 @@ npm run dev
 
 ## Languages
 
-The interface is in Polish and English (i18next, react-i18next). Texts are in `src/i18n/pl.json` and `src/i18n/en.json`; a key missing from either file fails the type check. The first visit follows the browser language (English when it is neither), and the choice made in the header is kept in localStorage. Skill names and descriptions come from the game data and stay in English.
+The interface is in Polish and English (i18next, react-i18next). Texts are in `src/i18n/pl.json` and `src/i18n/en.json`; a key missing from either file fails the type check. The first visit follows the browser language (English when it is neither), and the choice made in the header is kept in localStorage. Skill descriptions and effects are English game data; `public/data/i18n/pl.json` translates them sentence by sentence with numbers replaced by `#`, and a sentence missing there is shown in English. Skill, class and item names stay in English.
 
 ## Data
 

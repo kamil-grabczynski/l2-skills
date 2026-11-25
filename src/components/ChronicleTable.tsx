@@ -5,6 +5,7 @@ import type { ChronicleData, ChronicleRef, Evolution, SkillMeta } from "../types
 import { buildRows, chainOf, chronicleLabel, errorText, loadChronicle, loadEvolution } from "../lib/data";
 import { readJson, writeJson } from "../lib/storage";
 import { fmt, skillMeta } from "../lib/format";
+import { skillDescription, skillEffect } from "../lib/skillText";
 import { skillHref } from "../lib/route";
 import { ClassIcon, SkillIcon } from "./ClassIcon";
 
@@ -405,8 +406,8 @@ function SkillPopover({ tip, name, icon, chronicle, desc }: PopoverProps) {
           </span>
         </div>
       </div>
-      <p>{desc ? desc.text || (desc.effect ? "" : t("evo.noDescription")) : t("evo.loadingDescription")}</p>
-      {desc?.effect && <p className="effect">{desc.effect}</p>}
+      <p>{desc ? skillDescription(desc.text) || (desc.effect ? "" : t("evo.noDescription")) : t("evo.loadingDescription")}</p>
+      {desc?.effect && <p className="effect">{skillEffect(desc.effect)}</p>}
       {usage && <p className="usage">{usage}</p>}
       <small>
         {tip.descSlug !== tip.slug

@@ -2,6 +2,7 @@ import { memo } from "react";
 import { useTranslation } from "react-i18next";
 import type { ChronicleData, Row, SelMap } from "../types";
 import { fmt, short, skillMeta } from "../lib/format";
+import { skillDescription, skillEffect } from "../lib/skillText";
 import { skillHref } from "../lib/route";
 import { SkillIcon } from "./ClassIcon";
 import { TriCheckbox } from "./TriCheckbox";
@@ -147,7 +148,7 @@ const SkillRow = memo(function SkillRow({ l, group, mask, open, books, slug, eve
 
   // what the highest level of this row gives, visible without opening the details
   const top = group[group.length - 1].lv;
-  const brief = sk.e?.[top] ?? sk.d[top] ?? "";
+  const brief = sk.e?.[top] ? skillEffect(sk.e[top]) : skillDescription(sk.d[top]);
 
   return (
     <div className={`skill${on ? "" : " off"}${open ? " open" : ""}`}>
@@ -181,7 +182,7 @@ const SkillRow = memo(function SkillRow({ l, group, mask, open, books, slug, eve
                   className={`chip${isOn(i) ? " on" : ""}${r.book ? " book" : ""}`}
                   aria-pressed={isOn(i)}
                   title={`${sk.n} Lv ${r.lv}: ${fmt(r.sp)} SP${r.book ? ` · ${books[r.book] ?? ""}` : ""}
-${sk.e?.[r.lv] ?? sk.d[r.lv] ?? ""}`}
+${sk.e?.[r.lv] ? skillEffect(sk.e[r.lv]) : skillDescription(sk.d[r.lv])}`}
                   onClick={() => actions.toggleKey(r.key)}
                 >
                   <b>Lv {r.lv}</b>
@@ -212,8 +213,8 @@ ${sk.e?.[r.lv] ?? sk.d[r.lv] ?? ""}`}
                   <td>Lv {r.lv}</td>
                   <td className="n">{fmt(r.sp)} SP</td>
                   <td className="desc">
-                    {sk.d[r.lv]}
-                    {sk.e?.[r.lv] && <div className="effect">{sk.e[r.lv]}</div>}
+                    {skillDescription(sk.d[r.lv])}
+                    {sk.e?.[r.lv] && <div className="effect">{skillEffect(sk.e[r.lv])}</div>}
                     {sk.m?.[r.lv] && <div className="usage">{skillMeta(sk.m[r.lv])}</div>}
                     {r.book > 0 && (
                       <>

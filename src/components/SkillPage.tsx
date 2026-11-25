@@ -4,6 +4,7 @@ import type { ChronicleData, SkillInfo } from "../types";
 import { chronicleLabel } from "../lib/data";
 import { hrefFor } from "../lib/route";
 import { fmt, fmt1, skillMeta } from "../lib/format";
+import { skillDescription, skillEffect } from "../lib/skillText";
 import { usePersistentState } from "../lib/storage";
 import { STAT_DEFAULT, clampChance, hasDebuffRes, landChance, type Duel, type Shot } from "../lib/debuff";
 import { SkillIcon } from "./ClassIcon";
@@ -177,8 +178,8 @@ function Content({ data, id, sk, back }: { data: ChronicleData; id: string; sk: 
                     )) ?? "—"}
                   </td>
                   <td className="desc">
-                    {sk.d[lv]}
-                    {sk.e?.[lv] && <div className="effect">{sk.e[lv]}</div>}
+                    {skillDescription(sk.d[lv])}
+                    {sk.e?.[lv] && <div className="effect">{skillEffect(sk.e[lv])}</div>}
                     {sk.m?.[lv] && <div className="usage">{skillMeta(sk.m[lv])}</div>}
                   </td>
                   {rolls && (r.v[lv] ? (

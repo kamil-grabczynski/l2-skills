@@ -7,6 +7,8 @@ import {
 import { usePersistentState, useSelection } from "./lib/storage";
 import { hrefFor, navigate, useHashRoute } from "./lib/route";
 import { fmt } from "./lib/format";
+import { currentLang } from "./i18n";
+import { loadSkillTexts } from "./lib/skillText";
 import { Sidebar, type Totals } from "./components/Sidebar";
 import { ClassPicker } from "./components/ClassPicker";
 import { LanguageSwitch } from "./components/LanguageSwitch";
@@ -60,6 +62,10 @@ export default function App() {
   const [scrollTo, setScrollTo] = useState<number | null>(null);
 
   // ---------- routing & loading ----------
+  const [textsReady, setTextsReady] = useState(false);
+  useEffect(() => {
+    loadSkillTexts(currentLang()).then(() => setTextsReady(true));
+  }, []);
   useEffect(() => {
     loadIndex().then(setChronicles, setError);
   }, []);
@@ -82,7 +88,7 @@ export default function App() {
     };
   }, [activeSlug]);
 
-  const ready = !!data && data.slug === activeSlug;
+  const ready = textsReady && !!data && data.slug === activeSlug;
   const cls = ready && route.cls && data.classes[route.cls] ? route.cls : null;
   const view: "loading" | "picker" | "calc" | "skill" = !ready ? "loading" : route.skill ? "skill" : cls ? "calc" : "picker";
   /** class to return to from a skill page */
