@@ -87,7 +87,7 @@ const ORDER = [
   "c1", "c2", "c3", "c4", "c5", "interlude", "kamael", "hellbound", "gracia1", "gracia2",
   "gracia-final", "gracia-epilogue", "freya", "hi-five",
 ];
-const since = (slug: string, first: string) => ORDER.indexOf(slug) >= ORDER.indexOf(first);
+export const since = (slug: string, first: string) => ORDER.indexOf(slug) >= ORDER.indexOf(first);
 
 const ELEMENTS = new Set(["Fire", "Water", "Wind", "Earth", "Holy", "Unholy"]);
 

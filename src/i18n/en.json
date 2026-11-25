@@ -311,5 +311,10 @@
     "label": "Search skills of all classes",
     "placeholder": "Search skills of all classes ({{chronicle}})…",
     "empty": "No skills match “{{query}}” in {{chronicle}}."
+  },
+  "attacker": {
+    "level": "Your level",
+    "weapon": "Weapon M.Atk",
+    "hint": "Base stats of the race and class. M.Atk is counted from the weapon, INT, level and passives, without buffs; the default weapon is a one-handed magic one of the grade for this level. You can change every value."
   }
 }

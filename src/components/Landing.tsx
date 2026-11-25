@@ -24,11 +24,14 @@ interface Props {
   lv: number;
   levels: number[];
   duel: Duel;
-  /** choice of the target */
+  /** choice of the attacker (magic skills) and of the target */
+  attacker: ReactNode;
   target: ReactNode;
   onLevel: (lv: number) => void;
   onOwn: (v: Partial<Duel>) => void;
   onMDef: (mDef: number) => void;
+  onMAtk: (mAtk: number) => void;
+  onInt: (int: number) => void;
   onSaved: (v: Partial<SavedDuel>) => void;
   onReset: () => void;
 }
@@ -52,7 +55,7 @@ function Factor({ name, note, change, pp }: { name: ReactNode; note?: string; ch
 }
 
 /** Calculator of the land chance and the influence of every factor. */
-export function Landing({ slug, r, lv, levels, duel, target, onLevel, onOwn, onMDef, onSaved, onReset }: Props) {
+export function Landing({ slug, r, lv, levels, duel, attacker, target, onLevel, onOwn, onMDef, onMAtk, onInt, onSaved, onReset }: Props) {
   const { t } = useTranslation();
   const [magicLevel, lvBonus, rate] = r.v[lv];
   const STAT = r.s.toUpperCase();
@@ -108,6 +111,7 @@ export function Landing({ slug, r, lv, levels, duel, target, onLevel, onOwn, onM
           <div className="sk-side">
             <div className="sk-side-head">
               <span className="label">{t("landing.attacker")}</span>
+              {!!r.g && attacker}
               <button type="button" className="sk-reset" onClick={onReset}>
                 {t("landing.reset")}
               </button>
@@ -127,8 +131,8 @@ export function Landing({ slug, r, lv, levels, duel, target, onLevel, onOwn, onM
               )}
               {!!r.g && (
                 <>
-                  <NumberField label={t("landing.yourMAtk")} value={duel.mAtk} min={1} max={50000} onChange={(mAtk) => onSaved({ mAtk })} />
-                  <NumberField label={t("landing.yourInt")} value={duel.int} min={1} max={99} onChange={(int) => onSaved({ int })} />
+                  <NumberField label={t("landing.yourMAtk")} value={duel.mAtk} min={1} max={50000} onChange={onMAtk} />
+                  <NumberField label={t("landing.yourInt")} value={duel.int} min={1} max={99} onChange={onInt} />
                   <NumberField label={t("landing.intAdd")} value={duel.intAdd} min={-20} max={40} onChange={(intAdd) => onSaved({ intAdd })} />
                   <NumberField label={t("landing.mAtkPct")} value={duel.mAtkPct} min={-90} max={500} suffix="%" onChange={(mAtkPct) => onSaved({ mAtkPct })} />
                   <label className="num-field">

@@ -1,10 +1,10 @@
-import { useCallback, useMemo } from "react";
+import { useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import type { ChronicleData } from "../types";
-import { chainOf, depthOf, raceKey, raceLabel, raceRank, tierLabel } from "../lib/data";
 import { fmt, fmt1 } from "../lib/format";
 import { traitLabel } from "../lib/debuff";
-import { searchMonsters, type Monster, type Stats, type TargetChoice, type TargetValues } from "../lib/target";
+import { searchMonsters, type Monster, type TargetChoice, type TargetValues } from "../lib/target";
+import { ClassSelect, StatLine } from "./ClassSelect";
 import { Combobox } from "./Combobox";
 
 const KINDS = ["manual", "monster", "player"] as const;
@@ -55,7 +55,12 @@ export function TargetPicker({ data, choice, monsters, failed, monster, values, 
           )}
         </>
       )}
-      {choice.kind === "player" && <PlayerSelect data={data} choice={choice} onChoice={onChoice} />}
+      {choice.kind === "player" && choice.cls && (
+        <div className="sk-target-row">
+          {/* a new class starts from its own M.Def */}
+          <ClassSelect data={data} cls={choice.cls} onPick={(c) => onChoice({ cls: c, mDef: undefined })} />
+        </div>
+      )}
       {values && (
         <p className="sk-target-info">
           {choice.kind === "monster" && monster && (
@@ -80,25 +85,6 @@ export function TargetPicker({ data, choice, monsters, failed, monster, values, 
           {choice.kind === "monster" && <small>{t("target.monsterHint", { chronicle: data.name })}</small>}
         </p>
       )}
-    </>
-  );
-}
-
-function StatLine({ stats, used }: { stats: Stats; used: string }) {
-  return (
-    <>
-      {Object.entries(stats).map(([k, v], i) => (
-        <span key={k}>
-          {i > 0 && " · "}
-          {k === used ? (
-            <b>
-              {k.toUpperCase()} {v}
-            </b>
-          ) : (
-            `${k.toUpperCase()} ${v}`
-          )}
-        </span>
-      ))}
     </>
   );
 }
@@ -132,69 +118,5 @@ function MonsterSearch({ monsters, monster, onPick }: SearchProps) {
         </>
       )}
     />
-  );
-}
-
-interface PlayerProps {
-  data: ChronicleData;
-  choice: TargetChoice;
-  onChoice: (v: Partial<TargetChoice>) => void;
-}
-
-/** Race, then class. The level and M.Def are fields of the calculator below. */
-function PlayerSelect({ data, choice, onChoice }: PlayerProps) {
-  const { t } = useTranslation();
-  const races = useMemo(
-    () => [...new Set(Object.values(data.classes).map((c) => c.race))].sort((a, b) => raceRank(a) - raceRank(b)),
-    [data],
-  );
-  const cls = choice.cls && data.classes[choice.cls] ? choice.cls : null;
-  const race = cls ? data.classes[cls].race : races[0];
-  const classes = Object.keys(data.classes)
-    .filter((c) => data.classes[c].race === race)
-    .sort((a, b) => depthOf(data, a) - depthOf(data, b) || data.classes[a].name.localeCompare(data.classes[b].name));
-  const depths = [...new Set(classes.map((c) => depthOf(data, c)))];
-  // a new class starts from its own M.Def
-  const pick = (c: string) => onChoice({ cls: c, mDef: undefined });
-
-  return (
-    <div className="sk-target-row">
-      <label className="num-field">
-        <span>{t("picker.race")}</span>
-        <select
-          value={raceKey(race)}
-          onChange={(e) => {
-            const next = races.find((r) => raceKey(r) === e.target.value)!;
-            // keep fighter/mystic when the race changes
-            const mystic = cls ? chainOf(data, cls)[0].includes("mage") : false;
-            const roots = Object.keys(data.classes).filter((c) => data.classes[c].race === next && !data.classes[c].parent);
-            pick(roots.find((c) => c.includes("mage") === mystic) ?? roots[0]);
-          }}
-        >
-          {races.map((r) => (
-            <option key={r} value={raceKey(r)}>
-              {raceLabel(r)}
-            </option>
-          ))}
-        </select>
-      </label>
-      <label className="num-field">
-        <span>{t("target.class")}</span>
-        <select value={cls ?? ""} onChange={(e) => pick(e.target.value)}>
-          {!cls && <option value="">—</option>}
-          {depths.map((d) => (
-            <optgroup key={d} label={tierLabel(d)}>
-              {classes
-                .filter((c) => depthOf(data, c) === d)
-                .map((c) => (
-                  <option key={c} value={c}>
-                    {data.classes[c].name}
-                  </option>
-                ))}
-            </optgroup>
-          ))}
-        </select>
-      </label>
-    </div>
   );
 }

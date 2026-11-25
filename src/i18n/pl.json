@@ -319,5 +319,10 @@
     "label": "Szukaj skila wszystkich klas",
     "placeholder": "Szukaj skila wszystkich klas ({{chronicle}})…",
     "empty": "Brak skili pasujących do „{{query}}” w {{chronicle}}."
+  },
+  "attacker": {
+    "level": "Twój poziom",
+    "weapon": "M.Atk broni",
+    "hint": "Bazowe statystyki rasy i klasy. M.Atk liczy się z broni, INT, poziomu i pasywów, bez buffów; domyślna broń to jednoręczna magiczna z rangi dla tego poziomu. Każdą wartość możesz zmienić."
   }
 }

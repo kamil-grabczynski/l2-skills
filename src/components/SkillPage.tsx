@@ -9,9 +9,13 @@ import { usePersistentState } from "../lib/storage";
 import {
   SHOT, STAT_DEFAULT, finalChance, hasDebuffRes, hasTraitBonus, usesAttributes, type Duel, type Shot,
 } from "../lib/debuff";
-import { baseStats, findMonster, loadMonsters, playerMDef, type Monster, type TargetChoice, type TargetValues } from "../lib/target";
+import {
+  baseStats, findMonster, loadMonsters, playerMAtk, playerMDef, weaponMAtk,
+  type AttackerChoice, type Monster, type TargetChoice, type TargetValues,
+} from "../lib/target";
 import { SkillIcon } from "./ClassIcon";
 import { Landing } from "./Landing";
+import { AttackerPicker } from "./AttackerPicker";
 import { TargetPicker } from "./TargetPicker";
 
 interface Props {
@@ -103,6 +107,7 @@ function Content({ data, id, sk, cls, back }: ContentProps) {
   const [saved, setSaved] = usePersistentState<SavedDuel>("spcalc:duel", SAVED);
   const [own, setOwn] = useState<Partial<Duel>>({});
   const [target, setTarget] = usePersistentState<TargetChoice>("spcalc:target", { kind: "manual" });
+  const [attacker, setAttacker] = usePersistentState<AttackerChoice>("spcalc:attacker", { kind: "manual" });
   const [loaded, setLoaded] = useState<{ slug: string; list: Monster[] | null } | null>(null);
   // a chronicle has its own monsters, loaded when they are first needed
   useEffect(() => {
@@ -131,13 +136,19 @@ function Content({ data, id, sk, cls, back }: ContentProps) {
       : target.kind === "player"
         ? { level: playerLevel, stats: baseStats(data, player), mDef: target.mDef ?? playerMDef(data, player, playerLevel), res: {} }
         : null;
+  // a class as the attacker fills in INT and M.Atk; typed values win
+  const caster = attacker.cls && data.classes[attacker.cls] ? attacker.cls : (cls ?? defaultClass(data));
+  const asClass = attacker.kind === "player";
+  const casterLevel = attacker.level ?? magicLevel;
+  const weapon = attacker.weapon ?? weaponMAtk(data.slug, casterLevel);
+  const casterInt = attacker.int ?? baseStats(data, caster).int;
   const duel: Duel = {
     level: own.level ?? values?.level ?? magicLevel,
     stat: own.stat ?? (r?.s ? (values?.stats[r.s as keyof TargetValues["stats"]] ?? STAT_DEFAULT[r.s]) : 0),
     typeRes: own.typeRes ?? (r?.t && !usesAttributes(data.slug, r) ? values?.res[r.t] : undefined) ?? 0,
-    mAtk: saved.mAtk ?? mAtk0,
+    mAtk: asClass ? (attacker.mAtk ?? playerMAtk(data, caster, casterLevel, weapon, casterInt)) : (saved.mAtk ?? mAtk0),
     mDef: own.mDef ?? values?.mDef ?? saved.mDef ?? Math.round(22 * Math.sqrt(mAtk0)),
-    int: saved.int ?? (cls ? baseStats(data, cls).int : 41),
+    int: asClass ? casterInt : saved.int ?? (cls ? baseStats(data, cls).int : 41),
     intAdd: saved.intAdd,
     mAtkPct: saved.mAtkPct,
     mDefPct: saved.mDefPct,
@@ -179,6 +190,17 @@ function Content({ data, id, sk, cls, back }: ContentProps) {
           levels={inCalc}
           duel={duel}
           onLevel={setPicked}
+          attacker={
+            <AttackerPicker
+              data={data}
+              kind={attacker.kind}
+              cls={caster}
+              level={casterLevel}
+              weapon={weapon}
+              stats={baseStats(data, caster)}
+              onChoice={(v) => setAttacker((c) => ({ ...c, ...v }))}
+            />
+          }
           target={
             <TargetPicker
               data={data}
@@ -206,10 +228,13 @@ function Content({ data, id, sk, cls, back }: ContentProps) {
             else if (target.kind === "player") setTarget((c) => ({ ...c, cls: player, mDef }));
             else setOwn((o) => ({ ...o, mDef }));
           }}
+          onMAtk={(mAtk) => (asClass ? setAttacker((c) => ({ ...c, cls: caster, mAtk })) : setSaved((s) => ({ ...s, mAtk })))}
+          onInt={(int) => (asClass ? setAttacker((c) => ({ ...c, cls: caster, int, mAtk: undefined })) : setSaved((s) => ({ ...s, int })))}
           onSaved={(v) => setSaved((s) => ({ ...s, ...v }))}
           onReset={() => {
             setOwn({});
             setTarget((c) => ({ ...c, level: undefined, mDef: undefined }));
+            setAttacker(({ kind, cls: picked }) => ({ kind, cls: picked }));
             setSaved({ ...SAVED, mAtk: undefined, mDef: undefined, int: undefined });
           }}
         />
