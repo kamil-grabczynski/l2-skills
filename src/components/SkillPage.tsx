@@ -1,12 +1,14 @@
 import { useMemo, useState, type ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import type { ChronicleData, SkillInfo } from "../types";
-import { chronicleLabel } from "../lib/data";
+import { chainOf, chronicleLabel } from "../lib/data";
 import { hrefFor } from "../lib/route";
 import { fmt, fmt1, skillMeta } from "../lib/format";
 import { skillDescription, skillEffect } from "../lib/skillText";
 import { usePersistentState } from "../lib/storage";
-import { STAT_DEFAULT, clampChance, hasDebuffRes, landChance, type Duel, type Shot } from "../lib/debuff";
+import {
+  BASE_INT, SHOT, STAT_DEFAULT, clampChance, hasDebuffRes, hasTraitBonus, landChance, usesAttributes, type Duel, type Shot,
+} from "../lib/debuff";
 import { SkillIcon } from "./ClassIcon";
 import { Landing } from "./Landing";
 
@@ -61,20 +63,34 @@ export function SkillPage({ data, id, cls }: Props) {
       </main>
     );
   }
-  return <Content key={`${data.slug}/${id}`} data={data} id={id} sk={sk} back={back} />;
+  return <Content key={`${data.slug}/${id}`} data={data} id={id} sk={sk} cls={cls} back={back} />;
 }
 
 /** Calculator values kept between skills; a missing one starts from a value fitting the skill. */
 export interface SavedDuel {
   mAtk?: number;
   mDef?: number;
+  int?: number;
+  intAdd: number;
+  mAtkPct: number;
+  mDefPct: number;
   shot: Shot;
   debuffRes: number;
+  landBonus: number;
 }
 
-const SAVED: SavedDuel = { shot: "bss", debuffRes: 0 };
+const SAVED: SavedDuel = { shot: "bss", debuffRes: 0, intAdd: 0, mAtkPct: 0, mDefPct: 0, landBonus: 0 };
+const SHOTS = Object.keys(SHOT) as Shot[];
 
-function Content({ data, id, sk, back }: { data: ChronicleData; id: string; sk: SkillInfo; back: ReactNode }) {
+interface ContentProps {
+  data: ChronicleData;
+  id: string;
+  sk: SkillInfo;
+  cls: string | null;
+  back: ReactNode;
+}
+
+function Content({ data, id, sk, cls, back }: ContentProps) {
   const { t } = useTranslation();
   const learn = useMemo(() => learnRows(data, Number(id)), [data, id]);
   const levels = useMemo(() => Object.keys(sk.d).map(Number).sort((a, b) => a - b), [sk]);
@@ -94,11 +110,20 @@ function Content({ data, id, sk, back }: { data: ChronicleData; id: string; sk: 
     typeRes: own.typeRes ?? 0,
     mAtk: saved.mAtk ?? mAtk0,
     mDef: saved.mDef ?? Math.round(22 * Math.sqrt(mAtk0)),
+    int: saved.int ?? (cls ? BASE_INT[chainOf(data, cls)[0]] : undefined) ?? BASE_INT.mage,
+    intAdd: saved.intAdd,
+    mAtkPct: saved.mAtkPct,
+    mDefPct: saved.mDefPct,
     shot: saved.shot,
     debuffRes: hasDebuffRes(data.slug) ? saved.debuffRes : 0,
+    attribute: r && usesAttributes(data.slug, r) ? (own.attribute ?? 0) : 0,
+    landBonus: r?.t && hasTraitBonus(data.slug) && !usesAttributes(data.slug, r) ? saved.landBonus : 0,
   };
   // only skills with a target stat and a base rate follow the formula
   const rolls = !!r && !!r.s && inCalc.some((lv) => r.v[lv][2] > 0);
+
+  /** chance columns: shots only matter for magic skills */
+  const shots = r?.g ? SHOTS : [duel.shot];
 
   return (
     <main className="skill-page">
@@ -131,7 +156,7 @@ function Content({ data, id, sk, back }: { data: ChronicleData; id: string; sk: 
           onSaved={(v) => setSaved((s) => ({ ...s, ...v }))}
           onReset={() => {
             setOwn({});
-            setSaved({ ...SAVED, mAtk: undefined, mDef: undefined });
+            setSaved({ ...SAVED, mAtk: undefined, mDef: undefined, int: undefined });
           }}
         />
       )}
@@ -157,7 +182,11 @@ function Content({ data, id, sk, back }: { data: ChronicleData; id: string; sk: 
                   <>
                     <th title={t("skill.baseTitle")}>{t("skill.base")}</th>
                     <th title={t("skill.magicLevelTitle")}>{t("skill.magicLevel")}</th>
-                    <th title={t("skill.chanceTitle")}>{t("skill.chance")}</th>
+                    {shots.map((s) => (
+                      <th key={s} className={r.g && s === duel.shot ? "cur" : ""} title={t("skill.chanceTitle")}>
+                        {r.g ? t(`skill.chance_${s}`) : t("skill.chance")}
+                      </th>
+                    ))}
                   </>
                 )}
               </tr>
@@ -186,14 +215,25 @@ function Content({ data, id, sk, back }: { data: ChronicleData; id: string; sk: 
                     <>
                       <td className="n">{r.v[lv][2] > 0 ? `${r.v[lv][2]}%` : t("skill.always")}</td>
                       <td className="n">{r.v[lv][0]}</td>
-                      <td className="n">
-                        <button type="button" className="link" aria-pressed={lv === picked} title={t("skill.showInCalc")} onClick={() => setPicked(lv)}>
-                          {r.v[lv][2] > 0 ? `${fmt1(clampChance(data.slug, landChance(r, lv, duel).raw))}%` : "100%"}
-                        </button>
-                      </td>
+                      {shots.map((s) => (
+                        <td key={s} className={`n${r.g && s === duel.shot ? " cur" : ""}`}>
+                          <button
+                            type="button"
+                            className="link"
+                            aria-pressed={lv === picked && s === duel.shot}
+                            title={t("skill.showInCalc")}
+                            onClick={() => {
+                              setPicked(lv);
+                              if (r.g) setSaved((v) => ({ ...v, shot: s }));
+                            }}
+                          >
+                            {r.v[lv][2] > 0 ? `${fmt1(clampChance(data.slug, landChance(r, lv, { ...duel, shot: s }).raw))}%` : "100%"}
+                          </button>
+                        </td>
+                      ))}
                     </>
                   ) : (
-                    <td colSpan={3}>—</td>
+                    <td colSpan={2 + shots.length}>—</td>
                   ))}
                 </tr>
               ))}

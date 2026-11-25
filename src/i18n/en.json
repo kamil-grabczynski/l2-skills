@@ -165,7 +165,10 @@
     "always": "always",
     "showInCalc": "Show in the calculator",
     "alwaysLands": "The effect always lands: the server does not roll a chance, so stats, M.Atk, shots and level do not matter.",
-    "noStat": "The server data does not say which stat the target resists with. The listed chance is {{rate}}%; it is unknown whether level and M.Atk change it."
+    "noStat": "The server data does not say which stat the target resists with. The listed chance is {{rate}}%; it is unknown whether level and M.Atk change it.",
+    "chance_none": "No shot",
+    "chance_ss": "Spiritshot",
+    "chance_bss": "Blessed"
   },
   "dispel": {
     "title": "Buff removal",
@@ -191,7 +194,6 @@
     "yourMAtk": "Your M.Atk",
     "targetMDef": "Target's M.Def",
     "shots": "Shots",
-    "shotNone": "none",
     "resistance": "Resistance: {{trait}}",
     "debuffRes": "Debuff resistance",
     "reset": "Default values",
@@ -227,12 +229,24 @@
     "noteStart": "The default values are examples.",
     "noteCapRange": "Chance limit: from {{min}}% to {{max}}%.",
     "noteCapMax": "Chance limit: at most {{max}}%.",
-    "noteIgnoredMagic": "Soulshots, P.Atk, WIT and the attacker's character level are not part of the formula.",
+    "noteIgnoredMagic": "Soulshots, P.Atk and the attacker's WIT are not part of the formula, and the character's level counts only through M.Atk. Enter M.Atk from the status window: “Extra INT” and “Extra M.Atk” are added on top of it.",
     "noteIgnoredPhysical": "Physical skill: M.Atk, M.Def, spiritshots, soulshots and P.Atk do not change the debuff chance.",
     "noteData": "{{stat}}, base {{rate}}%, level modifier {{bonus}} and magic level {{magicLevel}} are server data of this chronicle.",
     "noteDataTrait": "{{stat}}, base {{rate}}%, level modifier {{bonus}}, type “{{trait}}” and magic level {{magicLevel}} are server data of this chronicle.",
     "noteFormulaKnown": "The formula itself is <source>documented for Gracia–High Five</source>.",
-    "noteFormulaUnknown": "The formula itself is <source>documented for Gracia–High Five</source>; there is no public confirmation for {{chronicle}}, so the percentages are approximate."
+    "noteFormulaUnknown": "The formula itself is <source>documented for Gracia–High Five</source>; there is no public confirmation for {{chronicle}}, so the percentages are approximate.",
+    "formulaBonus": "× bonuses <b>(×{{factor}})</b>",
+    "yourInt": "Your INT (at that M.Atk)",
+    "intAdd": "Extra INT (dyes, set)",
+    "mAtkPct": "Extra M.Atk",
+    "mDefPct": "Target's extra M.Def",
+    "attributeAdvantage": "Attribute advantage",
+    "mAtkAfter": "M.Atk after changes: {{mAtk}}",
+    "intChange": "INT {{from}} → {{to}} = M.Atk +{{percent}}%",
+    "intTitle": "How INT affects the chance",
+    "intText": "<b>Total INT</b> counts (base, dyes, set and buffs together), with no threshold. The server takes a multiplier from the <source>INT bonus table</source> that grows by about 2% per point. M.Atk is multiplied by its square and sits under the square root in the formula, so the chance grows exactly as the multiplier does. The neutral point lies between 31 and 32 INT: below it the multiplier is a penalty, above it a bonus. At {{int}} INT it is ×{{bonus}}. INT from dyes works the same as base INT; the multiplier is rounded to 1%, so consecutive points give slightly different gains.",
+    "intTotal": "INT",
+    "intMultiplier": "INT multiplier"
   },
   "trait": {
     "Shock": "stun",

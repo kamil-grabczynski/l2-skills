@@ -4,14 +4,18 @@ import type { Resist } from "../types";
 import { chronicleLabel } from "../lib/data";
 import { fmt, fmt1, fmt2 } from "../lib/format";
 import {
-  INT_SQRT_MATK, MEN_MDEF, caps, clampChance, formulaKnown, hasDebuffRes, hasTraitBonus, landChance, shortensDebuffs,
-  traitLabel, usesAttributes, type Duel, type Shot,
+  MEN_MDEF, SHOT, caps, clampChance, finalMAtk, formulaKnown, hasDebuffRes, hasTraitBonus, intBonus, landChance,
+  shortensDebuffs, traitLabel, usesAttributes, type Duel, type Shot,
 } from "../lib/debuff";
 import type { SavedDuel } from "./SkillPage";
 import { NumberField } from "./NumberField";
 
 const SOURCE = "https://l2s.userecho.ru/communities/1/topics/3014-nemnogo-redkoj-informatsii-pro-mehaniku-la2";
-/** target attribute advantage -> bonus to the chance */
+/** attribute advantage -> bonus to the chance */
+const INT_DATA = "https://github.com/master-toma/l2datapack/blob/master/script/PcParameters/stat_bonus/int_bonus.pcparams";
+const SHOTS = Object.keys(SHOT) as Shot[];
+/** rows of the INT table: dyes raise a stat by at most 5 */
+const INT_ROWS = [0, 1, 2, 3, 4, 5];
 const ATTRIBUTE = [[40, 0.2], [150, 0.4], [300, 0.7]] as const;
 
 interface Props {
@@ -56,8 +60,13 @@ export function Landing({ slug, r, lv, levels, duel, onLevel, onOwn, onSaved, on
   const diff = (to: Partial<Duel>, from: Partial<Duel> = {}) =>
     landChance(r, lv, { ...duel, ...to }).raw - landChance(r, lv, { ...duel, ...from }).raw;
   const free = magicLevel + 3;
-  const perLevel = lvBonus * now.magic * now.res;
+  const perLevel = lvBonus * now.magic * now.res * now.bonus;
   const attributes = usesAttributes(slug, r);
+  const trait = hasTraitBonus(slug) && !!r.t && !attributes;
+  const chanceAt = (d: Partial<Duel>) => clampChance(slug, landChance(r, lv, { ...duel, ...d }).raw);
+  const totalInt = duel.int + duel.intAdd;
+  const perInt = (intBonus(totalInt + 1) / intBonus(totalInt)) ** 2;
+  const shotLabel = (s: Shot) => (s === "none" ? t("skill.chance_none") : s === "ss" ? "Spiritshot" : "Blessed Spiritshot");
 
   return (
     <section className="panel sk-block">
@@ -83,6 +92,12 @@ export function Landing({ slug, r, lv, levels, duel, onLevel, onOwn, onSaved, on
             <Trans t={t} i18nKey="landing.formulaRes" values={{ factor: fmt2(now.res) }} components={{ b: <b /> }} />
           </>
         )}
+        {now.bonus !== 1 && (
+          <>
+            {" "}
+            <Trans t={t} i18nKey="landing.formulaBonus" values={{ factor: fmt2(now.bonus) }} components={{ b: <b /> }} />
+          </>
+        )}
       </p>
       <div className="sk-calc">
         <div className="sk-inputs">
@@ -103,13 +118,19 @@ export function Landing({ slug, r, lv, levels, duel, onLevel, onOwn, onSaved, on
           {!!r.g && (
             <>
               <NumberField label={t("landing.yourMAtk")} value={duel.mAtk} min={1} max={50000} onChange={(mAtk) => onSaved({ mAtk })} />
+              <NumberField label={t("landing.yourInt")} value={duel.int} min={1} max={99} onChange={(int) => onSaved({ int })} />
+              <NumberField label={t("landing.intAdd")} value={duel.intAdd} min={-20} max={40} onChange={(intAdd) => onSaved({ intAdd })} />
+              <NumberField label={t("landing.mAtkPct")} value={duel.mAtkPct} min={-90} max={500} suffix="%" onChange={(mAtkPct) => onSaved({ mAtkPct })} />
               <NumberField label={t("landing.targetMDef")} value={duel.mDef} min={1} max={20000} onChange={(mDef) => onSaved({ mDef })} />
+              <NumberField label={t("landing.mDefPct")} value={duel.mDefPct} min={-90} max={500} suffix="%" onChange={(mDefPct) => onSaved({ mDefPct })} />
               <label className="num-field">
                 <span>{t("landing.shots")}</span>
                 <select value={duel.shot} onChange={(e) => onSaved({ shot: e.target.value as Shot })}>
-                  <option value="none">{t("landing.shotNone")}</option>
-                  <option value="ss">Spiritshot</option>
-                  <option value="bss">Blessed Spiritshot</option>
+                  {SHOTS.map((s) => (
+                    <option key={s} value={s}>
+                      {shotLabel(s)}
+                    </option>
+                  ))}
                 </select>
               </label>
             </>
@@ -134,6 +155,19 @@ export function Landing({ slug, r, lv, levels, duel, onLevel, onOwn, onSaved, on
               onChange={(debuffRes) => onSaved({ debuffRes })}
             />
           )}
+          {trait && (
+            <NumberField
+              label={t("landing.landBonus", { trait: traitLabel(r.t) })}
+              value={duel.landBonus}
+              min={-100}
+              max={200}
+              suffix="%"
+              onChange={(landBonus) => onSaved({ landBonus })}
+            />
+          )}
+          {attributes && (
+            <NumberField label={t("landing.attributeAdvantage")} value={duel.attribute} min={-600} max={1000} onChange={(attribute) => onOwn({ attribute })} />
+          )}
           <button type="button" className="sk-reset" onClick={onReset}>
             {t("landing.reset")}
           </button>
@@ -143,6 +177,19 @@ export function Landing({ slug, r, lv, levels, duel, onLevel, onOwn, onSaved, on
           <strong>{fmt1(chance)}%</strong>
           {Math.abs(now.raw - chance) >= 0.05 && (
             <small>{t("landing.capped", { raw: fmt1(now.raw), cap: now.raw > chance ? max : min })}</small>
+          )}
+          {!!r.g && (
+            <>
+              <small>{t("landing.mAtkAfter", { mAtk: fmt(Math.round(finalMAtk(duel))) })}</small>
+              <div className="sk-shots" role="group" aria-label={t("landing.shots")}>
+                {SHOTS.map((s) => (
+                  <button type="button" key={s} aria-pressed={s === duel.shot} onClick={() => onSaved({ shot: s })}>
+                    {shotLabel(s)}
+                    <b>{fmt1(chanceAt({ shot: s }))}%</b>
+                  </button>
+                ))}
+              </div>
+            </>
           )}
         </div>
       </div>
@@ -206,8 +253,8 @@ export function Landing({ slug, r, lv, levels, duel, onLevel, onOwn, onSaved, on
                 <Factor
                   name="INT"
                   note={t("landing.onlyMAtk")}
-                  change="+1 INT = M.Atk +4%"
-                  pp={diff({ mAtk: duel.mAtk * INT_SQRT_MATK ** 2 })}
+                  change={t("landing.intChange", { from: totalInt, to: totalInt + 1, percent: fmt1((perInt - 1) * 100) })}
+                  pp={diff({ mAtk: duel.mAtk * perInt })}
                 />
               </>
             )}
@@ -217,8 +264,13 @@ export function Landing({ slug, r, lv, levels, duel, onLevel, onOwn, onSaved, on
               change={lvBonus > 0 ? t("landing.skillLevelChange") : "—"}
               pp={duel.level > free ? perLevel : 0}
             />
-            {hasTraitBonus(slug) && r.t && !attributes && (
-              <Factor name={t("landing.landBonus", { trait: traitLabel(r.t) })} note={t("landing.landBonusNote")} change="+10%" pp={now.raw * 0.1} />
+            {trait && (
+              <Factor
+                name={t("landing.landBonus", { trait: traitLabel(r.t) })}
+                note={t("landing.landBonusNote")}
+                change="+10%"
+                pp={diff({ landBonus: duel.landBonus + 10 })}
+              />
             )}
             {attributes &&
               ATTRIBUTE.map(([from, bonus], i) => (
@@ -227,12 +279,56 @@ export function Landing({ slug, r, lv, levels, duel, onLevel, onOwn, onSaved, on
                   name={t("landing.attribute", { trait: traitLabel(r.t) })}
                   note={i ? undefined : t("landing.attributeNote")}
                   change={t("landing.attributeChange", { from, factor: fmt2(1 + bonus) })}
-                  pp={now.raw * bonus}
+                  pp={diff({ attribute: from }, { attribute: 0 })}
                 />
               ))}
           </tbody>
         </table>
       </div>
+      {!!r.g && (
+        <div className="sk-int">
+          <h4>{t("landing.intTitle")}</h4>
+          <p>
+            <Trans
+              t={t}
+              i18nKey="landing.intText"
+              values={{ int: duel.int, bonus: fmt2(intBonus(duel.int)) }}
+              components={{ b: <b />, source: <a href={INT_DATA} target="_blank" rel="noreferrer" /> }}
+            />
+          </p>
+          <div className="sk-scroll">
+            <table className="sk-factors">
+              <thead>
+                <tr>
+                  <th>{t("landing.intTotal")}</th>
+                  <th>{t("landing.intMultiplier")}</th>
+                  <th>M.Atk</th>
+                  {SHOTS.map((s) => (
+                    <th key={s}>{shotLabel(s)}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {INT_ROWS.map((add) => (
+                  <tr key={add} className={add === duel.intAdd ? "on" : ""}>
+                    <td>
+                      <b>{duel.int + add}</b>
+                      {add > 0 && ` (+${add})`}
+                    </td>
+                    <td className="n">×{fmt2(intBonus(duel.int + add))}</td>
+                    <td className="n">{fmt(Math.round(finalMAtk({ ...duel, intAdd: add })))}</td>
+                    {SHOTS.map((s) => (
+                      <td key={s} className="n">
+                        {fmt1(chanceAt({ intAdd: add, shot: s }))}%
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
       <ul className="sk-notes">
         <li>
           {t("landing.notePp")} {r.g ? t("landing.noteStartMagic") : t("landing.noteStart")}{" "}

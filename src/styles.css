@@ -477,6 +477,18 @@ input[type=checkbox] { width: 18px; height: 18px; accent-color: var(--accent); f
 .sk-reset:hover { border-color: var(--accent); }
 .sk-chance { flex: 0 1 220px; justify-content: center; }
 .sk-chance small { color: var(--muted); }
+.sk-shots { display: flex; flex-direction: column; gap: 4px; margin-top: 8px; }
+.sk-shots button {
+  display: flex; justify-content: space-between; gap: 8px; border: 1px solid var(--line); background: var(--panel);
+  border-radius: 8px; padding: 4px 8px; font-size: 12px; font-variant-numeric: tabular-nums;
+}
+.sk-shots button:hover, .sk-shots button[aria-pressed="true"] { border-color: var(--accent); }
+.sk-shots button[aria-pressed="true"] b { color: var(--accent); }
+.sk-int { margin-top: 16px; }
+.sk-int h4 { margin: 0 0 6px; font-size: 14px; }
+.sk-int p { font-size: 13px; }
+.sk-int tr.on td { background: var(--accent-soft); }
+.sk-levels th.cur { color: var(--accent); }
 .sk-scroll { overflow-x: auto; }
 .sk-levels, .sk-factors { width: 100%; border-collapse: collapse; font-size: 13px; }
 .sk-levels th, .sk-levels td, .sk-factors th, .sk-factors td { padding: 6px 8px; border-bottom: 1px solid var(--line); vertical-align: top; text-align: left; }

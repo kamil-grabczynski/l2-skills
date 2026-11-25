@@ -173,7 +173,10 @@
     "always": "zawsze",
     "showInCalc": "Pokaż w kalkulatorze",
     "alwaysLands": "Efekt wchodzi zawsze: serwer nie losuje szansy, więc statystyki, M.Atk, shoty i poziom nie mają znaczenia.",
-    "noStat": "Dane serwera nie podają statystyki, którą cel się broni. Wpisana szansa to {{rate}}%; nie wiadomo, czy poziom i M.Atk ją zmieniają."
+    "noStat": "Dane serwera nie podają statystyki, którą cel się broni. Wpisana szansa to {{rate}}%; nie wiadomo, czy poziom i M.Atk ją zmieniają.",
+    "chance_none": "Bez shota",
+    "chance_ss": "Spiritshot",
+    "chance_bss": "Blessed"
   },
   "dispel": {
     "title": "Zdejmowanie buffów",
@@ -199,7 +202,6 @@
     "yourMAtk": "Twój M.Atk",
     "targetMDef": "M.Def celu",
     "shots": "Shoty",
-    "shotNone": "brak",
     "resistance": "Odporność: {{trait}}",
     "debuffRes": "Odporność na debuffy",
     "reset": "Wartości startowe",
@@ -235,12 +237,24 @@
     "noteStart": "Startowe wartości są przykładowe.",
     "noteCapRange": "Limit szansy: od {{min}}% do {{max}}%.",
     "noteCapMax": "Limit szansy: najwyżej {{max}}%.",
-    "noteIgnoredMagic": "Soulshoty, P.Atk, WIT i poziom postaci atakującego nie wchodzą do wzoru.",
+    "noteIgnoredMagic": "Soulshoty, P.Atk i WIT atakującego nie wchodzą do wzoru, a poziom postaci liczy się tylko przez M.Atk. M.Atk wpisz z okna statusu: pola „Dodatkowy INT” i „Dodatkowe M.Atk” doliczają się do niego.",
     "noteIgnoredPhysical": "Skill fizyczny: M.Atk, M.Def, spiritshoty, soulshoty i P.Atk nie zmieniają szansy na debuff.",
     "noteData": "{{stat}}, baza {{rate}}%, mnożnik poziomu {{bonus}} i poziom magiczny {{magicLevel}} to dane serwera tej kroniki.",
     "noteDataTrait": "{{stat}}, baza {{rate}}%, mnożnik poziomu {{bonus}}, typ „{{trait}}” i poziom magiczny {{magicLevel}} to dane serwera tej kroniki.",
     "noteFormulaKnown": "Sam wzór jest <source>opisany dla Gracia–High Five</source>.",
-    "noteFormulaUnknown": "Sam wzór jest <source>opisany dla Gracia–High Five</source>; dla {{chronicle}} nie ma publicznego potwierdzenia, więc procenty są przybliżone."
+    "noteFormulaUnknown": "Sam wzór jest <source>opisany dla Gracia–High Five</source>; dla {{chronicle}} nie ma publicznego potwierdzenia, więc procenty są przybliżone.",
+    "formulaBonus": "× premie <b>(×{{factor}})</b>",
+    "yourInt": "Twój INT (przy tym M.Atk)",
+    "intAdd": "Dodatkowy INT (dye, set)",
+    "mAtkPct": "Dodatkowe M.Atk",
+    "mDefPct": "Dodatkowe M.Def celu",
+    "attributeAdvantage": "Przewaga atrybutu",
+    "mAtkAfter": "M.Atk po zmianach: {{mAtk}}",
+    "intChange": "INT {{from}} → {{to}} = M.Atk +{{percent}}%",
+    "intTitle": "Jak INT wpływa na szansę",
+    "intText": "Liczy się <b>całkowity INT</b> (bazowy, dye, set i buffy razem), bez żadnego progu. Serwer bierze z <source>tabeli premii INT</source> mnożnik, który rośnie o około 2% na punkt. M.Atk mnoży się przez jego kwadrat, a we wzorze jest pod pierwiastkiem, więc szansa rośnie tak samo jak mnożnik. Punkt neutralny leży między 31 a 32 INT: niżej mnożnik jest karą, wyżej premią. Przy {{int}} INT wynosi ×{{bonus}}. INT z dye działa tak samo jak bazowy; mnożnik jest zaokrąglony do 1%, dlatego kolejne punkty dają trochę różne przyrosty.",
+    "intTotal": "INT",
+    "intMultiplier": "Mnożnik INT"
   },
   "trait": {
     "Shock": "ogłuszenie",
