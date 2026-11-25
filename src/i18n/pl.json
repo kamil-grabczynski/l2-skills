@@ -254,7 +254,8 @@
     "intTitle": "Jak INT wpływa na szansę",
     "intText": "Liczy się <b>całkowity INT</b> (bazowy, dye, set i buffy razem), bez żadnego progu. Serwer bierze z <source>tabeli premii INT</source> mnożnik, który rośnie o około 2% na punkt. M.Atk mnoży się przez jego kwadrat, a we wzorze jest pod pierwiastkiem, więc szansa rośnie tak samo jak mnożnik. Punkt neutralny leży między 31 a 32 INT: niżej mnożnik jest karą, wyżej premią. Przy {{int}} INT wynosi ×{{bonus}}. INT z dye działa tak samo jak bazowy; mnożnik jest zaokrąglony do 1%, dlatego kolejne punkty dają trochę różne przyrosty.",
     "intTotal": "INT",
-    "intMultiplier": "Mnożnik INT"
+    "intMultiplier": "Mnożnik INT",
+    "immune": "cel jest odporny na ten typ"
   },
   "trait": {
     "Shock": "ogłuszenie",
@@ -295,5 +296,23 @@
     "range": "zasięg {{range}}",
     "cast": "rzucanie {{time}}",
     "reuse": "odnowienie {{time}}"
+  },
+  "target": {
+    "title": "Cel",
+    "manual": "Wpisz ręcznie",
+    "monster": "Potwór",
+    "player": "Gracz (klasa)",
+    "class": "Klasa",
+    "search": "Szukaj potwora",
+    "searchHint": "Szukaj potwora po nazwie lub poziomie… ({{n}})",
+    "noMatch": "Brak potworów pasujących do „{{query}}”.",
+    "more": "Zawęź wyszukiwanie, aby zobaczyć więcej.",
+    "loading": "Ładowanie potworów…",
+    "failed": "Nie udało się wczytać potworów. Wybierz „Potwór” ponownie.",
+    "missing": "{{name}} nie występuje w {{chronicle}}. Wybierz innego potwora.",
+    "boss": "raid boss",
+    "playerHint": "Bazowe statystyki rasy i klasy, bez dye i buffów.",
+    "monsterHint": "Poziom, statystyki, M.Def i odporności z danych: {{chronicle}}. Każdą wartość możesz poniżej zmienić.",
+    "mDefHint": "Wpisz poziom i M.Def celu z okna statusu (domyślne M.Def jest bez biżuterii)."
   }
 }

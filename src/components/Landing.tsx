@@ -4,7 +4,7 @@ import type { Resist } from "../types";
 import { chronicleLabel } from "../lib/data";
 import { fmt, fmt1, fmt2 } from "../lib/format";
 import {
-  MEN_MDEF, SHOT, caps, clampChance, finalMAtk, formulaKnown, hasDebuffRes, hasTraitBonus, intBonus, landChance,
+  MEN_MDEF, SHOT, caps, finalChance, finalMAtk, formulaKnown, hasDebuffRes, hasTraitBonus, intBonus, landChance,
   shortensDebuffs, traitLabel, usesAttributes, type Duel, type Shot,
 } from "../lib/debuff";
 import type { SavedDuel } from "./SkillPage";
@@ -24,8 +24,11 @@ interface Props {
   lv: number;
   levels: number[];
   duel: Duel;
+  /** choice of the target */
+  target: ReactNode;
   onLevel: (lv: number) => void;
   onOwn: (v: Partial<Duel>) => void;
+  onMDef: (mDef: number) => void;
   onSaved: (v: Partial<SavedDuel>) => void;
   onReset: () => void;
 }
@@ -49,12 +52,13 @@ function Factor({ name, note, change, pp }: { name: ReactNode; note?: string; ch
 }
 
 /** Calculator of the land chance and the influence of every factor. */
-export function Landing({ slug, r, lv, levels, duel, onLevel, onOwn, onSaved, onReset }: Props) {
+export function Landing({ slug, r, lv, levels, duel, target, onLevel, onOwn, onMDef, onSaved, onReset }: Props) {
   const { t } = useTranslation();
   const [magicLevel, lvBonus, rate] = r.v[lv];
   const STAT = r.s.toUpperCase();
   const now = landChance(r, lv, duel);
-  const chance = clampChance(slug, now.raw);
+  const chance = finalChance(slug, r, lv, duel);
+  const immune = now.res === 0;
   const [min, max] = caps(slug);
   /** change of the uncapped chance between two sets of inputs */
   const diff = (to: Partial<Duel>, from: Partial<Duel> = {}) =>
@@ -63,7 +67,7 @@ export function Landing({ slug, r, lv, levels, duel, onLevel, onOwn, onSaved, on
   const perLevel = lvBonus * now.magic * now.res * now.bonus;
   const attributes = usesAttributes(slug, r);
   const trait = hasTraitBonus(slug) && !!r.t && !attributes;
-  const chanceAt = (d: Partial<Duel>) => clampChance(slug, landChance(r, lv, { ...duel, ...d }).raw);
+  const chanceAt = (d: Partial<Duel>) => finalChance(slug, r, lv, { ...duel, ...d });
   const totalInt = duel.int + duel.intAdd;
   const perInt = (intBonus(totalInt + 1) / intBonus(totalInt)) ** 2;
   const shotLabel = (s: Shot) => (s === "none" ? t("skill.chance_none") : s === "ss" ? "Spiritshot" : "Blessed Spiritshot");
@@ -100,82 +104,99 @@ export function Landing({ slug, r, lv, levels, duel, onLevel, onOwn, onSaved, on
         )}
       </p>
       <div className="sk-calc">
-        <div className="sk-inputs">
-          {levels.length > 1 && (
-            <label className="num-field">
-              <span>{t("landing.skillLevel")}</span>
-              <select value={lv} onChange={(e) => onLevel(Number(e.target.value))}>
-                {levels.map((x) => (
-                  <option key={x} value={x}>
-                    Lv {x}
-                  </option>
-                ))}
-              </select>
-            </label>
-          )}
-          <NumberField label={t("landing.targetLevel")} value={duel.level} min={1} max={99} onChange={(level) => onOwn({ level })} />
-          <NumberField label={t("landing.targetStat", { stat: STAT })} value={duel.stat} min={1} max={150} onChange={(stat) => onOwn({ stat })} />
-          {!!r.g && (
-            <>
-              <NumberField label={t("landing.yourMAtk")} value={duel.mAtk} min={1} max={50000} onChange={(mAtk) => onSaved({ mAtk })} />
-              <NumberField label={t("landing.yourInt")} value={duel.int} min={1} max={99} onChange={(int) => onSaved({ int })} />
-              <NumberField label={t("landing.intAdd")} value={duel.intAdd} min={-20} max={40} onChange={(intAdd) => onSaved({ intAdd })} />
-              <NumberField label={t("landing.mAtkPct")} value={duel.mAtkPct} min={-90} max={500} suffix="%" onChange={(mAtkPct) => onSaved({ mAtkPct })} />
-              <NumberField label={t("landing.targetMDef")} value={duel.mDef} min={1} max={20000} onChange={(mDef) => onSaved({ mDef })} />
-              <NumberField label={t("landing.mDefPct")} value={duel.mDefPct} min={-90} max={500} suffix="%" onChange={(mDefPct) => onSaved({ mDefPct })} />
-              <label className="num-field">
-                <span>{t("landing.shots")}</span>
-                <select value={duel.shot} onChange={(e) => onSaved({ shot: e.target.value as Shot })}>
-                  {SHOTS.map((s) => (
-                    <option key={s} value={s}>
-                      {shotLabel(s)}
-                    </option>
-                  ))}
-                </select>
-              </label>
-            </>
-          )}
-          {r.t && !attributes && (
-            <NumberField
-              label={t("landing.resistance", { trait: traitLabel(r.t) })}
-              value={duel.typeRes}
-              min={-100}
-              max={100}
-              suffix="%"
-              onChange={(typeRes) => onOwn({ typeRes })}
-            />
-          )}
-          {hasDebuffRes(slug) && (
-            <NumberField
-              label={t("landing.debuffRes")}
-              value={duel.debuffRes}
-              min={-100}
-              max={100}
-              suffix="%"
-              onChange={(debuffRes) => onSaved({ debuffRes })}
-            />
-          )}
-          {trait && (
-            <NumberField
-              label={t("landing.landBonus", { trait: traitLabel(r.t) })}
-              value={duel.landBonus}
-              min={-100}
-              max={200}
-              suffix="%"
-              onChange={(landBonus) => onSaved({ landBonus })}
-            />
-          )}
-          {attributes && (
-            <NumberField label={t("landing.attributeAdvantage")} value={duel.attribute} min={-600} max={1000} onChange={(attribute) => onOwn({ attribute })} />
-          )}
-          <button type="button" className="sk-reset" onClick={onReset}>
-            {t("landing.reset")}
-          </button>
+        <div className="sk-sides">
+          <div className="sk-side">
+            <div className="sk-side-head">
+              <span className="label">{t("landing.attacker")}</span>
+              <button type="button" className="sk-reset" onClick={onReset}>
+                {t("landing.reset")}
+              </button>
+            </div>
+            <div className="sk-inputs">
+              {levels.length > 1 && (
+                <label className="num-field">
+                  <span>{t("landing.skillLevel")}</span>
+                  <select value={lv} onChange={(e) => onLevel(Number(e.target.value))}>
+                    {levels.map((x) => (
+                      <option key={x} value={x}>
+                        Lv {x}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              )}
+              {!!r.g && (
+                <>
+                  <NumberField label={t("landing.yourMAtk")} value={duel.mAtk} min={1} max={50000} onChange={(mAtk) => onSaved({ mAtk })} />
+                  <NumberField label={t("landing.yourInt")} value={duel.int} min={1} max={99} onChange={(int) => onSaved({ int })} />
+                  <NumberField label={t("landing.intAdd")} value={duel.intAdd} min={-20} max={40} onChange={(intAdd) => onSaved({ intAdd })} />
+                  <NumberField label={t("landing.mAtkPct")} value={duel.mAtkPct} min={-90} max={500} suffix="%" onChange={(mAtkPct) => onSaved({ mAtkPct })} />
+                  <label className="num-field">
+                    <span>{t("landing.shots")}</span>
+                    <select value={duel.shot} onChange={(e) => onSaved({ shot: e.target.value as Shot })}>
+                      {SHOTS.map((s) => (
+                        <option key={s} value={s}>
+                          {shotLabel(s)}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                </>
+              )}
+              {trait && (
+                <NumberField
+                  label={t("landing.landBonus", { trait: traitLabel(r.t) })}
+                  value={duel.landBonus}
+                  min={-100}
+                  max={200}
+                  suffix="%"
+                  onChange={(landBonus) => onSaved({ landBonus })}
+                />
+              )}
+              {attributes && (
+                <NumberField label={t("landing.attributeAdvantage")} value={duel.attribute} min={-600} max={1000} onChange={(attribute) => onOwn({ attribute })} />
+              )}
+            </div>
+          </div>
+          <div className="sk-side">
+            {target}
+            <div className="sk-inputs">
+              <NumberField label={t("landing.targetLevel")} value={duel.level} min={1} max={99} onChange={(level) => onOwn({ level })} />
+              <NumberField label={t("landing.targetStat", { stat: STAT })} value={duel.stat} min={1} max={150} onChange={(stat) => onOwn({ stat })} />
+              {!!r.g && (
+                <>
+                  <NumberField label={t("landing.targetMDef")} value={duel.mDef} min={1} max={20000} onChange={onMDef} />
+                  <NumberField label={t("landing.mDefPct")} value={duel.mDefPct} min={-90} max={500} suffix="%" onChange={(mDefPct) => onSaved({ mDefPct })} />
+                </>
+              )}
+              {r.t && !attributes && (
+                <NumberField
+                  label={t("landing.resistance", { trait: traitLabel(r.t) })}
+                  value={duel.typeRes}
+                  min={-200}
+                  max={100}
+                  suffix="%"
+                  onChange={(typeRes) => onOwn({ typeRes })}
+                />
+              )}
+              {hasDebuffRes(slug) && (
+                <NumberField
+                  label={t("landing.debuffRes")}
+                  value={duel.debuffRes}
+                  min={-100}
+                  max={100}
+                  suffix="%"
+                  onChange={(debuffRes) => onSaved({ debuffRes })}
+                />
+              )}
+            </div>
+          </div>
         </div>
         <div className="stat big sk-chance">
           <span>{t("landing.chance", { lv })}</span>
           <strong>{fmt1(chance)}%</strong>
-          {Math.abs(now.raw - chance) >= 0.05 && (
+          {immune && <small>{t("landing.immune")}</small>}
+          {!immune && Math.abs(now.raw - chance) >= 0.05 && (
             <small>{t("landing.capped", { raw: fmt1(now.raw), cap: now.raw > chance ? max : min })}</small>
           )}
           {!!r.g && (

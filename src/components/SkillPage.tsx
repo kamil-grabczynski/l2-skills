@@ -1,16 +1,18 @@
-import { useMemo, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import type { ChronicleData, SkillInfo } from "../types";
-import { chainOf, chronicleLabel } from "../lib/data";
+import { chronicleLabel, defaultClass } from "../lib/data";
 import { hrefFor } from "../lib/route";
 import { fmt, fmt1, skillMeta } from "../lib/format";
 import { skillDescription, skillEffect } from "../lib/skillText";
 import { usePersistentState } from "../lib/storage";
 import {
-  BASE_INT, SHOT, STAT_DEFAULT, clampChance, hasDebuffRes, hasTraitBonus, landChance, usesAttributes, type Duel, type Shot,
+  SHOT, STAT_DEFAULT, finalChance, hasDebuffRes, hasTraitBonus, usesAttributes, type Duel, type Shot,
 } from "../lib/debuff";
+import { baseStats, findMonster, loadMonsters, playerMDef, type Monster, type TargetChoice, type TargetValues } from "../lib/target";
 import { SkillIcon } from "./ClassIcon";
 import { Landing } from "./Landing";
+import { TargetPicker } from "./TargetPicker";
 
 interface Props {
   data: ChronicleData;
@@ -100,17 +102,42 @@ function Content({ data, id, sk, cls, back }: ContentProps) {
   const [picked, setPicked] = useState(() => (learnable.length ? learnable : inCalc).slice(-1)[0] ?? 0);
   const [saved, setSaved] = usePersistentState<SavedDuel>("spcalc:duel", SAVED);
   const [own, setOwn] = useState<Partial<Duel>>({});
+  const [target, setTarget] = usePersistentState<TargetChoice>("spcalc:target", { kind: "manual" });
+  const [loaded, setLoaded] = useState<{ slug: string; list: Monster[] | null } | null>(null);
+  // a chronicle has its own monsters, loaded when they are first needed
+  useEffect(() => {
+    if (target.kind !== "monster") return;
+    let alive = true;
+    loadMonsters(data.slug).then(
+      (list) => alive && setLoaded({ slug: data.slug, list }),
+      () => alive && setLoaded({ slug: data.slug, list: null }),
+    );
+    return () => {
+      alive = false;
+    };
+  }, [target.kind, data.slug]);
+  const monsters = loaded?.slug === data.slug ? loaded.list : null;
+  const monster = useMemo(() => (monsters && target.monster ? findMonster(monsters, target.monster) : undefined), [monsters, target.monster]);
+  const player = target.cls && data.classes[target.cls] ? target.cls : (cls ?? defaultClass(data));
 
   // M.Def starts where it balances M.Atk with a Blessed Spiritshot (x1), so the first numbers show the plain weights
   const magicLevel = Math.max(r?.v[picked]?.[0] ?? 1, 1);
   const mAtk0 = Math.max(magicLevel, 5) * 10;
+  const manual = target.kind === "manual";
+  const playerLevel = target.level ?? magicLevel;
+  const values: TargetValues | null =
+    target.kind === "monster"
+      ? (monster ?? null)
+      : target.kind === "player"
+        ? { level: playerLevel, stats: baseStats(data, player), mDef: target.mDef ?? playerMDef(data, player, playerLevel), res: {} }
+        : null;
   const duel: Duel = {
-    level: own.level ?? magicLevel,
-    stat: own.stat ?? (r?.s ? STAT_DEFAULT[r.s] : 0),
-    typeRes: own.typeRes ?? 0,
+    level: own.level ?? values?.level ?? magicLevel,
+    stat: own.stat ?? (r?.s ? (values?.stats[r.s as keyof TargetValues["stats"]] ?? STAT_DEFAULT[r.s]) : 0),
+    typeRes: own.typeRes ?? (r?.t && !usesAttributes(data.slug, r) ? values?.res[r.t] : undefined) ?? 0,
     mAtk: saved.mAtk ?? mAtk0,
-    mDef: saved.mDef ?? Math.round(22 * Math.sqrt(mAtk0)),
-    int: saved.int ?? (cls ? BASE_INT[chainOf(data, cls)[0]] : undefined) ?? BASE_INT.mage,
+    mDef: own.mDef ?? values?.mDef ?? saved.mDef ?? Math.round(22 * Math.sqrt(mAtk0)),
+    int: saved.int ?? (cls ? baseStats(data, cls).int : 41),
     intAdd: saved.intAdd,
     mAtkPct: saved.mAtkPct,
     mDefPct: saved.mDefPct,
@@ -152,10 +179,37 @@ function Content({ data, id, sk, cls, back }: ContentProps) {
           levels={inCalc}
           duel={duel}
           onLevel={setPicked}
-          onOwn={(v) => setOwn((o) => ({ ...o, ...v }))}
+          target={
+            <TargetPicker
+              data={data}
+              choice={{ ...target, cls: player }}
+              monsters={monsters}
+              failed={loaded?.slug === data.slug && !loaded.list}
+              monster={monster}
+              values={values}
+              stat={r.s}
+              magic={!!r.g}
+              onChoice={(v) => {
+                // a new target starts from its own values
+                setOwn({});
+                setTarget((c) => ({ ...c, ...v }));
+              }}
+            />
+          }
+          onOwn={(v) => {
+            // level and M.Def of a player are kept with the picked class, so they survive opening another skill
+            if (target.kind === "player" && v.level !== undefined) setTarget((c) => ({ ...c, level: v.level }));
+            else setOwn((o) => ({ ...o, ...v }));
+          }}
+          onMDef={(mDef) => {
+            if (manual) setSaved((s) => ({ ...s, mDef }));
+            else if (target.kind === "player") setTarget((c) => ({ ...c, cls: player, mDef }));
+            else setOwn((o) => ({ ...o, mDef }));
+          }}
           onSaved={(v) => setSaved((s) => ({ ...s, ...v }))}
           onReset={() => {
             setOwn({});
+            setTarget((c) => ({ ...c, level: undefined, mDef: undefined }));
             setSaved({ ...SAVED, mAtk: undefined, mDef: undefined, int: undefined });
           }}
         />
@@ -227,7 +281,7 @@ function Content({ data, id, sk, cls, back }: ContentProps) {
                               if (r.g) setSaved((v) => ({ ...v, shot: s }));
                             }}
                           >
-                            {r.v[lv][2] > 0 ? `${fmt1(clampChance(data.slug, landChance(r, lv, { ...duel, shot: s }).raw))}%` : "100%"}
+                            {r.v[lv][2] > 0 ? `${fmt1(finalChance(data.slug, r, lv, { ...duel, shot: s }))}%` : "100%"}
                           </button>
                         </td>
                       ))}

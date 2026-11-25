@@ -246,7 +246,8 @@
     "intTitle": "How INT affects the chance",
     "intText": "<b>Total INT</b> counts (base, dyes, set and buffs together), with no threshold. The server takes a multiplier from the <source>INT bonus table</source> that grows by about 2% per point. M.Atk is multiplied by its square and sits under the square root in the formula, so the chance grows exactly as the multiplier does. The neutral point lies between 31 and 32 INT: below it the multiplier is a penalty, above it a bonus. At {{int}} INT it is ×{{bonus}}. INT from dyes works the same as base INT; the multiplier is rounded to 1%, so consecutive points give slightly different gains.",
     "intTotal": "INT",
-    "intMultiplier": "INT multiplier"
+    "intMultiplier": "INT multiplier",
+    "immune": "the target is immune to this type"
   },
   "trait": {
     "Shock": "stun",
@@ -287,5 +288,23 @@
     "range": "range {{range}}",
     "cast": "cast {{time}}",
     "reuse": "reuse {{time}}"
+  },
+  "target": {
+    "title": "Target",
+    "manual": "Enter manually",
+    "monster": "Monster",
+    "player": "Player (class)",
+    "class": "Class",
+    "search": "Search monsters",
+    "searchHint": "Search monsters by name or level… ({{n}})",
+    "noMatch": "No monsters match “{{query}}”.",
+    "more": "Narrow the search to see more.",
+    "loading": "Loading monsters…",
+    "failed": "Could not load the monsters. Pick “Monster” again.",
+    "missing": "{{name}} does not exist in {{chronicle}}. Pick another monster.",
+    "boss": "raid boss",
+    "playerHint": "Base stats of the race and class, without dyes and buffs.",
+    "monsterHint": "Level, stats, M.Def and resistances from the data of {{chronicle}}. You can change every value below.",
+    "mDefHint": "Enter the target's level and M.Def from the status window (the default M.Def is without jewelry)."
   }
 }

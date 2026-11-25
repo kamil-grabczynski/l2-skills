@@ -468,14 +468,14 @@ input[type=checkbox] { width: 18px; height: 18px; accent-color: var(--accent); f
 .sk-formula { background: var(--panel-2); border-radius: 10px; padding: 10px 12px; font-variant-numeric: tabular-nums; }
 .sk-formula b { color: var(--accent); }
 .sk-calc { display: flex; flex-wrap: wrap; gap: 12px; align-items: stretch; margin-bottom: 12px; }
-.sk-inputs { flex: 1 1 420px; min-width: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; align-items: end; }
+.sk-inputs { min-width: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; align-items: end; }
 .num-field { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
 .num-field > span:first-child { font-size: 11px; color: var(--muted); }
 .num-field select, .num-input input { width: 100%; }
 .num-input { display: flex; align-items: center; gap: 6px; }
 .sk-reset { border: 1px solid var(--line); background: var(--panel-2); border-radius: 8px; padding: 7px 9px; font-size: 13px; }
 .sk-reset:hover { border-color: var(--accent); }
-.sk-chance { flex: 0 1 220px; justify-content: center; }
+.sk-chance { flex: 0 1 220px; align-self: flex-start; position: sticky; top: 12px; padding: 12px; }
 .sk-chance small { color: var(--muted); }
 .sk-shots { display: flex; flex-direction: column; gap: 4px; margin-top: 8px; }
 .sk-shots button {
@@ -484,6 +484,28 @@ input[type=checkbox] { width: 18px; height: 18px; accent-color: var(--accent); f
 }
 .sk-shots button:hover, .sk-shots button[aria-pressed="true"] { border-color: var(--accent); }
 .sk-shots button[aria-pressed="true"] b { color: var(--accent); }
+.sk-sides { flex: 1 1 420px; min-width: 0; display: flex; flex-direction: column; gap: 12px; }
+.sk-side { border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; display: flex; flex-direction: column; gap: 10px; }
+.sk-side-head { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; }
+.sk-side-head .sk-reset { margin-left: auto; padding: 4px 9px; font-size: 12px; }
+.sk-target-row { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; }
+.sk-target-row .num-field { flex: 1 1 160px; max-width: 260px; }
+.sk-block .sk-side .hint { margin: 0; }
+.sk-block .sk-target-info { margin: 0; font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.sk-target-info b { color: var(--text); }
+.sk-target-info .tag { margin-left: 6px; }
+.sk-target-info small { display: block; font-size: 11px; margin-top: 2px; }
+.sk-search { position: relative; max-width: 460px; }
+.sk-search input { width: 100%; }
+.sk-search ul {
+  position: absolute; z-index: 20; left: 0; right: 0; top: calc(100% + 4px); max-height: 320px; overflow: auto; margin: 0; padding: 4px;
+  list-style: none; background: var(--panel); border: 1px solid var(--line); border-radius: 10px; box-shadow: 0 8px 24px rgba(0,0,0,.3);
+}
+.sk-search li { display: flex; justify-content: space-between; gap: 10px; padding: 6px 8px; border-radius: 7px; cursor: pointer; }
+.sk-search li .tag { margin-left: 6px; }
+.sk-search li small { color: var(--muted); white-space: nowrap; }
+.sk-search li[aria-selected="true"] { background: var(--accent-soft); }
+.sk-search li.none { color: var(--muted); cursor: default; }
 .sk-int { margin-top: 16px; }
 .sk-int h4 { margin: 0 0 6px; font-size: 14px; }
 .sk-int p { font-size: 13px; }
@@ -509,5 +531,5 @@ input[type=checkbox] { width: 18px; height: 18px; accent-color: var(--accent); f
 @media (max-width: 600px) {
   .skill-page { padding: 12px 12px 24px; }
   .sk-block, .sk-head { padding: 12px; }
-  .sk-chance { flex: 1 1 100%; }
+  .sk-chance { flex: 1 1 100%; position: static; }
 }

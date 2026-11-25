@@ -57,12 +57,6 @@ export function attributeBonus(advantage: number): number {
   return advantage < 150 ? 1.2 : advantage < 300 ? 1.4 : 1.7;
 }
 
-/** Base INT of the starting class, only a starting point for the calculator. */
-export const BASE_INT: Record<string, number> = {
-  fighter: 21, mage: 41, elven_fighter: 23, elven_mage: 37, dark_fighter: 25, dark_mage: 44,
-  orc_fighter: 18, orc_mage: 31, dwarven_fighter: 20, kamael_m_soldier: 29, kamael_f_soldier: 28,
-};
-
 export interface Chance {
   /** 30 + base - stat - level penalty, never below 0 */
   partial: number;
@@ -114,6 +108,12 @@ export const clampChance = (slug: string, raw: number) => {
   const [min, max] = caps(slug);
   return Math.min(Math.max(raw, min), max);
 };
+
+/** Land chance within the limits; full resistance is immunity, which the lower limit does not lift. */
+export function finalChance(slug: string, r: Resist, lv: number, d: Duel): number {
+  const c = landChance(r, lv, d);
+  return c.res === 0 ? 0 : clampChance(slug, c.raw);
+}
 
 /** A typical value of the stat, only a starting point for the calculator. */
 export const STAT_DEFAULT: Record<string, number> = { str: 40, dex: 30, con: 40, int: 25, wit: 20, men: 25 };
