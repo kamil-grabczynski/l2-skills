@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import type { ChronicleData, SkillInfo } from "../types";
-import { chronicleLabel, defaultClass } from "../lib/data";
+import { chainOf, chronicleLabel, defaultClass } from "../lib/data";
 import { hrefFor } from "../lib/route";
 import { fmt, fmt1, skillMeta } from "../lib/format";
 import { skillDescription, skillEffect } from "../lib/skillText";
@@ -137,7 +137,10 @@ function Content({ data, id, sk, cls, back }: ContentProps) {
         ? { level: playerLevel, stats: baseStats(data, player), mDef: target.mDef ?? playerMDef(data, player, playerLevel), res: {} }
         : null;
   // a class as the attacker fills in INT and M.Atk; typed values win
-  const caster = attacker.cls && data.classes[attacker.cls] ? attacker.cls : (cls ?? defaultClass(data));
+  const learners = Object.keys(data.classes).filter((c) => data.classes[c].rows.some((row) => row[1] === Number(id)));
+  const casts = (c: string) => chainOf(data, c).some((x) => learners.includes(x));
+  const caster =
+    attacker.cls && data.classes[attacker.cls] ? attacker.cls : cls && casts(cls) ? cls : (learners[0] ?? cls ?? defaultClass(data));
   const asClass = attacker.kind === "player";
   const casterLevel = attacker.level ?? magicLevel;
   const weapon = attacker.weapon ?? weaponMAtk(data.slug, casterLevel);
