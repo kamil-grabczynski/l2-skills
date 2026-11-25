@@ -1,13 +1,13 @@
-import { useDeferredValue, useEffect, useId, useMemo, useRef, useState } from "react";
+import { useCallback, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import type { ChronicleData } from "../types";
 import { chainOf, depthOf, raceKey, raceLabel, raceRank, tierLabel } from "../lib/data";
 import { fmt, fmt1 } from "../lib/format";
 import { traitLabel } from "../lib/debuff";
 import { searchMonsters, type Monster, type Stats, type TargetChoice, type TargetValues } from "../lib/target";
+import { Combobox } from "./Combobox";
 
 const KINDS = ["manual", "monster", "player"] as const;
-const LIMIT = 60;
 
 interface Props {
   data: ChronicleData;
@@ -109,93 +109,29 @@ interface SearchProps {
   onPick: (m: Monster) => void;
 }
 
-/** Text field with a list of matching monsters (combobox). */
 function MonsterSearch({ monsters, monster, onPick }: SearchProps) {
   const { t } = useTranslation();
-  const listId = useId();
-  const [query, setQuery] = useState("");
-  const [open, setOpen] = useState(false);
-  const [active, setActive] = useState(0);
-  const box = useRef<HTMLDivElement>(null);
-  const q = useDeferredValue(query);
-  const hits = useMemo(() => searchMonsters(monsters, q, LIMIT), [monsters, q]);
-  const shown = open && q.trim() !== "";
-
-  useEffect(() => setActive(0), [q]);
-  useEffect(() => {
-    if (!shown) return;
-    box.current?.querySelector('[aria-selected="true"]')?.scrollIntoView({ block: "nearest" });
-  }, [shown, active]);
-
-  const pick = (m: Monster | undefined) => {
-    if (!m) return;
-    onPick(m);
-    setQuery("");
-    setOpen(false);
-  };
-
+  const search = useCallback((query: string, limit: number) => searchMonsters(monsters, query, limit), [monsters]);
   return (
-    <div
-      className="sk-search"
-      ref={box}
-      onBlur={(e) => {
-        if (!e.currentTarget.contains(e.relatedTarget)) setOpen(false);
-      }}
-    >
-      <input
-        type="search"
-        role="combobox"
-        aria-expanded={shown}
-        aria-controls={listId}
-        aria-activedescendant={shown && hits[active] ? `${listId}-${active}` : undefined}
-        aria-label={t("target.search")}
-        placeholder={monster ? `${monster.name} (Lv ${monster.level})` : t("target.searchHint", { n: fmt(monsters.length) })}
-        value={query}
-        onChange={(e) => {
-          setQuery(e.target.value);
-          setOpen(true);
-        }}
-        onFocus={() => setOpen(true)}
-        onKeyDown={(e) => {
-          if (e.key === "ArrowDown" || e.key === "ArrowUp") {
-            e.preventDefault();
-            if (!hits.length) return;
-            setOpen(true);
-            setActive((i) => (i + (e.key === "ArrowDown" ? 1 : -1) + hits.length) % hits.length);
-          } else if (e.key === "Enter") {
-            e.preventDefault();
-            pick(hits[active]);
-          } else if (e.key === "Escape") setOpen(false);
-        }}
-      />
-      {shown && (
-        <ul id={listId} role="listbox" aria-label={t("target.search")}>
-          {hits.map((m, i) => (
-            <li
-              key={`${m.name}-${m.level}-${m.mDef}-${i}`}
-              id={`${listId}-${i}`}
-              role="option"
-              aria-selected={i === active}
-              onMouseEnter={() => setActive(i)}
-              onMouseDown={(e) => {
-                e.preventDefault();
-                pick(m);
-              }}
-            >
-              <span>
-                {m.name}
-                {m.boss && <span className="tag">{t("target.boss")}</span>}
-              </span>
-              <small>
-                Lv {m.level} · M.Def {fmt(m.mDef)}
-              </small>
-            </li>
-          ))}
-          {!hits.length && <li className="none">{t("target.noMatch", { query: q.trim() })}</li>}
-          {hits.length === LIMIT && <li className="none">{t("target.more")}</li>}
-        </ul>
+    <Combobox
+      label={t("target.search")}
+      placeholder={monster ? `${monster.name} (Lv ${monster.level})` : t("target.searchHint", { n: fmt(monsters.length) })}
+      search={search}
+      itemKey={(m) => monsters.indexOf(m)}
+      empty={(query) => t("target.noMatch", { query })}
+      onPick={onPick}
+      render={(m) => (
+        <>
+          <span>
+            {m.name}
+            {m.boss && <span className="tag">{t("target.boss")}</span>}
+          </span>
+          <small>
+            Lv {m.level} · M.Def {fmt(m.mDef)}
+          </small>
+        </>
       )}
-    </div>
+    />
   );
 }
 

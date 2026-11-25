@@ -11,6 +11,7 @@ import { currentLang } from "./i18n";
 import { loadSkillTexts } from "./lib/skillText";
 import { Sidebar, type Totals } from "./components/Sidebar";
 import { ClassPicker } from "./components/ClassPicker";
+import { SkillSearch } from "./components/SkillSearch";
 import { LanguageSwitch } from "./components/LanguageSwitch";
 import { ChronicleBar } from "./components/ChronicleBar";
 import { ChronicleTable } from "./components/ChronicleTable";
@@ -353,6 +354,7 @@ export default function App() {
           <h1>Lineage 2 skills SP</h1>
           <span className="sub">{t("app.subtitle")}</span>
         </a>
+        <SkillSearch data={ready ? data : null} />
         <LanguageSwitch />
       </header>
       <ChronicleBar chronicles={chronicles ?? []} active={activeSlug} onPick={pickChronicle} />

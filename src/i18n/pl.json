@@ -15,7 +15,8 @@
     "skillLevels_one": "{{count}} poziom skila",
     "skillLevels_few": "{{count}} poziomy skili",
     "skillLevels_many": "{{count}} poziomów skili",
-    "skillLevels_other": "{{count}} poziomu skila"
+    "skillLevels_other": "{{count}} poziomu skila",
+    "searchMore": "Zawęź wyszukiwanie, aby zobaczyć więcej."
   },
   "app": {
     "subtitle": "Kalkulator SP skili · C1 – High Five",
@@ -306,7 +307,6 @@
     "search": "Szukaj potwora",
     "searchHint": "Szukaj potwora po nazwie lub poziomie… ({{n}})",
     "noMatch": "Brak potworów pasujących do „{{query}}”.",
-    "more": "Zawęź wyszukiwanie, aby zobaczyć więcej.",
     "loading": "Ładowanie potworów…",
     "failed": "Nie udało się wczytać potworów. Wybierz „Potwór” ponownie.",
     "missing": "{{name}} nie występuje w {{chronicle}}. Wybierz innego potwora.",
@@ -314,5 +314,10 @@
     "playerHint": "Bazowe statystyki rasy i klasy, bez dye i buffów.",
     "monsterHint": "Poziom, statystyki, M.Def i odporności z danych: {{chronicle}}. Każdą wartość możesz poniżej zmienić.",
     "mDefHint": "Wpisz poziom i M.Def celu z okna statusu (domyślne M.Def jest bez biżuterii)."
+  },
+  "skillSearch": {
+    "label": "Szukaj skila wszystkich klas",
+    "placeholder": "Szukaj skila wszystkich klas ({{chronicle}})…",
+    "empty": "Brak skili pasujących do „{{query}}” w {{chronicle}}."
   }
 }

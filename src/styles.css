@@ -52,6 +52,24 @@ button { cursor: pointer; }
 .brand h1 { margin: 0; font-size: 20px; letter-spacing: .3px; }
 .brand .sub { color: var(--muted); font-size: 12px; }
 
+/* text field with a list of matches */
+.combo { position: relative; max-width: 460px; }
+.combo input { width: 100%; }
+.combo ul {
+  position: absolute; z-index: 60; left: 0; right: 0; top: calc(100% + 4px); max-height: min(420px, 60vh); overflow: auto; margin: 0; padding: 4px;
+  list-style: none; background: var(--panel); border: 1px solid var(--line); border-radius: 10px; box-shadow: 0 8px 24px rgba(0,0,0,.3);
+}
+.combo li { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 6px 8px; border-radius: 7px; cursor: pointer; }
+.combo li .tag { margin-left: 6px; }
+.combo li small { color: var(--muted); white-space: nowrap; }
+.combo li[aria-selected="true"] { background: var(--accent-soft); }
+.combo li.none { color: var(--muted); cursor: default; }
+.combo li .icon { flex: none; }
+.combo-text { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.combo-text small { overflow: hidden; text-overflow: ellipsis; }
+.top-search { flex: 1 1 260px; max-width: 460px; }
+@media (max-width: 700px) { .top-search { order: 3; flex-basis: 100%; max-width: none; } .top-search .combo { max-width: none; } }
+
 /* ---------- chronicle bar ---------- */
 .chronicle-bar {
   display: flex; flex-wrap: wrap; align-items: center; gap: 6px; padding: 10px 20px;
@@ -495,17 +513,6 @@ input[type=checkbox] { width: 18px; height: 18px; accent-color: var(--accent); f
 .sk-target-info b { color: var(--text); }
 .sk-target-info .tag { margin-left: 6px; }
 .sk-target-info small { display: block; font-size: 11px; margin-top: 2px; }
-.sk-search { position: relative; max-width: 460px; }
-.sk-search input { width: 100%; }
-.sk-search ul {
-  position: absolute; z-index: 20; left: 0; right: 0; top: calc(100% + 4px); max-height: 320px; overflow: auto; margin: 0; padding: 4px;
-  list-style: none; background: var(--panel); border: 1px solid var(--line); border-radius: 10px; box-shadow: 0 8px 24px rgba(0,0,0,.3);
-}
-.sk-search li { display: flex; justify-content: space-between; gap: 10px; padding: 6px 8px; border-radius: 7px; cursor: pointer; }
-.sk-search li .tag { margin-left: 6px; }
-.sk-search li small { color: var(--muted); white-space: nowrap; }
-.sk-search li[aria-selected="true"] { background: var(--accent-soft); }
-.sk-search li.none { color: var(--muted); cursor: default; }
 .sk-int { margin-top: 16px; }
 .sk-int h4 { margin: 0 0 6px; font-size: 14px; }
 .sk-int p { font-size: 13px; }

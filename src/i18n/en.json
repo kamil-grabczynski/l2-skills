@@ -11,7 +11,8 @@
     "skills_one": "{{count}} skill",
     "skills_other": "{{count}} skills",
     "skillLevels_one": "{{count}} skill level",
-    "skillLevels_other": "{{count}} skill levels"
+    "skillLevels_other": "{{count}} skill levels",
+    "searchMore": "Narrow the search to see more."
   },
   "app": {
     "subtitle": "Skill SP calculator · C1 – High Five",
@@ -298,7 +299,6 @@
     "search": "Search monsters",
     "searchHint": "Search monsters by name or level… ({{n}})",
     "noMatch": "No monsters match “{{query}}”.",
-    "more": "Narrow the search to see more.",
     "loading": "Loading monsters…",
     "failed": "Could not load the monsters. Pick “Monster” again.",
     "missing": "{{name}} does not exist in {{chronicle}}. Pick another monster.",
@@ -306,5 +306,10 @@
     "playerHint": "Base stats of the race and class, without dyes and buffs.",
     "monsterHint": "Level, stats, M.Def and resistances from the data of {{chronicle}}. You can change every value below.",
     "mDefHint": "Enter the target's level and M.Def from the status window (the default M.Def is without jewelry)."
+  },
+  "skillSearch": {
+    "label": "Search skills of all classes",
+    "placeholder": "Search skills of all classes ({{chronicle}})…",
+    "empty": "No skills match “{{query}}” in {{chronicle}}."
   }
 }
