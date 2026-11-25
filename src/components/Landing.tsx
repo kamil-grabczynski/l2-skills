@@ -1,7 +1,8 @@
 import type { ReactNode } from "react";
+import { Trans, useTranslation } from "react-i18next";
 import type { Resist } from "../types";
 import { chronicleLabel } from "../lib/data";
-import { fmt1, fmt2 } from "../lib/format";
+import { fmt, fmt1, fmt2 } from "../lib/format";
 import {
   INT_SQRT_MATK, MEN_MDEF, caps, clampChance, formulaKnown, hasDebuffRes, hasTraitBonus, landChance, shortensDebuffs,
   traitLabel, usesAttributes, type Duel, type Shot,
@@ -45,6 +46,7 @@ function Factor({ name, note, change, pp }: { name: ReactNode; note?: string; ch
 
 /** Calculator of the land chance and the influence of every factor. */
 export function Landing({ slug, r, lv, levels, duel, onLevel, onOwn, onSaved, onReset }: Props) {
+  const { t } = useTranslation();
   const [magicLevel, lvBonus, rate] = r.v[lv];
   const STAT = r.s.toUpperCase();
   const now = landChance(r, lv, duel);
@@ -59,26 +61,26 @@ export function Landing({ slug, r, lv, levels, duel, onLevel, onOwn, onSaved, on
 
   return (
     <section className="panel sk-block">
-      <h3>Od czego zależy wejście</h3>
+      <h3>{t("landing.title")}</h3>
       <p className="sk-formula">
-        Szansa = (30 + baza <b>{rate}</b> − {STAT} celu <b>{duel.stat}</b>
+        <Trans t={t} i18nKey="landing.formulaBase" values={{ rate, stat: STAT, value: duel.stat }} components={{ b: <b /> }} />
         {lvBonus > 0 && (
           <>
             {" "}
-            − kara za poziom <b>{fmt1(now.penalty)}</b>
+            <Trans t={t} i18nKey="landing.formulaPenalty" values={{ penalty: fmt1(now.penalty) }} components={{ b: <b /> }} />
           </>
         )}
         )
         {!!r.g && (
           <>
             {" "}
-            × 11 × √(M.Atk × shot) ÷ M.Def <b>(×{fmt2(now.magic)})</b>
+            <Trans t={t} i18nKey="landing.formulaMagic" values={{ factor: fmt2(now.magic) }} components={{ b: <b /> }} />
           </>
         )}
         {now.res !== 1 && (
           <>
             {" "}
-            × odporności <b>(×{fmt2(now.res)})</b>
+            <Trans t={t} i18nKey="landing.formulaRes" values={{ factor: fmt2(now.res) }} components={{ b: <b /> }} />
           </>
         )}
       </p>
@@ -86,7 +88,7 @@ export function Landing({ slug, r, lv, levels, duel, onLevel, onOwn, onSaved, on
         <div className="sk-inputs">
           {levels.length > 1 && (
             <label className="num-field">
-              <span>Poziom skila</span>
+              <span>{t("landing.skillLevel")}</span>
               <select value={lv} onChange={(e) => onLevel(Number(e.target.value))}>
                 {levels.map((x) => (
                   <option key={x} value={x}>
@@ -96,16 +98,16 @@ export function Landing({ slug, r, lv, levels, duel, onLevel, onOwn, onSaved, on
               </select>
             </label>
           )}
-          <NumberField label="Poziom celu" value={duel.level} min={1} max={99} onChange={(level) => onOwn({ level })} />
-          <NumberField label={`${STAT} celu`} value={duel.stat} min={1} max={150} onChange={(stat) => onOwn({ stat })} />
+          <NumberField label={t("landing.targetLevel")} value={duel.level} min={1} max={99} onChange={(level) => onOwn({ level })} />
+          <NumberField label={t("landing.targetStat", { stat: STAT })} value={duel.stat} min={1} max={150} onChange={(stat) => onOwn({ stat })} />
           {!!r.g && (
             <>
-              <NumberField label="Twój M.Atk" value={duel.mAtk} min={1} max={50000} onChange={(mAtk) => onSaved({ mAtk })} />
-              <NumberField label="M.Def celu" value={duel.mDef} min={1} max={20000} onChange={(mDef) => onSaved({ mDef })} />
+              <NumberField label={t("landing.yourMAtk")} value={duel.mAtk} min={1} max={50000} onChange={(mAtk) => onSaved({ mAtk })} />
+              <NumberField label={t("landing.targetMDef")} value={duel.mDef} min={1} max={20000} onChange={(mDef) => onSaved({ mDef })} />
               <label className="num-field">
-                <span>Shoty</span>
+                <span>{t("landing.shots")}</span>
                 <select value={duel.shot} onChange={(e) => onSaved({ shot: e.target.value as Shot })}>
-                  <option value="none">brak</option>
+                  <option value="none">{t("landing.shotNone")}</option>
                   <option value="ss">Spiritshot</option>
                   <option value="bss">Blessed Spiritshot</option>
                 </select>
@@ -114,7 +116,7 @@ export function Landing({ slug, r, lv, levels, duel, onLevel, onOwn, onSaved, on
           )}
           {r.t && !attributes && (
             <NumberField
-              label={`Odporność: ${traitLabel(r.t)}`}
+              label={t("landing.resistance", { trait: traitLabel(r.t) })}
               value={duel.typeRes}
               min={-100}
               max={100}
@@ -124,7 +126,7 @@ export function Landing({ slug, r, lv, levels, duel, onLevel, onOwn, onSaved, on
           )}
           {hasDebuffRes(slug) && (
             <NumberField
-              label="Odporność na debuffy"
+              label={t("landing.debuffRes")}
               value={duel.debuffRes}
               min={-100}
               max={100}
@@ -133,16 +135,14 @@ export function Landing({ slug, r, lv, levels, duel, onLevel, onOwn, onSaved, on
             />
           )}
           <button type="button" className="sk-reset" onClick={onReset}>
-            Wartości startowe
+            {t("landing.reset")}
           </button>
         </div>
         <div className="stat big sk-chance">
-          <span>Szansa wejścia, Lv {lv}</span>
+          <span>{t("landing.chance", { lv })}</span>
           <strong>{fmt1(chance)}%</strong>
           {Math.abs(now.raw - chance) >= 0.05 && (
-            <small>
-              z wzoru {fmt1(now.raw)}%, limit {now.raw > chance ? max : min}%
-            </small>
+            <small>{t("landing.capped", { raw: fmt1(now.raw), cap: now.raw > chance ? max : min })}</small>
           )}
         </div>
       </div>
@@ -151,82 +151,82 @@ export function Landing({ slug, r, lv, levels, duel, onLevel, onOwn, onSaved, on
         <table className="sk-factors">
           <thead>
             <tr>
-              <th>Czynnik</th>
-              <th>Zmiana</th>
-              <th>Wpływ na szansę</th>
+              <th>{t("landing.factor")}</th>
+              <th>{t("landing.change")}</th>
+              <th>{t("landing.impact")}</th>
             </tr>
           </thead>
           <tbody>
             <tr className="grp">
-              <th colSpan={3}>Obrońca</th>
+              <th colSpan={3}>{t("landing.defender")}</th>
             </tr>
             <Factor
               name={STAT}
-              note={r.g && r.s === "men" ? "wprost i przez M.Def" : undefined}
+              note={r.g && r.s === "men" ? t("landing.menNote") : undefined}
               change={`+1 ${STAT}`}
               pp={diff({ stat: duel.stat + 1, mDef: r.s === "men" ? duel.mDef * MEN_MDEF : duel.mDef })}
             />
             {!!r.g && (
               <>
                 {r.s !== "men" && (
-                  <Factor name="MEN" note="tylko przez M.Def" change="+1 MEN = M.Def +1%" pp={diff({ mDef: duel.mDef * MEN_MDEF })} />
+                  <Factor name="MEN" note={t("landing.onlyMDef")} change="+1 MEN = M.Def +1%" pp={diff({ mDef: duel.mDef * MEN_MDEF })} />
                 )}
                 <Factor name="M.Def" change="+10%" pp={diff({ mDef: duel.mDef * 1.1 })} />
               </>
             )}
             <Factor
-              name="Różnica poziomów"
+              name={t("landing.levelDiff")}
               note={
                 lvBonus > 0
-                  ? `liczy się poziom skila (${magicLevel}), nie postaci; cel do poziomu ${free} bez kary, niższy nie daje premii`
-                  : "ten skill nie zależy od poziomu celu"
+                  ? t("landing.levelDiffNote", { magicLevel, free })
+                  : t("landing.levelDiffNone")
               }
-              change={lvBonus > 0 ? `każdy poziom celu ponad ${free}` : "—"}
+              change={lvBonus > 0 ? t("landing.levelDiffChange", { free }) : "—"}
               pp={-perLevel}
             />
             {r.t && !attributes && (
-              <Factor name={`Odporność: ${traitLabel(r.t)}`} change="+10%" pp={diff({ typeRes: duel.typeRes + 10 })} />
+              <Factor name={t("landing.resistance", { trait: traitLabel(r.t) })} change="+10%" pp={diff({ typeRes: duel.typeRes + 10 })} />
             )}
             {hasDebuffRes(slug) && (
               <Factor
-                name="Ogólna odporność na debuffy"
-                note={shortensDebuffs(slug) ? "odporności mogą też skrócić czas działania" : undefined}
+                name={t("landing.generalRes")}
+                note={shortensDebuffs(slug) ? t("landing.generalResNote") : undefined}
                 change="+10%"
                 pp={diff({ debuffRes: duel.debuffRes + 10 })}
               />
             )}
             <tr className="grp">
-              <th colSpan={3}>Atakujący</th>
+              <th colSpan={3}>{t("landing.attacker")}</th>
             </tr>
             {!!r.g && (
               <>
-                <Factor name="Spiritshot" change="brak → Spiritshot (×1,41)" pp={diff({ shot: "ss" }, { shot: "none" })} />
-                <Factor name="Blessed Spiritshot" change="brak → Blessed (×2)" pp={diff({ shot: "bss" }, { shot: "none" })} />
-                <Factor name="M.Atk" note="pod pierwiastkiem" change="+10%" pp={diff({ mAtk: duel.mAtk * 1.1 })} />
+                <Factor name="Spiritshot" change={t("landing.ssChange", { factor: fmt2(Math.SQRT2) })} pp={diff({ shot: "ss" }, { shot: "none" })} />
+                <Factor name="Blessed Spiritshot" change={t("landing.bssChange")} pp={diff({ shot: "bss" }, { shot: "none" })} />
+                <Factor name="M.Atk" note={t("landing.underRoot")} change="+10%" pp={diff({ mAtk: duel.mAtk * 1.1 })} />
                 <Factor
                   name="INT"
-                  note="tylko przez M.Atk"
+                  note={t("landing.onlyMAtk")}
                   change="+1 INT = M.Atk +4%"
                   pp={diff({ mAtk: duel.mAtk * INT_SQRT_MATK ** 2 })}
                 />
               </>
             )}
             <Factor
-              name="Poziom skila"
-              note={lvBonus > 0 ? `pomaga tylko na cel powyżej poziomu ${free}` : "ten skill nie zależy od poziomu"}
-              change={lvBonus > 0 ? "+1 poziom magiczny" : "—"}
+              name={t("landing.skillLevel")}
+              note={lvBonus > 0 ? t("landing.skillLevelNote", { free }) : t("landing.skillLevelNone")}
+              change={lvBonus > 0 ? t("landing.skillLevelChange") : "—"}
               pp={duel.level > free ? perLevel : 0}
             />
             {hasTraitBonus(slug) && r.t && !attributes && (
-              <Factor name={`Bonus do wejścia: ${traitLabel(r.t)}`} note="np. biżuteria z bossów" change="+10%" pp={now.raw * 0.1} />
+              <Factor name={t("landing.landBonus", { trait: traitLabel(r.t) })} note={t("landing.landBonusNote")} change="+10%" pp={now.raw * 0.1} />
             )}
             {attributes &&
               ATTRIBUTE.map(([from, bonus], i) => (
                 <Factor
                   key={from}
-                  name={`Atrybut: ${traitLabel(r.t)}`}
-                  note={i ? undefined : "atrybut broni i skila minus obrona celu; tylko gdy broń ma ten sam atrybut"}
-                  change={`przewaga od ${from} (×${fmt2(1 + bonus)})`}
+                  name={t("landing.attribute", { trait: traitLabel(r.t) })}
+                  note={i ? undefined : t("landing.attributeNote")}
+                  change={t("landing.attributeChange", { from, factor: fmt2(1 + bonus) })}
                   pp={now.raw * bonus}
                 />
               ))}
@@ -235,24 +235,20 @@ export function Landing({ slug, r, lv, levels, duel, onLevel, onOwn, onSaved, on
       </div>
       <ul className="sk-notes">
         <li>
-          pp to punkty procentowe dla wartości wpisanych wyżej, liczone przed limitem.
-          {r.g ? " Startowe M.Atk i M.Def są przykładowe: z Blessed Spiritshotem dają mnożnik ×1." : " Startowe wartości są przykładowe."} Limit szansy:{" "}
-          {min > 0 ? `od ${min}% do ${max}%` : `najwyżej ${max}%`}.
+          {t("landing.notePp")} {r.g ? t("landing.noteStartMagic") : t("landing.noteStart")}{" "}
+          {min > 0 ? t("landing.noteCapRange", { min, max }) : t("landing.noteCapMax", { max })}
         </li>
+        <li>{r.g ? t("landing.noteIgnoredMagic") : t("landing.noteIgnoredPhysical")}</li>
         <li>
-          {r.g
-            ? "Soulshoty, P.Atk, WIT i poziom postaci atakującego nie wchodzą do wzoru."
-            : "Skill fizyczny: M.Atk, M.Def, spiritshoty, soulshoty i P.Atk nie zmieniają szansy na debuff."}
-        </li>
-        <li>
-          {STAT}, baza {rate}%, mnożnik poziomu {lvBonus}
-          {r.t ? `, typ „${traitLabel(r.t)}”` : ""} i poziom magiczny {magicLevel} to dane serwera tej kroniki. Sam wzór jest{" "}
-          <a href={SOURCE} target="_blank" rel="noreferrer">
-            opisany dla Gracia–High Five
-          </a>
-          {formulaKnown(slug)
-            ? "."
-            : `; dla ${chronicleLabel(slug)} nie ma publicznego potwierdzenia, więc procenty są przybliżone.`}
+          {r.t
+            ? t("landing.noteDataTrait", { stat: STAT, rate, bonus: fmt(lvBonus), trait: traitLabel(r.t), magicLevel })
+            : t("landing.noteData", { stat: STAT, rate, bonus: fmt(lvBonus), magicLevel })}{" "}
+          <Trans
+            t={t}
+            i18nKey={formulaKnown(slug) ? "landing.noteFormulaKnown" : "landing.noteFormulaUnknown"}
+            values={{ chronicle: chronicleLabel(slug) }}
+            components={{ source: <a href={SOURCE} target="_blank" rel="noreferrer" /> }}
+          />
         </li>
       </ul>
     </section>

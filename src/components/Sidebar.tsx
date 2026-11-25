@@ -1,5 +1,6 @@
+import { useTranslation } from "react-i18next";
 import type { ChronicleData, LevelRange, Preset, Row } from "../types";
-import { raceLabel, TIER_LABEL } from "../lib/data";
+import { raceLabel, tierLabel } from "../lib/data";
 import { fmt } from "../lib/format";
 import { ClassIcon } from "./ClassIcon";
 import { LevelInput } from "./LevelInput";
@@ -30,23 +31,24 @@ interface Props {
 const narrow = () => typeof window !== "undefined" && window.matchMedia?.("(max-width: 860px)").matches;
 
 export function Sidebar(p: Props) {
+  const { t } = useTranslation();
   const c = p.data.classes[p.cls];
   let cum = 0;
 
   return (
-    <section className="panel controls" aria-label="Ustawienia">
+    <section className="panel controls" aria-label={t("sidebar.settings")}>
       <button type="button" className="class-card" onClick={p.onOpenClasses}>
         <ClassIcon icon={c.icon} size="lg" />
         <span className="cc-text">
-          <span className="cc-tier">{TIER_LABEL[p.chain.length - 1]}</span>
+          <span className="cc-tier">{tierLabel(p.chain.length - 1)}</span>
           <strong>{c.name}</strong>
           <span className="cc-race">{raceLabel(c.race)}</span>
           <span className="chron-badge sm">{p.data.name}</span>
         </span>
-        <span className="cc-change">Zmień</span>
+        <span className="cc-change">{t("sidebar.change")}</span>
       </button>
 
-      <div className="chain" aria-label="Ścieżka klasy">
+      <div className="chain" aria-label={t("common.classPath")}>
         {p.chain.map((x, i) => (
           <span key={x} className="chain-item">
             {i > 0 && <span className="sep">›</span>}
@@ -58,16 +60,16 @@ export function Sidebar(p: Props) {
       </div>
 
       <div className="field">
-        <span className="label">Zakres poziomów postaci</span>
+        <span className="label">{t("sidebar.levelRange")}</span>
         <div className="presets">
           {p.presets.map((pr) => (
             <button
               type="button"
-              key={pr.label}
+              key={pr.label ?? "all"}
               aria-pressed={pr.from === p.range.from && pr.to === p.range.to}
               onClick={() => p.onRange({ from: pr.from, to: pr.to })}
             >
-              {pr.label}
+              {pr.label ?? t("sidebar.wholeRange")}
               <small>
                 {pr.from}–{pr.to}
               </small>
@@ -76,9 +78,9 @@ export function Sidebar(p: Props) {
         </div>
         <div className="range-row">
           <label>
-            od{" "}
+            {t("sidebar.from")}{" "}
             <LevelInput
-              label="Od poziomu"
+              label={t("sidebar.fromLevel")}
               value={p.range.from}
               min={1}
               max={99}
@@ -87,9 +89,9 @@ export function Sidebar(p: Props) {
             />
           </label>
           <label>
-            do{" "}
+            {t("sidebar.to")}{" "}
             <LevelInput
-              label="Do poziomu"
+              label={t("sidebar.toLevel")}
               value={p.range.to}
               min={1}
               max={99}
@@ -103,43 +105,43 @@ export function Sidebar(p: Props) {
           min={1}
           max={p.maxLv}
           value={Math.min(p.range.to, p.maxLv)}
-          aria-label="Poziom docelowy"
+          aria-label={t("sidebar.targetLevel")}
           onChange={(e) => p.onRange({ from: Math.min(p.range.from, +e.target.value), to: +e.target.value })}
         />
-        <small className="hint">Liczone są skile do nauczenia na poziomach od–do.</small>
+        <small className="hint">{t("sidebar.rangeHint")}</small>
       </div>
 
       <div className="summary">
         <div className="stat big">
-          <span>Potrzebne SP</span>
+          <span>{t("common.neededSp")}</span>
           <strong>{fmt(p.totals.sp)}</strong>
         </div>
         <div className="stat">
-          <span>Skile</span>
+          <span>{t("sidebar.skills")}</span>
           <strong>{fmt(p.totals.skills)}</strong>
         </div>
         <div className="stat">
-          <span>Poziomy skili</span>
+          <span>{t("sidebar.skillLevels")}</span>
           <strong>{fmt(p.totals.levels)}</strong>
         </div>
         <div className="stat">
-          <span>Książki</span>
+          <span>{t("sidebar.books")}</span>
           <strong>{fmt(p.totals.books.length)}</strong>
         </div>
         <div className="stat">
-          <span>Niezaznaczone SP</span>
+          <span>{t("sidebar.skippedSp")}</span>
           <strong>{fmt(p.totals.skipped)}</strong>
         </div>
       </div>
 
       <details className="breakdown" open={!narrow()}>
-        <summary>SP na poziom postaci</summary>
+        <summary>{t("sidebar.spPerLevel")}</summary>
         <table>
           <thead>
             <tr>
               <th>Lv</th>
               <th>SP</th>
-              <th>Suma</th>
+              <th>{t("sidebar.sum")}</th>
             </tr>
           </thead>
           <tbody>
@@ -147,7 +149,7 @@ export function Sidebar(p: Props) {
               p.totals.perLevel.map(([l, sp]) => {
                 cum += sp;
                 return (
-                  <tr key={l} title={`Przejdź do poziomu ${l}`} onClick={() => p.onGotoLevel(l)}>
+                  <tr key={l} title={t("sidebar.gotoLevel", { level: l })} onClick={() => p.onGotoLevel(l)}>
                     <td>{l}</td>
                     <td>{fmt(sp)}</td>
                     <td>{fmt(cum)}</td>
@@ -164,19 +166,19 @@ export function Sidebar(p: Props) {
       </details>
 
       <details className="breakdown">
-        <summary>Potrzebne spellbooki</summary>
+        <summary>{t("sidebar.neededBooks")}</summary>
         <ul className="books">
           {p.totals.books.length ? (
             p.totals.books.map((r) => (
               <li key={r.key}>
                 {p.data.books[r.book] ?? `item ${r.book}`}{" "}
                 <span className="lv">
-                  — {r.sk.n} Lv {r.lv}, poz. {r.l}
+                  {t("sidebar.bookFor", { skill: r.sk.n, lv: r.lv, level: r.l })}
                 </span>
               </li>
             ))
           ) : (
-            <li>brak</li>
+            <li>{t("sidebar.none")}</li>
           )}
         </ul>
       </details>

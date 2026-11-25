@@ -1,4 +1,5 @@
 import { useMemo, useState, type ReactNode } from "react";
+import { useTranslation } from "react-i18next";
 import type { ChronicleData, SkillInfo } from "../types";
 import { chronicleLabel } from "../lib/data";
 import { hrefFor } from "../lib/route";
@@ -41,10 +42,11 @@ function learnRows(data: ChronicleData, id: number) {
 
 /** Page of one skill: its levels and, for debuffs, what decides whether it lands. */
 export function SkillPage({ data, id, cls }: Props) {
+  const { t } = useTranslation();
   const sk = data.skills[id];
   const back = (
     <a className="back" href={hrefFor(data.slug, cls)}>
-      ← {cls ? data.classes[cls].name : "Wybór klasy"}
+      ← {cls ? data.classes[cls].name : t("picker.label")}
     </a>
   );
   if (!sk) {
@@ -52,8 +54,8 @@ export function SkillPage({ data, id, cls }: Props) {
       <main className="skill-page">
         {back}
         <section className="panel sk-block">
-          <h2>Tego skila nie ma w {chronicleLabel(data.slug)}</h2>
-          <p className="hint">Wybierz inną kronikę albo wróć do listy.</p>
+          <h2>{t("skill.missing", { chronicle: chronicleLabel(data.slug) })}</h2>
+          <p className="hint">{t("skill.missingHint")}</p>
         </section>
       </main>
     );
@@ -72,6 +74,7 @@ export interface SavedDuel {
 const SAVED: SavedDuel = { shot: "bss", debuffRes: 0 };
 
 function Content({ data, id, sk, back }: { data: ChronicleData; id: string; sk: SkillInfo; back: ReactNode }) {
+  const { t } = useTranslation();
   const learn = useMemo(() => learnRows(data, Number(id)), [data, id]);
   const levels = useMemo(() => Object.keys(sk.d).map(Number).sort((a, b) => a - b), [sk]);
   const r = sk.r;
@@ -104,12 +107,12 @@ function Content({ data, id, sk, back }: { data: ChronicleData; id: string; sk: 
         <div>
           <h2>{sk.n}</h2>
           <div className="line1">
-            <span className={`tag ${sk.p ? "p" : "a"}`}>{sk.p ? "pasywny" : "aktywny"}</span>
-            {r && <span className="tag">debuff</span>}
-            {r && <span className="tag">{r.g ? "magiczny" : "fizyczny"}</span>}
+            <span className={`tag ${sk.p ? "p" : "a"}`}>{sk.p ? t("common.passive") : t("common.active")}</span>
+            {r && <span className="tag">{t("skill.debuff")}</span>}
+            {r && <span className="tag">{r.g ? t("skill.magic") : t("skill.physical")}</span>}
             <span className="lvl-meta">
-              {chronicleLabel(data.slug)} · {levels.length === 1 ? "1 poziom" : `poziomy ${levels[0]}–${levels[levels.length - 1]}`}
-              {learn.size === 0 && " · żadna klasa nie uczy się go w tej kronice"}
+              {chronicleLabel(data.slug)} · {levels.length === 1 ? t("skill.oneLevel") : t("skill.levelRange", { from: levels[0], to: levels[levels.length - 1] })}
+              {learn.size === 0 && ` · ${t("skill.notLearned")}`}
             </span>
           </div>
         </div>
@@ -135,28 +138,25 @@ function Content({ data, id, sk, back }: { data: ChronicleData; id: string; sk: 
       {sk.x && <Dispel x={sk.x} />}
       {!!sk.f && !r && (
         <section className="panel sk-block">
-          <h3>Od czego zależy wejście</h3>
-          <p>
-            Efekt natychmiastowy. Dane serwera podają najwyżej stałą szansę (kolumna „Co daje”), bez statystyki obrońcy,
-            mnożnika poziomu i M.Atk.
-          </p>
+          <h3>{t("landing.title")}</h3>
+          <p>{t("skill.instant")}</p>
         </section>
       )}
 
       <section className="panel sk-block">
-        <h3>Poziomy skila</h3>
+        <h3>{t("skill.levels")}</h3>
         <div className="sk-scroll">
           <table className="sk-levels">
             <thead>
               <tr>
                 <th>Lv</th>
-                <th>Nauka</th>
-                <th>Co daje</th>
+                <th>{t("skill.learn")}</th>
+                <th>{t("skill.gives")}</th>
                 {rolls && (
                   <>
-                    <th title="Szansa bazowa z danych serwera">Baza</th>
-                    <th title="Poziom skila porównywany z poziomem celu">Poz. mag.</th>
-                    <th title="Dla wartości wpisanych w kalkulatorze">Szansa</th>
+                    <th title={t("skill.baseTitle")}>{t("skill.base")}</th>
+                    <th title={t("skill.magicLevelTitle")}>{t("skill.magicLevel")}</th>
+                    <th title={t("skill.chanceTitle")}>{t("skill.chance")}</th>
                   </>
                 )}
               </tr>
@@ -170,7 +170,7 @@ function Content({ data, id, sk, back }: { data: ChronicleData; id: string; sk: 
                   <td className="learn">
                     {learn.get(lv)?.map((x) => (
                       <div key={`${x.l}-${x.sp}-${x.book}`}>
-                        <b>poziom {x.l}</b> · {fmt(x.sp)} SP
+                        <b>{t("skill.learnLevel", { level: x.l })}</b> · {fmt(x.sp)} SP
                         <small>{x.classes.join(", ")}</small>
                         {x.book > 0 && <span className="tag book">{data.books[x.book] ?? `item ${x.book}`}</span>}
                       </div>
@@ -183,10 +183,10 @@ function Content({ data, id, sk, back }: { data: ChronicleData; id: string; sk: 
                   </td>
                   {rolls && (r.v[lv] ? (
                     <>
-                      <td className="n">{r.v[lv][2] > 0 ? `${r.v[lv][2]}%` : "zawsze"}</td>
+                      <td className="n">{r.v[lv][2] > 0 ? `${r.v[lv][2]}%` : t("skill.always")}</td>
                       <td className="n">{r.v[lv][0]}</td>
                       <td className="n">
-                        <button type="button" className="link" aria-pressed={lv === picked} title="Pokaż w kalkulatorze" onClick={() => setPicked(lv)}>
+                        <button type="button" className="link" aria-pressed={lv === picked} title={t("skill.showInCalc")} onClick={() => setPicked(lv)}>
                           {r.v[lv][2] > 0 ? `${fmt1(clampChance(data.slug, landChance(r, lv, duel).raw))}%` : "100%"}
                         </button>
                       </td>
@@ -205,13 +205,12 @@ function Content({ data, id, sk, back }: { data: ChronicleData; id: string; sk: 
 }
 
 function NoRoll({ rate }: { rate: number }) {
+  const { t } = useTranslation();
   return (
     <section className="panel sk-block">
-      <h3>Od czego zależy wejście</h3>
+      <h3>{t("landing.title")}</h3>
       <p>
-        {rate < 0
-          ? "Efekt wchodzi zawsze: serwer nie losuje szansy, więc statystyki, M.Atk, shoty i poziom nie mają znaczenia."
-          : `Dane serwera nie podają statystyki, którą cel się broni. Wpisana szansa to ${rate}%; nie wiadomo, czy poziom i M.Atk ją zmieniają.`}
+        {rate < 0 ? t("skill.alwaysLands") : t("skill.noStat", { rate })}
       </p>
     </section>
   );
@@ -219,42 +218,37 @@ function NoRoll({ rate }: { rate: number }) {
 
 /** Cancel and Bane skills roll separately for every buff of the target. */
 function Dispel({ x }: { x: NonNullable<SkillInfo["x"]> }) {
+  const { t } = useTranslation();
   const [lo, hi] = x.k === "bane" ? [40, 95] : [25, 75];
   return (
     <section className="panel sk-block">
-      <h3>Zdejmowanie buffów</h3>
-      <p className="sk-formula">Szansa na buff = baza + 2 × (poziom skila − poziom buffa) + czas buffa w sekundach ÷ 120</p>
+      <h3>{t("dispel.title")}</h3>
+      <p className="sk-formula">{t("dispel.formula")}</p>
       <table className="sk-factors">
         <tbody>
           <tr>
-            <td>Poziom buffa wyższy o 1</td>
+            <td>{t("dispel.buffLevel")}</td>
             <td className="n pp minus">−2 pp</td>
           </tr>
           <tr>
-            <td>Buff dłuższy o 2 minuty</td>
+            <td>{t("dispel.buffTime")}</td>
             <td className="n pp plus">+1 pp</td>
           </tr>
           <tr>
-            <td>Odporność na zdejmowanie buffów +10%</td>
-            <td className="n">wynik × 0,9</td>
+            <td>{t("dispel.resist")}</td>
+            <td className="n">{t("dispel.resistResult", { factor: fmt1(0.9) })}</td>
           </tr>
           {Object.entries(x.v).map(([lv, [ml, rate]]) => (
             <tr key={lv}>
-              <td>
-                Lv {lv}: poziom magiczny {ml}
-              </td>
-              <td className="n">baza {rate}</td>
+              <td>{t("dispel.magicLevel", { lv, level: ml })}</td>
+              <td className="n">{t("dispel.base", { rate })}</td>
             </tr>
           ))}
         </tbody>
       </table>
       <ul className="sk-notes">
-        <li>
-          Wynik mieści się zawsze w {lo}–{hi}% i jest losowany osobno dla każdego buffa. M.Atk, M.Def i shoty nie mają znaczenia.
-        </li>
-        <li>
-          Baza i poziomy magiczne to dane serwera tej kroniki. Wzór i limity opisano dla Gracia–Freya, inne kroniki mogły się różnić.
-        </li>
+        <li>{t("dispel.noteRange", { min: lo, max: hi })}</li>
+        <li>{t("dispel.noteSource")}</li>
       </ul>
     </section>
   );

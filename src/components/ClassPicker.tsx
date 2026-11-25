@@ -1,13 +1,14 @@
 import { useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import type { ChronicleData } from "../types";
-import { chainOf, depthOf, raceLabel, raceRank, TIER_LABEL } from "../lib/data";
+import { chainOf, depthOf, raceKey, raceLabel, raceRank, tierLabel } from "../lib/data";
 import { ClassIcon } from "./ClassIcon";
 
 interface Props {
   data: ChronicleData;
   /** last class used in this chronicle, highlighted with its path */
   current: string | null;
-  /** race tab picked last (kept across chronicles; matched by its label since the wiki names vary) */
+  /** race tab picked last (kept across chronicles; matched by its key since the wiki names vary) */
   race?: string;
   onRace: (race: string) => void;
   onPick: (cls: string) => void;
@@ -15,13 +16,14 @@ interface Props {
 
 /** Start page: class tree per race, with search across all races. */
 export function ClassPicker({ data, current, race, onRace, onPick }: Props) {
+  const { t } = useTranslation();
   const races = useMemo(
     () => [...new Set(Object.values(data.classes).map((c) => c.race))].sort((a, b) => raceRank(a) - raceRank(b)),
     [data],
   );
   const [query, setQuery] = useState("");
   const wantedRace = race ?? (current ? data.classes[current]?.race : undefined);
-  const activeRace = races.find((r) => wantedRace && raceLabel(r) === raceLabel(wantedRace)) ?? races[0];
+  const activeRace = races.find((r) => wantedRace && raceKey(r) === raceKey(wantedRace)) ?? races[0];
 
   const chain = useMemo(() => new Set(current && data.classes[current] ? chainOf(data, current) : []), [data, current]);
 
@@ -54,7 +56,7 @@ export function ClassPicker({ data, current, race, onRace, onPick }: Props) {
       <ClassIcon icon={data.classes[c].icon} size="sm" />
       <span className="t">
         {data.classes[c].name}
-        <small>{sub ?? TIER_LABEL[depthOf(data, c)]}</small>
+        <small>{sub ?? tierLabel(depthOf(data, c))}</small>
       </span>
     </button>
   );
@@ -71,18 +73,18 @@ export function ClassPicker({ data, current, race, onRace, onPick }: Props) {
 
   return (
     <main className="picker">
-      <section className="panel picker-panel" aria-label="Wybór klasy">
+      <section className="panel picker-panel" aria-label={t("picker.label")}>
         <div className="picker-head">
           <div>
             <h2>
-              Wybierz klasę <span className="chron-badge">{data.name}</span>
+              {t("picker.title")} <span className="chron-badge">{data.name}</span>
             </h2>
-            <p className="hint">Kliknij klasę, aby policzyć potrzebne SP</p>
+            <p className="hint">{t("picker.hint")}</p>
           </div>
           <input
             type="search"
-            placeholder="Szukaj klasy…"
-            aria-label="Szukaj klasy"
+            placeholder={t("picker.search")}
+            aria-label={t("picker.searchLabel")}
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             onKeyDown={(e) => {
@@ -90,7 +92,7 @@ export function ClassPicker({ data, current, race, onRace, onPick }: Props) {
             }}
           />
         </div>
-        <nav className="seg race-tabs" aria-label="Rasa">
+        <nav className="seg race-tabs" aria-label={t("picker.race")}>
           {races.map((r) => (
             <button
               type="button"
@@ -119,7 +121,7 @@ export function ClassPicker({ data, current, race, onRace, onPick }: Props) {
                 )}
               </div>
             ) : (
-              <div className="empty">Brak klas pasujących do „{query}”.</div>
+              <div className="empty">{t("picker.empty", { query })}</div>
             )
           ) : (
             <div className="tree">{roots.map(node)}</div>

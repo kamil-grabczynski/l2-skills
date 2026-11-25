@@ -1,13 +1,15 @@
 import { useCallback, useDeferredValue, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import type { ChronicleData, ChronicleRef, LevelRange, Row, SkillType } from "./types";
 import {
-  buildRows, chainOf, defaultClass, loadChronicle, loadIndex, maxLevelOf, presetsFor,
+  buildRows, chainOf, defaultClass, errorText, loadChronicle, loadIndex, maxLevelOf, presetsFor,
 } from "./lib/data";
 import { usePersistentState, useSelection } from "./lib/storage";
 import { hrefFor, navigate, useHashRoute } from "./lib/route";
 import { fmt } from "./lib/format";
 import { Sidebar, type Totals } from "./components/Sidebar";
 import { ClassPicker } from "./components/ClassPicker";
+import { LanguageSwitch } from "./components/LanguageSwitch";
 import { ChronicleBar } from "./components/ChronicleBar";
 import { ChronicleTable } from "./components/ChronicleTable";
 import { SkillToolbar } from "./components/SkillToolbar";
@@ -46,11 +48,12 @@ const withoutRange = (p: Prefs, key: string): Prefs => {
 };
 
 export default function App() {
+  const { t } = useTranslation();
   const route = useHashRoute();
   const [chronicles, setChronicles] = useState<ChronicleRef[] | null>(null);
   const [prefs, setPrefs] = usePersistentState<Prefs>("spcalc:prefs", DEFAULT_PREFS);
   const [data, setData] = useState<ChronicleData | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<Error | null>(null);
   const [search, setSearch] = useState("");
   const [collapsed, setCollapsed] = useState<Set<number>>(() => new Set());
   const [opened, setOpened] = useState<Set<string>>(() => new Set());
@@ -58,7 +61,7 @@ export default function App() {
 
   // ---------- routing & loading ----------
   useEffect(() => {
-    loadIndex().then(setChronicles, (e: Error) => setError(e.message));
+    loadIndex().then(setChronicles, setError);
   }, []);
 
   const known = (slug: string | null) => !!slug && !!chronicles?.some((c) => c.slug === slug);
@@ -72,7 +75,7 @@ export default function App() {
     setError(null);
     loadChronicle(activeSlug).then(
       (d) => alive && setData(d),
-      (e: Error) => alive && setError(e.message),
+      (e: Error) => alive && setError(e),
     );
     return () => {
       alive = false;
@@ -148,7 +151,7 @@ export default function App() {
         setPrefs((p) => withoutRange(p, rangeKey(slug, target)));
         navigate(slug, target);
       } catch (e) {
-        setError((e as Error).message);
+        setError(e as Error);
       }
     },
     [view, cls, data, route.skill, prefs.wanted, setPrefs],
@@ -342,8 +345,9 @@ export default function App() {
       <header className="top">
         <a className="brand" href={hrefFor(activeSlug)}>
           <h1>Lineage 2 skills SP</h1>
-          <span className="sub">Kalkulator SP skili · C1 – High Five</span>
+          <span className="sub">{t("app.subtitle")}</span>
         </a>
+        <LanguageSwitch />
       </header>
       <ChronicleBar chronicles={chronicles ?? []} active={activeSlug} onPick={pickChronicle} />
       {/* Vercel Web Analytics: the app routes in the URL hash, so page views are reported per hash route */}
@@ -360,9 +364,9 @@ export default function App() {
       {/* Vercel Speed Insights: Web Vitals grouped by the same hash routes */}
       <SpeedInsights route={pageRoute} />
 
-      {error && <div className="error">Błąd: {error}</div>}
+      {error && <div className="error">{errorText(error)}</div>}
 
-      {view === "loading" && !error && <div className="loading">Ładowanie danych…</div>}
+      {view === "loading" && !error && <div className="loading">{t("app.loading")}</div>}
 
       {view === "picker" && data && (
         <ClassPicker
@@ -396,13 +400,13 @@ export default function App() {
             />
             )}
 
-            <section className="panel skills" aria-label="Skile">
-              <div className="view-tabs" role="tablist" aria-label="Widok">
+            <section className="panel skills" aria-label={t("app.skills")}>
+              <div className="view-tabs" role="tablist" aria-label={t("app.view")}>
                 <button type="button" role="tab" aria-selected={prefs.view !== "chronicles"} onClick={() => setPrefs((p) => ({ ...p, view: "skills" }))}>
-                  Skile do nauczenia
+                  {t("app.tabSkills")}
                 </button>
                 <button type="button" role="tab" aria-selected={prefs.view === "chronicles"} onClick={() => setPrefs((p) => ({ ...p, view: "chronicles" }))}>
-                  Nowe skile w kronikach
+                  {t("app.tabChronicles")}
                 </button>
               </div>
               {prefs.view === "chronicles" ? (
@@ -433,8 +437,18 @@ export default function App() {
               />
               <div className="status">
                 {inRange.length
-                  ? `Poziomy ${from}–${to}: ${nSkills} skili, ${inRange.length} poziomów skili${hidden ? ` · ukryte przez filtry: ${hidden}` : ""}`
-                  : `Brak skili do nauczenia na poziomach ${from}–${to}.`}
+                  ? [
+                      t("app.status", {
+                        from,
+                        to,
+                        skills: t("common.skills", { count: nSkills }),
+                        levels: t("common.skillLevels", { count: inRange.length }),
+                      }),
+                      hidden > 0 && t("app.statusHidden", { n: hidden }),
+                    ]
+                      .filter(Boolean)
+                      .join(" · ")
+                  : t("app.statusEmpty", { from, to })}
               </div>
               <SkillList
                 data={data}
@@ -452,7 +466,7 @@ export default function App() {
           </main>
 
           {prefs.view !== "chronicles" && <div className="mobile-bar" aria-hidden="true">
-            <span>Potrzebne SP</span>
+            <span>{t("common.neededSp")}</span>
             <strong>{fmt(totals.sp)}</strong>
           </div>}
         </>

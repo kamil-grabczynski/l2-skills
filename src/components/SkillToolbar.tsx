@@ -1,4 +1,5 @@
 import { useEffect, useRef } from "react";
+import { useTranslation } from "react-i18next";
 import type { SkillType } from "../types";
 
 interface Props {
@@ -15,13 +16,14 @@ interface Props {
   onCollapseAll: () => void;
 }
 
-const TYPES: [SkillType, string][] = [
-  ["all", "Wszystkie"],
-  ["a", "Aktywne"],
-  ["p", "Pasywne"],
-];
+const TYPES = [
+  ["all", "toolbar.all"],
+  ["a", "toolbar.active"],
+  ["p", "toolbar.passive"],
+] as const;
 
 export function SkillToolbar(p: Props) {
+  const { t } = useTranslation();
   const ref = useRef<HTMLDivElement>(null);
 
   // level headers stick right below the toolbar, whose height changes when it wraps
@@ -38,11 +40,11 @@ export function SkillToolbar(p: Props) {
   return (
     <div className="toolbar" ref={ref}>
       <div className="tb-row">
-        <input type="search" placeholder="Szukaj skila…" aria-label="Szukaj skila" value={p.search} onChange={(e) => p.onSearch(e.target.value)} />
-        <div className="seg" role="group" aria-label="Typ skila">
-          {TYPES.map(([t, label]) => (
-            <button type="button" key={t} aria-pressed={p.type === t} onClick={() => p.onType(t)}>
-              {label}
+        <input type="search" placeholder={t("common.searchSkill")} aria-label={t("common.searchSkillLabel")} value={p.search} onChange={(e) => p.onSearch(e.target.value)} />
+        <div className="seg" role="group" aria-label={t("toolbar.type")}>
+          {TYPES.map(([type, label]) => (
+            <button type="button" key={type} aria-pressed={p.type === type} onClick={() => p.onType(type)}>
+              {t(label)}
             </button>
           ))}
         </div>
@@ -51,13 +53,13 @@ export function SkillToolbar(p: Props) {
         <label className="switch">
           <input type="checkbox" checked={p.showZero} onChange={(e) => p.onShowZero(e.target.checked)} />
           <span />
-          pokaż skile 0 SP
+          {t("toolbar.showZero")}
         </label>
         <div className="btns">
-          <button type="button" onClick={p.onAllOn}>Zaznacz widoczne</button>
-          <button type="button" onClick={p.onAllOff}>Odznacz widoczne</button>
-          <button type="button" onClick={p.onReset} title="Odznacz wszystkie skile tej klasy">Wyczyść</button>
-          <button type="button" onClick={p.onCollapseAll}>{p.allCollapsed ? "Rozwiń poziomy" : "Zwiń poziomy"}</button>
+          <button type="button" onClick={p.onAllOn}>{t("toolbar.selectVisible")}</button>
+          <button type="button" onClick={p.onAllOff}>{t("toolbar.deselectVisible")}</button>
+          <button type="button" onClick={p.onReset} title={t("toolbar.clearTitle")}>{t("toolbar.clear")}</button>
+          <button type="button" onClick={p.onCollapseAll}>{p.allCollapsed ? t("toolbar.expandLevels") : t("toolbar.collapseLevels")}</button>
         </div>
       </div>
     </div>

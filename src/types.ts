@@ -84,7 +84,8 @@ export interface LevelRange {
 }
 
 export interface Preset extends LevelRange {
-  label: string;
+  /** class name, null = the whole range */
+  label: string | null;
 }
 
 /** Skill levels counted in the SP sum: "id:lv" -> 1. Nothing is selected by default. */

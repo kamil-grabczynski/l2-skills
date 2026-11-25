@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import type { ChronicleRef } from "../types";
 import { chronicleLabel } from "../lib/data";
 
@@ -12,9 +13,10 @@ const subtitle = (c: ChronicleRef) => c.name.replace(/^C\d:\s*/, "");
 
 /** Full-width chronicle switcher; the active chronicle is highlighted and shows its full name. */
 export function ChronicleBar({ chronicles, active, onPick }: Props) {
+  const { t } = useTranslation();
   return (
-    <nav className="chronicle-bar" aria-label="Kronika">
-      <span className="cb-label">Kronika</span>
+    <nav className="chronicle-bar" aria-label={t("common.chronicle")}>
+      <span className="cb-label">{t("common.chronicle")}</span>
       {chronicles.map((c) => {
         const on = c.slug === active;
         return (

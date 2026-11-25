@@ -1,4 +1,5 @@
 import { memo } from "react";
+import { useTranslation } from "react-i18next";
 import type { ChronicleData, Row, SelMap } from "../types";
 import { fmt, short, skillMeta } from "../lib/format";
 import { skillHref } from "../lib/route";
@@ -61,6 +62,7 @@ interface SectionProps {
 }
 
 function LevelSection({ data, section, sel, closed, opened, levelsInRange, actions }: SectionProps) {
+  const { t } = useTranslation();
   const { l, groups } = section;
   let n = 0, on = 0, sp = 0, total = 0;
   const classes = new Set<string>();
@@ -81,13 +83,13 @@ function LevelSection({ data, section, sel, closed, opened, levelsInRange, actio
         <TriCheckbox
           on={on}
           total={n}
-          label={`Zaznacz wszystkie skile z poziomu ${l}`}
+          label={t("list.selectLevel", { level: l })}
           onChange={(checked) => actions.setKeys(groups.flat().map((r) => r.key), checked)}
         />
         <button type="button" className="lvl-title" aria-expanded={!closed} onClick={() => actions.toggleCollapsed(l)}>
-          <span className="lvl-num">Poziom {l}</span>
+          <span className="lvl-num">{t("list.level", { level: l })}</span>
           <span className="lvl-meta">
-            {groups.length} skili · {[...classes].join(", ")}
+            {t("common.skills", { count: groups.length })} · {[...classes].join(", ")}
           </span>
         </button>
         <span className="lvl-sp">
@@ -129,6 +131,7 @@ interface RowProps {
 }
 
 const SkillRow = memo(function SkillRow({ l, group, mask, open, books, slug, everywhere, actions }: RowProps) {
+  const { t } = useTranslation();
   const sk = group[0].sk;
   const id = group[0].id;
   const isOn = (i: number) => mask[i] === "1";
@@ -149,18 +152,18 @@ const SkillRow = memo(function SkillRow({ l, group, mask, open, books, slug, eve
   return (
     <div className={`skill${on ? "" : " off"}${open ? " open" : ""}`}>
       <div className="skill-main">
-        <TriCheckbox on={on} total={group.length} label={`Uwzględnij ${sk.n}`} onChange={(c) => actions.setKeys(group.map((r) => r.key), c)} />
+        <TriCheckbox on={on} total={group.length} label={t("list.include", { skill: sk.n })} onChange={(c) => actions.setKeys(group.map((r) => r.key), c)} />
         <SkillIcon file={sk.i} />
         <div className="sname">
           <div className="line1">
-            <a className="skill-link" href={skillHref(slug, id)} title="Strona skila">
+            <a className="skill-link" href={skillHref(slug, id)} title={t("list.skillPage")}>
               {sk.n}
             </a>
-            <span className={`tag ${sk.p ? "p" : "a"}`}>{sk.p ? "pasywny" : "aktywny"}</span>
+            <span className={`tag ${sk.p ? "p" : "a"}`}>{sk.p ? t("common.passive") : t("common.active")}</span>
             {group.length === 1 && <span className="lvl-meta">Lv {group[0].lv}</span>}
-            {bookCount > 0 && <span className="tag book">książka{bookCount > 1 ? ` ×${bookCount}` : ""}</span>}
+            {bookCount > 0 && <span className="tag book">{t("list.book")}{bookCount > 1 ? ` ×${bookCount}` : ""}</span>}
             <button type="button" className="more" aria-expanded={open} onClick={() => actions.toggleOpen(l, id)}>
-              {open ? "zwiń ▴" : "szczegóły ▾"}
+              {open ? `${t("list.collapse")} ▴` : `${t("list.details")} ▾`}
             </button>
           </div>
           {!open && brief && (
@@ -190,7 +193,7 @@ ${sk.e?.[r.lv] ?? sk.d[r.lv] ?? ""}`}
         </div>
         <div className="ssp">
           {fmt(sp)}
-          {sp !== total && <small>z {fmt(total)}</small>}
+          {sp !== total && <small>{t("list.ofTotal", { total: fmt(total) })}</small>}
         </div>
       </div>
       {open && (
@@ -198,9 +201,9 @@ ${sk.e?.[r.lv] ?? sk.d[r.lv] ?? ""}`}
           <table>
             <thead>
               <tr>
-                <th>Skill</th>
+                <th>{t("list.skill")}</th>
                 <th>SP</th>
-                <th>Opis</th>
+                <th>{t("list.description")}</th>
               </tr>
             </thead>
             <tbody>
@@ -226,10 +229,10 @@ ${sk.e?.[r.lv] ?? sk.d[r.lv] ?? ""}`}
           {everywhere > group.length && (
             <div className="acts">
               <button type="button" onClick={() => actions.setSkillEverywhere(id, true)}>
-                Zaznacz {sk.n} na wszystkich poziomach ({everywhere})
+                {t("list.selectEverywhere", { skill: sk.n, n: everywhere })}
               </button>
               <button type="button" onClick={() => actions.setSkillEverywhere(id, false)}>
-                Odznacz wszędzie
+                {t("list.deselectEverywhere")}
               </button>
             </div>
           )}

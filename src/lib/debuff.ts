@@ -1,4 +1,5 @@
 import type { Resist } from "../types";
+import i18n from "../i18n";
 
 /**
  * Land chance of hostile skills:
@@ -79,9 +80,4 @@ export const clampChance = (slug: string, raw: number) => {
 /** A typical value of the stat, only a starting point for the calculator. */
 export const STAT_DEFAULT: Record<string, number> = { str: 40, dex: 30, con: 40, int: 25, wit: 20, men: 25 };
 
-const TRAIT_PL: Record<string, string> = {
-  Shock: "ogłuszenie", Sleep: "uśpienie", Hold: "unieruchomienie", Paralyze: "paraliż", Derangement: "ataki mentalne",
-  Poison: "trucizna", Bleed: "krwawienie", Fire: "ogień", Water: "woda", Wind: "wiatr", Earth: "ziemia",
-  Holy: "świętość", Unholy: "mrok", Death: "śmierć", "Turn Stone": "petryfikacja", "Physical Blockade": "blokada fizyczna",
-};
-export const traitLabel = (t: string) => TRAIT_PL[t] ?? t;
+export const traitLabel = (trait: string) => i18n.t(`trait.${trait as "Shock"}`, { defaultValue: trait });

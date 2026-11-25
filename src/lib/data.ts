@@ -1,4 +1,5 @@
 import type { ChronicleData, ChronicleRef, Evolution, Preset, Row } from "../types";
+import i18n from "../i18n";
 
 const BASE = import.meta.env.BASE_URL;
 
@@ -6,11 +7,11 @@ export const skillIconUrl = (file: string) => `${BASE}icons/skills/${file}`;
 export const classIconUrl = (icon: string) => `${BASE}icons/classes/${icon}.svg`;
 
 export const RACE_ORDER = ["Human", "Elf", "Elven", "Dark Elf", "Dark Elven", "Orc", "Dwarf", "Dwarven", "Kamael"];
-export const RACE_PL: Record<string, string> = {
-  Human: "Człowiek", Elf: "Elf", Elven: "Elf", "Dark Elf": "Mroczny Elf", "Dark Elven": "Mroczny Elf",
-  Orc: "Ork", Dwarf: "Krasnolud", Dwarven: "Krasnolud", Kamael: "Kamael",
-};
-export const raceLabel = (race: string) => RACE_PL[race] ?? race;
+/** The wiki names some races in two ways; both use one translation key. */
+const RACE_KEY: Record<string, string> = { Elven: "Elf", "Dark Elven": "Dark Elf", Dwarven: "Dwarf" };
+export const raceKey = (race: string) => RACE_KEY[race] ?? race;
+/** Reads the current language: components using it must call useTranslation to follow language changes. */
+export const raceLabel = (race: string) => i18n.t(`race.${raceKey(race) as "Human"}`, { defaultValue: race });
 export const raceRank = (race: string) => {
   const i = RACE_ORDER.indexOf(race);
   return i < 0 ? 99 : i;
@@ -18,11 +19,22 @@ export const raceRank = (race: string) => {
 
 /** Character level of each class change: base, 1st, 2nd, 3rd profession. */
 export const TIER_START = [1, 20, 40, 76];
-export const TIER_LABEL = ["Klasa bazowa", "1. profesja", "2. profesja", "3. profesja"];
+export const tierLabel = (depth: number) => i18n.t(`tier.${depth as 0}`);
+
+/** A data file the server did not return; the message is translated when it is shown. */
+export class LoadError extends Error {
+  constructor(readonly path: string, readonly status: number) {
+    super(`could not load ${path} (${status})`);
+  }
+}
+export const errorText = (e: Error) =>
+  i18n.t("app.error", {
+    message: e instanceof LoadError ? i18n.t("app.loadFailed", { path: e.path, status: e.status }) : e.message,
+  });
 
 async function getJson<T>(path: string): Promise<T> {
   const res = await fetch(BASE + path);
-  if (!res.ok) throw new Error(`nie można wczytać ${path} (${res.status})`);
+  if (!res.ok) throw new LoadError(path, res.status);
   return res.json() as Promise<T>;
 }
 
@@ -83,7 +95,7 @@ export function presetsFor(data: ChronicleData, chain: string[], maxLv: number):
     from: TIER_START[i] ?? 1,
     to: TIER_START[i + 1] ? Math.min(TIER_START[i + 1] - 1, maxLv) : maxLv,
   }));
-  out.push({ label: "Całość", from: 1, to: maxLv });
+  out.push({ label: null, from: 1, to: maxLv });
   return out;
 }
 
