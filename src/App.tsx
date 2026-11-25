@@ -1,4 +1,4 @@
-import { useCallback, useDeferredValue, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useDeferredValue, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import type { ChronicleData, ChronicleRef, LevelRange, Row, SkillType } from "./types";
 import {
   buildRows, chainOf, defaultClass, loadChronicle, loadIndex, maxLevelOf, presetsFor,
@@ -11,6 +11,7 @@ import { ClassPicker } from "./components/ClassPicker";
 import { ChronicleBar } from "./components/ChronicleBar";
 import { ChronicleTable } from "./components/ChronicleTable";
 import { SkillToolbar } from "./components/SkillToolbar";
+import { SkillPage } from "./components/SkillPage";
 import { SkillList, type Section, type SkillActions } from "./components/SkillList";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/react";
@@ -80,7 +81,9 @@ export default function App() {
 
   const ready = !!data && data.slug === activeSlug;
   const cls = ready && route.cls && data.classes[route.cls] ? route.cls : null;
-  const view: "loading" | "picker" | "calc" = !ready ? "loading" : cls ? "calc" : "picker";
+  const view: "loading" | "picker" | "calc" | "skill" = !ready ? "loading" : route.skill ? "skill" : cls ? "calc" : "picker";
+  /** class to return to from a skill page */
+  const lastCls = ready && data.classes[prefs.cls[data.slug]] ? prefs.cls[data.slug] : null;
 
   // unknown chronicle/class in the address -> back to the picker
   useEffect(() => {
@@ -128,6 +131,10 @@ export default function App() {
 
   const pickChronicle = useCallback(
     async (slug: string) => {
+      if (route.skill) {
+        navigate(slug, `skill/${route.skill}`);
+        return;
+      }
       if (view !== "calc") {
         navigate(slug);
         return;
@@ -144,7 +151,7 @@ export default function App() {
         setError((e as Error).message);
       }
     },
-    [view, cls, data, prefs.wanted, setPrefs],
+    [view, cls, data, route.skill, prefs.wanted, setPrefs],
   );
 
   // ---------- derived data ----------
@@ -166,6 +173,27 @@ export default function App() {
     (r: LevelRange) => key && setPrefs((p) => ({ ...p, ranges: { ...p.ranges, [key]: { from: r.from, to: r.to } } })),
     [key, setPrefs],
   );
+
+  // a skill page opens at the top; going back restores the place in the class list
+  const listScroll = useRef<{ key: string | null; y: number; back: boolean }>({ key: null, y: 0, back: false });
+  useLayoutEffect(() => {
+    const pos = listScroll.current;
+    if (view === "skill") {
+      pos.back = true;
+      window.scrollTo(0, 0);
+      return;
+    }
+    if (view !== "calc" || !key) return;
+    if (pos.back && pos.key === key) window.scrollTo(0, pos.y);
+    pos.back = false;
+    const onScroll = () => {
+      pos.key = key;
+      pos.y = window.scrollY;
+    };
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, [view, key, route.skill]);
 
   // v3: selection stores the skill levels that ARE counted (default: none)
   const [sel, updateSel] = useSelection(cls && activeSlug ? `spcalc:sel3:${activeSlug}:${cls}` : null);
@@ -301,6 +329,11 @@ export default function App() {
   }, [scrollTo, sections]);
 
   // ---------- render ----------
+  const pageRoute =
+    view === "loading" ? null
+    : view === "skill" ? "/[chronicle]/skill/[id]"
+    : view === "calc" ? "/[chronicle]/[class]"
+    : "/[chronicle]";
   const nSkills = useMemo(() => new Set(inRange.map((r) => r.id)).size, [inRange]);
   const hidden = listInRange.length - visible.length;
 
@@ -316,11 +349,16 @@ export default function App() {
       {/* Vercel Web Analytics: the app routes in the URL hash, so page views are reported per hash route */}
       <Analytics
         mode={import.meta.env.DEV ? "development" : "production"}
-        route={view === "loading" ? null : view === "calc" ? "/[chronicle]/[class]" : "/[chronicle]"}
-        path={view === "loading" ? null : view === "calc" ? `/${activeSlug}/${cls}` : `/${activeSlug}`}
+        route={pageRoute}
+        path={
+          view === "loading" ? null
+          : view === "skill" ? `/${activeSlug}/skill/${route.skill}`
+          : view === "calc" ? `/${activeSlug}/${cls}`
+          : `/${activeSlug}`
+        }
       />
       {/* Vercel Speed Insights: Web Vitals grouped by the same hash routes */}
-      <SpeedInsights route={view === "loading" ? null : view === "calc" ? "/[chronicle]/[class]" : "/[chronicle]"} />
+      <SpeedInsights route={pageRoute} />
 
       {error && <div className="error">Błąd: {error}</div>}
 
@@ -336,6 +374,8 @@ export default function App() {
           onPick={pickClass}
         />
       )}
+
+      {view === "skill" && data && route.skill && <SkillPage data={data} id={route.skill} cls={lastCls} />}
 
       {view === "calc" && data && cls && (
         <>

@@ -1,6 +1,7 @@
 import { memo } from "react";
 import type { ChronicleData, Row, SelMap } from "../types";
 import { fmt, short, skillMeta } from "../lib/format";
+import { skillHref } from "../lib/route";
 import { SkillIcon } from "./ClassIcon";
 import { TriCheckbox } from "./TriCheckbox";
 
@@ -104,6 +105,7 @@ function LevelSection({ data, section, sel, closed, opened, levelsInRange, actio
               mask={g.map((r) => (sel[r.key] ? "1" : "0")).join("")}
               open={opened.has(`${l}:${g[0].id}`)}
               books={data.books}
+              slug={data.slug}
               everywhere={levelsInRange.get(g[0].id) ?? 0}
               actions={actions}
             />
@@ -121,11 +123,12 @@ interface RowProps {
   mask: string;
   open: boolean;
   books: Record<string, string>;
+  slug: string;
   everywhere: number;
   actions: SkillActions;
 }
 
-const SkillRow = memo(function SkillRow({ l, group, mask, open, books, everywhere, actions }: RowProps) {
+const SkillRow = memo(function SkillRow({ l, group, mask, open, books, slug, everywhere, actions }: RowProps) {
   const sk = group[0].sk;
   const id = group[0].id;
   const isOn = (i: number) => mask[i] === "1";
@@ -150,7 +153,9 @@ const SkillRow = memo(function SkillRow({ l, group, mask, open, books, everywher
         <SkillIcon file={sk.i} />
         <div className="sname">
           <div className="line1">
-            <b onClick={() => actions.toggleOpen(l, id)}>{sk.n}</b>
+            <a className="skill-link" href={skillHref(slug, id)} title="Strona skila">
+              {sk.n}
+            </a>
             <span className={`tag ${sk.p ? "p" : "a"}`}>{sk.p ? "pasywny" : "aktywny"}</span>
             {group.length === 1 && <span className="lvl-meta">Lv {group[0].lv}</span>}
             {bookCount > 0 && <span className="tag book">książka{bookCount > 1 ? ` ×${bookCount}` : ""}</span>}

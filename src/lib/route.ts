@@ -5,16 +5,18 @@ import { useEffect, useState } from "react";
  *   #/                       class picker (start page)
  *   #/<chronicle>            class picker for that chronicle
  *   #/<chronicle>/<class>    SP calculator for that class
+ *   #/<chronicle>/skill/<id> page of one skill
  * Hash routing keeps browser Back working and needs no server configuration.
  */
 export interface Route {
   slug: string | null;
   cls: string | null;
+  skill: string | null;
 }
 
 function parse(hash: string): Route {
-  const [slug = null, cls = null] = hash.replace(/^#\/?/, "").split("/").filter(Boolean);
-  return { slug, cls };
+  const [slug = null, cls = null, id = null] = hash.replace(/^#\/?/, "").split("/").filter(Boolean);
+  return cls === "skill" && id ? { slug, cls: null, skill: id } : { slug, cls, skill: null };
 }
 
 export function useHashRoute(): Route {
@@ -29,6 +31,8 @@ export function useHashRoute(): Route {
 
 export const hrefFor = (slug?: string | null, cls?: string | null) =>
   slug ? (cls ? `#/${slug}/${cls}` : `#/${slug}`) : "#/";
+
+export const skillHref = (slug: string, id: number | string) => hrefFor(slug, `skill/${id}`);
 
 export function navigate(slug?: string | null, cls?: string | null, replace = false) {
   const href = hrefFor(slug, cls);

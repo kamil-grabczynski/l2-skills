@@ -18,6 +18,23 @@ export interface SkillInfo {
   e?: Record<string, string>;
   /** usage data per skill level (active skills) */
   m?: Record<string, SkillMeta>;
+  /** what decides whether the debuff lands */
+  r?: Resist;
+  /** removes the target's buffs: level -> [magic level, chance] */
+  x?: { k: "cancel" | "bane"; v: Record<string, [number, number]> };
+  /** 1 = hostile instant effect with only a fixed chance in the server data */
+  f?: 1;
+}
+
+export interface Resist {
+  /** stat the target resists with, "" = none */
+  s: string;
+  /** 1 = magic skill (M.Atk, M.Def and spiritshots count) */
+  g: 0 | 1;
+  /** trait or element of the skill, "" = none */
+  t: string;
+  /** level -> [magic level, level modifier, base rate (-1 = always lands)] */
+  v: Record<string, [number, number, number]>;
 }
 
 /** [mp, hp, cast s, reuse s, cast range, area kind, area radius, duration s, success chance %, 1 = toggle?] */

@@ -3,6 +3,7 @@ import type { ChronicleData, ChronicleRef, Evolution } from "../types";
 import { buildRows, chainOf, chronicleLabel, loadChronicle, loadEvolution } from "../lib/data";
 import { readJson, writeJson } from "../lib/storage";
 import { fmt, skillMeta } from "../lib/format";
+import { skillHref } from "../lib/route";
 import { ClassIcon, SkillIcon } from "./ClassIcon";
 
 interface Props {
@@ -256,26 +257,23 @@ function IconCards({ cls = "", rows, cols, evo, names, active, skillName, onPick
   ) => {
     const show = (el: HTMLElement) =>
       setTip({ id: it.id, slug, descSlug: it.descSlug, descLv: it.descLv, info, rect: el.getBoundingClientRect() });
-    const isOpen = tip?.id === it.id && tip.slug === slug;
     return (
-      <button
-        type="button"
+      <a
         key={`${kind}-${it.id}`}
+        href={skillHref(it.descSlug, it.id)}
         className={`evo-tile ${kind}`}
         aria-label={`${skillName(it.id)}: ${info}`}
-        aria-expanded={isOpen}
         onMouseEnter={(e) => show(e.currentTarget)}
         onMouseLeave={() => setTip(null)}
         onFocus={(e) => show(e.currentTarget)}
         onBlur={() => setTip(null)}
-        onClick={(e) => (isOpen ? setTip(null) : show(e.currentTarget))}
       >
         <span className="ti">
           <SkillIcon file={evo.skills[it.id]?.i ?? ""} />
           <b className="lvb">{badge}</b>
         </span>
         <span className="tn">{skillName(it.id)}</span>
-      </button>
+      </a>
     );
   };
 
@@ -438,6 +436,14 @@ function Table({ rows, cols, evo, names, active, skillName, onPickChronicle }: V
   }
   const ordered = [...groups.entries()].sort((a, b) => a[0] - b[0]);
 
+  /** the active chronicle when the skill exists there, otherwise the newest one that has it */
+  const pageSlug = (lv: (number | null)[]) => {
+    if (lv[evo.chronicles.indexOf(active)]) return active;
+    let i = lv.length - 1;
+    while (i > 0 && !lv[i]) i--;
+    return evo.chronicles[i];
+  };
+
   const cell = (lv: (number | null)[], i: number, on: boolean) => {
     const v = lv[i];
     const a = on ? " active" : "";
@@ -490,7 +496,9 @@ function Table({ rows, cols, evo, names, active, skillName, onPickChronicle }: V
                 <tr key={id}>
                   <th className="sk">
                     <SkillIcon file={evo.skills[id]?.i ?? ""} />
-                    <span>{skillName(id)}</span>
+                    <a className="skill-link" href={skillHref(pageSlug(lv), id)}>
+                      {skillName(id)}
+                    </a>
                   </th>
                   {cols.map((c) => cell(lv, c.i, c.slug === active))}
                 </tr>
