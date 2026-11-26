@@ -1,4 +1,4 @@
-import type { BookInfo, ChronicleData, ChronicleRef, Evolution, Preset, Row } from "../types";
+import type { BookInfo, ChronicleData, ChronicleRef, Evolution, Preset, Row, Spawns } from "../types";
 import i18n from "../i18n";
 
 const BASE = import.meta.env.BASE_URL;
@@ -74,6 +74,20 @@ export function loadBooks(slug: string): Promise<Record<string, BookInfo>> {
     p = getJson<Record<string, BookInfo>>(`data/books/${slug}.json`);
     p.catch(() => bookCache.delete(slug));
     bookCache.set(slug, p);
+  }
+  return p;
+}
+
+export const mapUrl = (file: string) => `${BASE}maps/${file}`;
+
+const spawnCache = new Map<string, Promise<Spawns>>();
+/** Spawn areas of the monsters that drop the chronicle's spellbooks. */
+export function loadSpawns(slug: string): Promise<Spawns> {
+  let p = spawnCache.get(slug);
+  if (!p) {
+    p = getJson<Spawns>(`data/spawns/${slug}.json`);
+    p.catch(() => spawnCache.delete(slug));
+    spawnCache.set(slug, p);
   }
   return p;
 }

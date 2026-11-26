@@ -340,6 +340,13 @@
     "questLevel": "from level {{level}}",
     "questStart": "Starts with {{npc}}",
     "quest334": "Repeatable. Matild stands northeast of the Ivory Tower. Collect the ingredients, get a Wish Potion and drink it with the wish „Wish for Wisdom”: it gives at random Spellbook: Ice Bolt, Spellbook: Battle Heal or the amulet for The Heart of Pa'agrio (Amulet: Heart of Paagrio, from C5 Amulet: Pa'agrio's Heart), or spawns a Wisdom Chest. Brew more potions until you get the reward you need.",
-    "noDropQuest": "No monster drops it: get it from the quest above."
+    "noDropQuest": "No monster drops it: get it from the quest above.",
+    "questWiki": "Steps of the quest on lineage2wiki.org",
+    "noSpawn": "The wiki has no spawn areas for these monsters.",
+    "mapLabel": "World map with the spawn areas of the monsters that drop this item",
+    "mapAll": "All monsters that drop it. Click an area or a monster in the table to zoom in.",
+    "mapPicked": "Spawn areas of {{name}}",
+    "mapShowAll": "Show all",
+    "showOnMap": "Show on the map"
   }
 }

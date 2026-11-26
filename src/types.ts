@@ -114,6 +114,14 @@ export interface BookInfo {
   shop: [string, string, string, number][];
   /** [npc id, monster, level, chance %, min, max], highest chance first */
   drop: [number, string, number, number, number, number][];
-  /** quests that give it as a reward: [quest id, title, min level, start npc] */
-  quest?: [number, string, number, string][];
+  /** quests that give it as a reward: [quest id, title, min level, start npc, description] */
+  quest?: [number, string, number, string, string?][];
+}
+
+/** public/data/spawns/<chronicle>.json: where the monsters that drop spellbooks live. */
+export interface Spawns {
+  /** map key -> [file in public/maps, width px, height px] */
+  maps: Record<string, [string, number, number]>;
+  /** npc id -> hunting zones and spawn shapes [map key, x1, y1, x2, y2, …] in map pixels (one point = a spawn spot) */
+  npc: Record<string, { z: string[]; s: [string, ...number[]][] }>;
 }

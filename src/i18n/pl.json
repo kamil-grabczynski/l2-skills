@@ -348,6 +348,13 @@
     "questLevel": "od poziomu {{level}}",
     "questStart": "Zaczyna się u {{npc}}",
     "quest334": "Powtarzalny. Matild stoi na północny wschód od Ivory Tower. Zbierz składniki, odbierz Wish Potion i wypij go z życzeniem „Wish for Wisdom”: losowo daje Spellbook: Ice Bolt, Spellbook: Battle Heal albo amulet do The Heart of Pa'agrio (Amulet: Heart of Paagrio, od C5 Amulet: Pa'agrio's Heart), albo przywołuje Wisdom Chest. Potion można warzyć ponownie, dopóki nie wypadnie potrzebna nagroda.",
-    "noDropQuest": "Żaden potwór tego nie dropi: zdobędziesz to z questa powyżej."
+    "noDropQuest": "Żaden potwór tego nie dropi: zdobędziesz to z questa powyżej.",
+    "questWiki": "Kroki questa na lineage2wiki.org",
+    "noSpawn": "Wiki nie podaje miejsc spawnu tych potworów.",
+    "mapLabel": "Mapa świata z miejscami spawnu potworów, które dropią ten przedmiot",
+    "mapAll": "Wszystkie potwory, które to dropią. Kliknij obszar albo potwora w tabeli, aby przybliżyć.",
+    "mapPicked": "Spawn: {{name}}",
+    "mapShowAll": "Pokaż wszystkie",
+    "showOnMap": "Pokaż na mapie"
   }
 }
