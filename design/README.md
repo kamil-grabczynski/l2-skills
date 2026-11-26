@@ -11,7 +11,17 @@ These are mockups of a new look for the app. They are static HTML pages that use
 | `04-mobile.html` | Phone: skill list with a pinned SP bar, level range as a bottom sheet |
 | `l2.css` | Shared tokens and components used by all mockups |
 
-## Direction
+## Alternative directions
+
+Each of these shows the SP calculator screen in a different style, so the directions can be compared side by side. Each page has its own styles and does not use `l2.css`.
+
+| File | Direction |
+| --- | --- |
+| `05-variant-parchment.html` | **A: Parchment.** A light spell-book page with ink, red seals and Garamond type. It is the only light option. |
+| `06-variant-classic.html` | **B: Classic HUD.** The app as game client windows from the Interlude era: grey see-through windows, a skill learn window like an NPC's, a status bar for the SP total, a quick-slot bar and a chat-style log. |
+| `07-variant-crimson.html` | **C: Crimson launcher.** A modern game launcher look: a large class banner, crimson and violet, cut corners, number tiles and a grid of skill cards instead of a list. |
+
+## Direction (main mockups)
 
 - Night-blue glass windows with thin bronze frames and gold corner marks, like the game's UI windows.
 - Cinzel for headings, class names and large numbers. Inter, with tabular figures, for everything else.

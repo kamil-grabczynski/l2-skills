@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<title>Wariant C · Szkarłatny launcher</title>
+<link href="https://fonts.googleapis.com/css2?family=Oxanium:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  /* Wariant C: "Szkarłatny launcher" — styl współczesnego launchera / strony gry:
+     duży baner klasy, szkarłat + fiolet mrocznych elfów, siatka kart skili zamiast listy, ostre ścięte rogi. */
+  :root {
+    --bg: #0b0709; --bg-2: #140c10; --card: #1a1015; --card-2: #23151c; --line: #3a222c;
+    --ink: #f3e9ec; --ink-2: #bfa9b1; --ink-3: #806870;
+    --red: #e23c4b; --red-2: #ff6b5a; --vio: #8a4dff; --pass: #5aa6ff; --tog: #3fd49a; --book: #c08bff;
+    --cut: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+    --f-d: "Oxanium", "Segoe UI", sans-serif; --f: "Inter", system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; width: 1440px; background: var(--bg); color: var(--ink); font: 14px/1.45 var(--f); font-feature-settings: "tnum" 1; }
+
+  .top { display: flex; align-items: center; gap: 30px; height: 64px; padding: 0 40px; background: rgba(11,7,9,.7); backdrop-filter: blur(10px); position: relative; z-index: 3; border-bottom: 1px solid rgba(255,255,255,.05); }
+  .logo { font: 800 20px/1 var(--f-d); letter-spacing: .06em; }
+  .logo span { color: var(--red); }
+  .links { display: flex; gap: 24px; font: 600 13px var(--f-d); letter-spacing: .08em; text-transform: uppercase; color: var(--ink-3); }
+  .links .on { color: var(--ink); box-shadow: 0 2px 0 var(--red); padding-bottom: 20px; margin-bottom: -22px; }
+  .search { margin-left: auto; width: 360px; height: 38px; display: flex; align-items: center; gap: 10px; padding: 0 14px; background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.08); clip-path: var(--cut); color: var(--ink-3); }
+  .lang { font: 700 12px var(--f-d); color: var(--ink-3); } .lang b { color: var(--ink); }
+
+  .hero { position: relative; height: 360px; margin-top: -64px; padding: 110px 40px 0; overflow: hidden;
+    background:
+      radial-gradient(700px 380px at 78% 40%, rgba(226,60,75,.55), transparent 70%),
+      radial-gradient(600px 340px at 98% 90%, rgba(138,77,255,.45), transparent 70%),
+      radial-gradient(900px 300px at 10% 0%, rgba(90,20,40,.6), transparent 70%),
+      linear-gradient(180deg, #1a0a10, #0b0709); }
+  .hero::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 120px; background: linear-gradient(transparent, var(--bg)); }
+  .emblem { position: absolute; right: 120px; top: 40px; width: 340px; height: 340px; opacity: .95; }
+  .hero .k { font: 600 12px var(--f-d); letter-spacing: .3em; text-transform: uppercase; color: var(--red-2); }
+  .hero h1 { margin: 8px 0 6px; font: 800 96px/.9 var(--f-d); letter-spacing: -.01em; text-transform: uppercase;
+    background: linear-gradient(180deg, #fff, #f0c9cf 70%, #b8707d); -webkit-background-clip: text; color: transparent; }
+  .path { display: flex; gap: 8px; align-items: center; color: var(--ink-2); font: 600 14px var(--f-d); letter-spacing: .06em; }
+  .path i { width: 18px; height: 1px; background: var(--ink-3); }
+  .path b { color: var(--ink); }
+  .chips { display: flex; gap: 6px; margin-top: 22px; position: relative; z-index: 2; }
+  .chip { height: 32px; padding: 0 14px; display: inline-flex; align-items: center; font: 700 12px var(--f-d); letter-spacing: .06em; color: var(--ink-2); background: rgba(0,0,0,.35); border: 1px solid rgba(255,255,255,.1); clip-path: var(--cut); }
+  .chip.on { color: #fff; background: linear-gradient(90deg, var(--red), #b0263a); border-color: transparent; }
+
+  .wrap { padding: 0 40px 50px; position: relative; z-index: 2; margin-top: -40px; }
+
+  .kpis { display: grid; grid-template-columns: 1.6fr 1fr 1fr 1fr 1.4fr; gap: 12px; }
+  .kpi { background: var(--card); padding: 18px 20px; clip-path: var(--cut); position: relative; }
+  .kpi::before { content: ""; position: absolute; left: 0; top: 10px; bottom: 0; width: 2px; background: var(--line); }
+  .kpi small { font: 700 11px var(--f-d); letter-spacing: .2em; text-transform: uppercase; color: var(--ink-3); }
+  .kpi b { display: block; margin-top: 8px; font: 800 30px/1 var(--f-d); }
+  .kpi b em { font: 600 14px var(--f-d); color: var(--ink-3); font-style: normal; }
+  .kpi.main { background: linear-gradient(120deg, #3a0f1a, #1a1015 70%); }
+  .kpi.main::before { background: var(--red); }
+  .kpi.main b { font-size: 44px; color: #fff; }
+  .meter { height: 6px; margin-top: 12px; background: rgba(255,255,255,.07); }
+  .meter i { display: block; height: 100%; background: linear-gradient(90deg, var(--red), var(--red-2)); box-shadow: 0 0 12px var(--red); }
+  .rng .vals { display: flex; justify-content: space-between; align-items: baseline; margin-top: 8px; font: 800 28px/1 var(--f-d); }
+  .rng .vals span { font: 600 12px var(--f-d); color: var(--ink-3); }
+  .rng .bar { position: relative; height: 6px; margin-top: 12px; background: rgba(255,255,255,.07); }
+  .rng .bar i { position: absolute; left: 53%; right: 0; top: 0; bottom: 0; background: var(--red); }
+  .rng .bar b { position: absolute; top: -5px; width: 4px; height: 16px; margin: 0 0 0 -2px; background: #fff; box-shadow: 0 0 8px #fff; }
+
+  .bar2 { display: flex; align-items: center; gap: 10px; margin: 28px 0 16px; }
+  .seg { display: flex; background: var(--card); clip-path: var(--cut); padding: 4px; gap: 2px; }
+  .seg span { padding: 8px 16px; font: 700 12px var(--f-d); letter-spacing: .08em; text-transform: uppercase; color: var(--ink-3); }
+  .seg span.on { color: #fff; background: rgba(226,60,75,.2); box-shadow: inset 0 -2px 0 var(--red); }
+  .filter { flex: 1; max-width: 360px; height: 40px; display: flex; align-items: center; padding: 0 14px; background: var(--card); clip-path: var(--cut); color: var(--ink-3); }
+  .sp { flex: 1; }
+  .ghost { height: 40px; padding: 0 16px; display: inline-flex; align-items: center; font: 700 12px var(--f-d); letter-spacing: .08em; text-transform: uppercase; color: var(--ink-2); border: 1px solid var(--line); clip-path: var(--cut); }
+  .cta { height: 40px; padding: 0 20px; display: inline-flex; align-items: center; font: 800 12px var(--f-d); letter-spacing: .1em; text-transform: uppercase; color: #fff; background: linear-gradient(90deg, var(--red), #b0263a); clip-path: var(--cut); box-shadow: 0 0 24px rgba(226,60,75,.5); }
+
+  .lvl { display: flex; align-items: center; gap: 14px; margin: 22px 0 12px; }
+  .lvl b { font: 800 22px/1 var(--f-d); letter-spacing: .04em; }
+  .lvl b span { color: var(--red); }
+  .lvl small { color: var(--ink-3); }
+  .lvl .ln { flex: 1; height: 1px; background: linear-gradient(90deg, var(--line), transparent); }
+  .lvl .sum { font: 700 14px var(--f-d); color: var(--ink-2); } .lvl .sum em { color: var(--ink-3); font-style: normal; }
+
+  .cards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+  .card { position: relative; background: var(--card); clip-path: var(--cut); padding: 16px; display: flex; flex-direction: column; gap: 10px; min-height: 190px; }
+  .card.on { background: linear-gradient(160deg, #3a1420, #1a1015 60%); }
+  .card.on::after { content: ""; position: absolute; inset: 0; border: 1px solid rgba(226,60,75,.6); clip-path: var(--cut); pointer-events: none; }
+  .card .top2 { display: flex; gap: 12px; align-items: center; }
+  .ic { width: 52px; height: 52px; flex: none; position: relative; clip-path: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px); }
+  .ic img { width: 100%; height: 100%; display: block; }
+  .card:not(.on) .ic img { filter: saturate(.5) brightness(.75); }
+  .card h3 { margin: 0; font: 700 16px/1.15 var(--f-d); letter-spacing: .02em; }
+  .tp { margin-top: 4px; display: flex; gap: 5px; }
+  .tp span { font: 700 10px/1 var(--f-d); letter-spacing: .12em; text-transform: uppercase; padding: 4px 6px; background: rgba(255,255,255,.06); }
+  .tp .a { color: var(--red-2); } .tp .p { color: var(--pass); } .tp .d { color: #ffb36b; } .tp .t { color: var(--tog); } .tp .b { color: var(--book); }
+  .card p { margin: 0; color: var(--ink-2); font-size: 12.5px; flex: 1; }
+  .lv { display: flex; gap: 4px; }
+  .lv span { flex: 1; text-align: center; padding: 6px 0; font: 700 11px/1 var(--f-d); background: rgba(255,255,255,.05); color: var(--ink-3); }
+  .lv span.on { background: var(--red); color: #fff; }
+  .cost { display: flex; justify-content: space-between; align-items: baseline; font: 800 18px/1 var(--f-d); }
+  .cost small { font: 600 11px var(--f-d); color: var(--ink-3); }
+  .card:not(.on) .cost b { color: var(--ink-3); }
+  .tick { position: absolute; right: 14px; top: 14px; width: 22px; height: 22px; display: grid; place-items: center; border: 1px solid var(--line); font-size: 13px; color: transparent; }
+  .card.on .tick { background: var(--red); border-color: var(--red); color: #fff; }
+  .card.half .tick { border-color: var(--red); color: var(--red); }
+</style>
+</head>
+<body>
+  <div class="top">
+    <div class="logo">L2<span>/</span>SKILLS</div>
+    <div class="links"><span class="on">Kalkulator SP</span><span>Klasy</span><span>Skille</span><span>Kroniki</span></div>
+    <div class="search">⌕ Szukaj skila wszystkich klas…</div>
+    <div class="lang"><b>PL</b> / EN</div>
+  </div>
+
+  <section class="hero">
+    <svg class="emblem" viewBox="0 0 340 340">
+      <defs>
+        <radialGradient id="eg" cx=".5" cy=".45" r=".6"><stop offset="0" stop-color="#ff7a6a" stop-opacity=".9"/><stop offset=".6" stop-color="#e23c4b" stop-opacity=".25"/><stop offset="1" stop-color="#e23c4b" stop-opacity="0"/></radialGradient>
+        <linearGradient id="bl" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff"/><stop offset="1" stop-color="#ff9aa3"/></linearGradient>
+      </defs>
+      <circle cx="170" cy="170" r="160" fill="url(#eg)"/>
+      <circle cx="170" cy="170" r="120" fill="none" stroke="rgba(255,255,255,.18)"/>
+      <circle cx="170" cy="170" r="140" fill="none" stroke="rgba(255,255,255,.08)" stroke-dasharray="4 8"/>
+      <g stroke="url(#bl)" stroke-width="10" stroke-linecap="square"><path d="M95 95 245 245"/><path d="M245 95 95 245"/></g>
+      <g stroke="#fff" stroke-width="4"><path d="M108 228l-22 22M232 228l22 22"/></g>
+      <g fill="#fff"><path d="M90 90l-8-26 26 8Z"/><path d="M250 90l8-26-26 8Z"/></g>
+    </svg>
+    <div class="k">Człowiek · 2. profesja · Kronika C2</div>
+    <h1>Gladiator</h1>
+    <div class="path">Fighter <i></i> Warrior <i></i> <b>Gladiator</b> · <span style="color:var(--red-2)">zmień klasę</span></div>
+    <div class="chips"><span class="chip">C1</span><span class="chip on">C2 · Age of Splendor</span><span class="chip">C3</span><span class="chip">C4</span><span class="chip">C5</span><span class="chip">Interlude</span><span class="chip">Kamael</span><span class="chip">Hellbound</span><span class="chip">Gracia</span><span class="chip">Freya</span><span class="chip">High Five</span></div>
+  </section>
+
+  <div class="wrap">
+    <div class="kpis">
+      <div class="kpi main"><small>Potrzebne SP</small><b>4 218 000</b><div class="meter"><i style="width:5.1%"></i></div></div>
+      <div class="kpi"><small>Skille</small><b>9 <em>/ 24</em></b></div>
+      <div class="kpi"><small>Poziomy</small><b>31 <em>/ 463</em></b></div>
+      <div class="kpi"><small>Księgi</small><b>2</b></div>
+      <div class="kpi rng"><small>Zakres poziomów · Gladiator</small><div class="vals">40 <span>do</span> 74</div><div class="bar"><i></i><b style="left:53%"></b><b style="left:100%"></b></div></div>
+    </div>
+
+    <div class="bar2">
+      <div class="seg"><span class="on">Wszystkie</span><span>Aktywne</span><span>Pasywne</span><span>Nowe w kronikach</span></div>
+      <div class="filter">Filtruj skille tej klasy…</div>
+      <span class="sp"></span>
+      <span class="ghost">Odznacz</span><span class="cta">Zaznacz widoczne</span>
+    </div>
+
+    <div class="lvl"><b><span>/</span> Poziom 40</b><small>12 skili</small><span class="ln"></span><span class="sum">268 000 <em>/ 432 000 SP</em></span></div>
+    <div class="cards">
+      <div class="card on"><span class="tick">✓</span><div class="top2"><span class="ic"><img src="../public/icons/skills/skill0001.png"></span><div><h3>Triple Slash</h3><div class="tp"><span class="a">Aktywny</span></div></div></div>
+        <p>Trzy szybkie cięcia. Wymaga broni typu dual sword. Moc 1 247.</p>
+        <div class="lv"><span class="on">1</span><span class="on">2</span><span class="on">3</span></div>
+        <div class="cost"><b>36 000</b><small>z 36 000 SP</small></div></div>
+      <div class="card on"><span class="tick">✓</span><div class="top2"><span class="ic"><img src="../public/icons/skills/skill0144.png"></span><div><h3>Dual Weapon Mastery</h3><div class="tp"><span class="p">Pasywny</span></div></div></div>
+        <p>+27,1 P. Atk. przy broni podwójnej.</p>
+        <div class="lv"><span class="on">1</span><span class="on">2</span><span class="on">3</span></div>
+        <div class="cost"><b>36 000</b><small>z 36 000 SP</small></div></div>
+      <div class="card half"><span class="tick">–</span><div class="top2"><span class="ic"><img src="../public/icons/skills/skill0190.png"></span><div><h3>Fatal Strike</h3><div class="tp"><span class="a">Aktywny</span></div></div></div>
+        <p>Zbiera siły do mocnego uderzenia. Moc 417. Możliwy over-hit.</p>
+        <div class="lv"><span class="on">1</span><span>2</span><span>3</span></div>
+        <div class="cost"><b style="color:var(--ink)">12 000</b><small>z 36 000 SP</small></div></div>
+      <div class="card"><span class="tick"></span><div class="top2"><span class="ic"><img src="../public/icons/skills/skill0260.png"></span><div><h3>Hammer Crush</h3><div class="tp"><span class="a">Aktywny</span><span class="d">Debuff 40%</span></div></div></div>
+        <p>Atak, który ogłusza wroga. Wymaga broni obuchowej. Moc 395.</p>
+        <div class="lv"><span>1</span><span>2</span><span>3</span></div>
+        <div class="cost"><b>0</b><small>z 36 000 SP</small></div></div>
+      <div class="card on"><span class="tick">✓</span><div class="top2"><span class="ic"><img src="../public/icons/skills/skill0008.png"></span><div><h3>Focus Sonic</h3><div class="tp"><span class="a">Aktywny</span><span class="b">Księga</span></div></div></div>
+        <p>Ładuje promień. Działa do poziomu 4.</p>
+        <div class="lv"><span class="on">1</span></div>
+        <div class="cost"><b>37 000</b><small>z 37 000 SP</small></div></div>
+      <div class="card"><span class="tick"></span><div class="top2"><span class="ic"><img src="../public/icons/skills/skill0231.png"></span><div><h3>Heavy Armor Mastery</h3><div class="tp"><span class="p">Pasywny</span></div></div></div>
+        <p>+22,8 P. Def. w ciężkim pancerzu.</p>
+        <div class="lv"><span>14</span><span>15</span><span>16</span></div>
+        <div class="cost"><b>0</b><small>z 36 000 SP</small></div></div>
+      <div class="card"><span class="tick"></span><div class="top2"><span class="ic"><img src="../public/icons/skills/skill0312.png"></span><div><h3>Vicious Stance</h3><div class="tp"><span class="t">Toggle</span><span class="b">Księga</span></div></div></div>
+        <p>Zwiększa obrażenia krytyczne. Stale zużywa MP.</p>
+        <div class="lv"><span>6</span></div>
+        <div class="cost"><b>0</b><small>z 33 000 SP</small></div></div>
+      <div class="card"><span class="tick"></span><div class="top2"><span class="ic"><img src="../public/icons/skills/skill0087.png"></span><div><h3>Detect Animal Weakness</h3><div class="tp"><span class="a">Aktywny</span></div></div></div>
+        <p>Chwilowo zwiększa siłę ataku przeciw zwierzętom.</p>
+        <div class="lv"><span>1</span></div>
+        <div class="cost"><b>0</b><small>z 37 000 SP</small></div></div>
+    </div>
+  </div>
+</body>
+</html>

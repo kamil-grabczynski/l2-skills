@@ -1,0 +1,207 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<title>Wariant A · Pergamin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=EB+Garamond:wght@400;500;600&family=IM+Fell+English+SC&display=swap" rel="stylesheet">
+<style>
+  /* Wariant A: "Kronika Adenu" — jasny pergamin, atrament, czerwona pieczęć. Księga zaklęć zamiast okna gry. */
+  :root {
+    --paper: #efe4cc; --paper-2: #e6d7b8; --paper-3: #d9c59c; --edge: #b89a64;
+    --ink: #2b2117; --ink-2: #5a4a36; --ink-3: #8a7658;
+    --red: #8e2a1f; --red-2: #b8442f; --blue: #2f4f78; --green: #3e6b3a; --gold: #a77a26;
+    --f-title: "IM Fell English SC", "Cormorant Garamond", Georgia, serif;
+    --f-head: "Cormorant Garamond", Georgia, serif;
+    --f-body: "EB Garamond", Georgia, serif;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; width: 1440px; color: var(--ink); font: 16px/1.4 var(--f-body);
+    background:
+      radial-gradient(900px 500px at 15% 0%, rgba(255,250,235,.7), transparent 60%),
+      radial-gradient(800px 600px at 100% 100%, rgba(140,100,50,.25), transparent 60%),
+      linear-gradient(180deg, #e9dcbf, #dccaa4);
+    font-variant-numeric: oldstyle-nums;
+  }
+  body::before { /* paper fibres */
+    content: ""; position: fixed; inset: 0; pointer-events: none; opacity: .35; mix-blend-mode: multiply;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 .45  0 0 0 0 .35  0 0 0 0 .2  0 0 0 .5 0'/></filter><rect width='240' height='240' filter='url(%23n)'/></svg>");
+  }
+  .lining { font-variant-numeric: lining-nums tabular-nums; }
+
+  header { display: flex; align-items: center; gap: 28px; padding: 26px 56px 18px; border-bottom: 2px solid var(--ink); position: relative; }
+  header::after { content: ""; position: absolute; left: 56px; right: 56px; bottom: -6px; height: 1px; background: var(--ink); }
+  .brand { display: flex; align-items: center; gap: 14px; }
+  .seal {
+    width: 54px; height: 54px; border-radius: 50%; display: grid; place-items: center; flex: none;
+    background: radial-gradient(circle at 35% 30%, #c8553f, #8e2a1f 60%, #5e1912);
+    box-shadow: 0 2px 0 #4a130d, 0 4px 10px rgba(80,20,10,.35), inset 0 0 0 4px rgba(0,0,0,.12);
+    color: #f4d9b6; font: 22px/1 var(--f-title);
+  }
+  .brand b { display: block; font: 34px/1 var(--f-title); letter-spacing: .02em; }
+  .brand small { display: block; margin-top: 4px; font: italic 15px var(--f-body); color: var(--ink-3); }
+  .search { flex: 1; max-width: 460px; margin-left: auto; display: flex; align-items: center; gap: 10px; padding: 8px 4px; border-bottom: 1px solid var(--ink-2); font-style: italic; color: var(--ink-3); }
+  .lang { font: 600 15px var(--f-head); letter-spacing: .1em; }
+  .lang b { color: var(--red); border-bottom: 2px solid var(--red); }
+
+  nav { display: flex; gap: 22px; justify-content: center; padding: 16px 56px 0; font: 600 17px var(--f-head); color: var(--ink-3); }
+  nav span.on { color: var(--red); position: relative; }
+  nav span.on::before, nav span.on::after { content: "❦"; font-size: 13px; margin: 0 6px; color: var(--red-2); }
+
+  .book { display: grid; grid-template-columns: 420px 1fr; gap: 0; margin: 26px 56px 60px; background: var(--paper);
+    border: 1px solid var(--edge); box-shadow: 0 1px 0 #fff8 inset, 0 30px 60px -30px rgba(70,40,10,.6), 0 2px 0 var(--paper-3); position: relative; }
+  .book::before { /* spine */
+    content: ""; position: absolute; top: 0; bottom: 0; left: 420px; width: 40px; margin-left: -20px; pointer-events: none;
+    background: linear-gradient(90deg, transparent, rgba(110,70,30,.18) 45%, rgba(110,70,30,.28) 50%, rgba(110,70,30,.18) 55%, transparent);
+  }
+  .page { padding: 36px 40px 40px; }
+  .page.left { border-right: 1px solid rgba(120,90,50,.25); }
+
+  .chapter { font: italic 15px var(--f-body); color: var(--ink-3); }
+  h1 { margin: 2px 0 6px; font: 56px/1 var(--f-title); }
+  h1::first-letter { color: var(--red); font-size: 72px; }
+  .lineage { font: italic 17px var(--f-body); color: var(--ink-2); }
+  .orn { text-align: center; color: var(--red-2); letter-spacing: 12px; margin: 22px 0 18px; font-size: 14px; }
+  h2 { margin: 0 0 12px; font: 600 15px var(--f-head); letter-spacing: .22em; text-transform: uppercase; color: var(--ink-2); }
+
+  .presets { display: flex; flex-wrap: wrap; gap: 6px 18px; font: 600 18px var(--f-head); color: var(--ink-3); }
+  .presets span small { font: italic 14px var(--f-body); margin-left: 4px; }
+  .presets .on { color: var(--ink); text-decoration: underline; text-decoration-color: var(--red); text-decoration-thickness: 2px; text-underline-offset: 5px; }
+  .lvls { display: flex; align-items: baseline; gap: 14px; margin: 18px 0 8px; font: 600 44px/1 var(--f-head); }
+  .lvls em { font: italic 18px var(--f-body); color: var(--ink-3); }
+  .range { position: relative; height: 18px; margin: 6px 6px 0; }
+  .range .t { position: absolute; left: 0; right: 0; top: 8px; height: 2px; background: var(--paper-3); }
+  .range .f { position: absolute; top: 7px; height: 4px; left: 53%; right: 0; background: var(--ink); }
+  .range .g { position: absolute; top: 2px; width: 14px; height: 14px; margin-left: -7px; border-radius: 50%; background: var(--red); box-shadow: 0 0 0 3px var(--paper), 0 0 0 4px var(--red); }
+
+  .sum { margin-top: 26px; padding: 22px 0; border-top: 2px solid var(--ink); border-bottom: 1px solid var(--ink); text-align: center; position: relative; }
+  .sum small { font: 600 13px var(--f-head); letter-spacing: .26em; text-transform: uppercase; color: var(--ink-3); }
+  .sum b { display: block; margin: 6px 0; font: 700 62px/1 var(--f-head); color: var(--red); font-variant-numeric: lining-nums; }
+  .sum span { font: italic 16px var(--f-body); color: var(--ink-2); }
+
+  .ledger { width: 100%; margin-top: 18px; border-collapse: collapse; font-size: 17px; }
+  .ledger td { padding: 6px 0; border-bottom: 1px dotted var(--edge); }
+  .ledger td:last-child { text-align: right; font-weight: 600; }
+
+  .books { margin: 0; padding-left: 20px; font-style: italic; color: var(--ink-2); }
+
+  /* right page */
+  .tools { display: flex; align-items: center; gap: 22px; padding-bottom: 14px; border-bottom: 1px solid var(--ink); font: 600 16px var(--f-head); color: var(--ink-3); }
+  .tools .on { color: var(--ink); text-decoration: underline; text-decoration-color: var(--red); text-underline-offset: 5px; text-decoration-thickness: 2px; }
+  .tools .grow { flex: 1; }
+  .tools .act { font-style: italic; font-weight: 500; font-family: var(--f-body); color: var(--blue); }
+
+  .lvl-h { display: flex; align-items: baseline; gap: 14px; margin: 26px 0 6px; }
+  .lvl-h b { font: 28px/1 var(--f-title); }
+  .lvl-h em { font: italic 16px var(--f-body); color: var(--ink-3); }
+  .lvl-h .rule { flex: 1; border-bottom: 1px dotted var(--ink-3); transform: translateY(-5px); }
+  .lvl-h span.sp { font: 600 18px var(--f-head); }
+  .lvl-h span.sp i { color: var(--ink-3); font-style: normal; }
+
+  .sk { display: grid; grid-template-columns: 26px 46px 1fr 120px; gap: 16px; align-items: start; padding: 14px 0; border-bottom: 1px solid rgba(120,90,50,.22); }
+  .box { width: 20px; height: 20px; margin-top: 12px; border: 1.5px solid var(--ink); border-radius: 2px; position: relative; }
+  .box.on::after { content: "✓"; position: absolute; inset: -9px 0 0 3px; font: 700 24px/1 var(--f-head); color: var(--red); }
+  .box.half::after { content: ""; position: absolute; left: 4px; right: 4px; top: 8px; height: 2px; background: var(--red); }
+  .ic { width: 46px; height: 46px; padding: 3px; background: var(--paper-2); border: 1px solid var(--edge); box-shadow: 2px 2px 0 rgba(90,60,20,.18); }
+  .ic img { display: block; width: 100%; height: 100%; filter: sepia(.35) saturate(.85) contrast(1.05); }
+  .sk.on .ic img { filter: none; }
+  .sk.on .ic { border-color: var(--red); box-shadow: 2px 2px 0 rgba(142,42,31,.35); }
+  .sk h3 { margin: 0; display: inline; font: 700 21px/1.1 var(--f-head); }
+  .kind { margin-left: 8px; font: italic 15px var(--f-body); }
+  .kind.a { color: var(--gold); } .kind.p { color: var(--blue); } .kind.d { color: var(--red); } .kind.t { color: var(--green); }
+  .sk p { margin: 3px 0 6px; color: var(--ink-2); font-size: 16px; }
+  .sk p b { color: var(--red); font-weight: 600; }
+  .lv { display: flex; gap: 14px; font: 600 15px var(--f-head); color: var(--ink-3); }
+  .lv span.on { color: var(--ink); }
+  .lv span.on::before { content: "● "; color: var(--red); font-size: 10px; vertical-align: 2px; }
+  .lv span:not(.on)::before { content: "○ "; font-size: 10px; vertical-align: 2px; }
+  .cost { text-align: right; font: 600 22px/1 var(--f-head); font-variant-numeric: lining-nums tabular-nums; padding-top: 10px; }
+  .cost small { display: block; margin-top: 4px; font: italic 14px var(--f-body); color: var(--ink-3); }
+  .sk:not(.on) .cost { color: var(--ink-3); }
+  .folio { margin-top: 26px; text-align: center; font: italic 15px var(--f-body); color: var(--ink-3); }
+</style>
+</head>
+<body>
+  <header>
+    <div class="brand"><span class="seal">L</span><span><b>Lineage II · Księga Umiejętności</b><small>kalkulator SP od Kroniki I do High Five</small></span></div>
+    <div class="search">⚲ Szukaj umiejętności wszystkich klas…</div>
+    <div class="lang"><b>PL</b> · EN</div>
+  </header>
+  <nav><span>C1</span><span class="on">C2 · Age of Splendor</span><span>C3</span><span>C4</span><span>C5</span><span>Interlude</span><span>Kamael</span><span>Hellbound</span><span>Gracia</span><span>Freya</span><span>High Five</span></nav>
+
+  <div class="book">
+    <section class="page left">
+      <div class="chapter">Rozdział II · Człowiek · Druga profesja</div>
+      <h1>Gladiator</h1>
+      <div class="lineage">Fighter → Warrior → Gladiator · <a style="color:var(--blue)">zmień klasę</a></div>
+      <div class="orn">✦ ✦ ✦</div>
+
+      <h2>Zakres poziomów</h2>
+      <div class="presets"><span>Fighter<small>1–19</small></span><span>Warrior<small>20–39</small></span><span class="on">Gladiator<small>40–74</small></span><span>Całość<small>1–74</small></span></div>
+      <div class="lvls lining">40 <em>do</em> 74</div>
+      <div class="range"><span class="t"></span><span class="f"></span><span class="g" style="left:53%"></span><span class="g" style="left:100%"></span></div>
+
+      <div class="sum">
+        <small>Potrzebne SP</small>
+        <b>4 218 000</b>
+        <span>z 83 020 000 SP w tym zakresie</span>
+      </div>
+
+      <table class="ledger lining">
+        <tr><td>Wybrane umiejętności</td><td>9 z 24</td></tr>
+        <tr><td>Wybrane poziomy</td><td>31 z 463</td></tr>
+        <tr><td>Potrzebne księgi</td><td>2</td></tr>
+        <tr><td>Niezaznaczone SP</td><td>78 802 000</td></tr>
+      </table>
+
+      <div class="orn">❧</div>
+      <h2>Księgi do zdobycia</h2>
+      <ol class="books"><li>Spellbook: Focus Sonic — poziom 40</li><li>Spellbook: Vicious Stance — poziom 40</li></ol>
+    </section>
+
+    <section class="page">
+      <div class="tools">
+        <span class="on">Wszystkie</span><span>Aktywne</span><span>Pasywne</span>
+        <span class="grow"></span>
+        <span class="act">zaznacz widoczne</span><span class="act">odznacz</span><span class="act">pokaż 0 SP</span>
+      </div>
+
+      <div class="lvl-h"><b>Poziom 40</b><em>dwanaście umiejętności</em><span class="rule"></span><span class="sp lining">268 000 <i>/ 432 000</i></span></div>
+
+      <div class="sk on"><span class="box on"></span><span class="ic"><img src="../public/icons/skills/skill0001.png"></span>
+        <div><h3>Triple Slash</h3><span class="kind a">— aktywna</span><p><b>Lv 3.</b> Trzy szybkie cięcia. Wymaga broni typu dual sword. Moc 1 247.</p>
+        <div class="lv"><span class="on">Lv 1 · 12k</span><span class="on">Lv 2 · 12k</span><span class="on">Lv 3 · 12k</span></div></div>
+        <div class="cost">36 000<small>z 36 000</small></div></div>
+
+      <div class="sk on"><span class="box on"></span><span class="ic"><img src="../public/icons/skills/skill0144.png"></span>
+        <div><h3>Dual Weapon Mastery</h3><span class="kind p">— pasywna</span><p><b>Lv 3.</b> +27,1 P. Atk. przy broni podwójnej.</p>
+        <div class="lv"><span class="on">Lv 1 · 12k</span><span class="on">Lv 2 · 12k</span><span class="on">Lv 3 · 12k</span></div></div>
+        <div class="cost">36 000<small>z 36 000</small></div></div>
+
+      <div class="sk"><span class="box half"></span><span class="ic"><img src="../public/icons/skills/skill0190.png"></span>
+        <div><h3>Fatal Strike</h3><span class="kind a">— aktywna</span><p><b>Lv 3.</b> Zbiera siły do mocnego uderzenia. Moc 417. Możliwy over-hit.</p>
+        <div class="lv"><span class="on">Lv 1 · 12k</span><span>Lv 2 · 12k</span><span>Lv 3 · 12k</span></div></div>
+        <div class="cost" style="color:var(--ink)">12 000<small>z 36 000</small></div></div>
+
+      <div class="sk"><span class="box"></span><span class="ic"><img src="../public/icons/skills/skill0260.png"></span>
+        <div><h3>Hammer Crush</h3><span class="kind a">— aktywna,</span><span class="kind d" style="margin-left:4px">ogłusza</span><p><b>Lv 3.</b> Atak, który ogłusza wroga. Wymaga broni obuchowej. Szansa wejścia 40%.</p>
+        <div class="lv"><span>Lv 1 · 12k</span><span>Lv 2 · 12k</span><span>Lv 3 · 12k</span></div></div>
+        <div class="cost">0<small>z 36 000</small></div></div>
+
+      <div class="sk on"><span class="box on"></span><span class="ic"><img src="../public/icons/skills/skill0008.png"></span>
+        <div><h3>Focus Sonic</h3><span class="kind a">— aktywna, z księgi</span><p><b>Lv 1.</b> Ładuje promień. Działa do poziomu 4.</p>
+        <div class="lv"><span class="on">Lv 1 · 37k</span></div></div>
+        <div class="cost">37 000<small>z 37 000</small></div></div>
+
+      <div class="sk"><span class="box"></span><span class="ic"><img src="../public/icons/skills/skill0312.png"></span>
+        <div><h3>Vicious Stance</h3><span class="kind t">— przełącznik, z księgi</span><p><b>Lv 6.</b> Zwiększa obrażenia krytyczne. Stale zużywa MP.</p>
+        <div class="lv"><span>Lv 6 · 33k</span></div></div>
+        <div class="cost">0<small>z 33 000</small></div></div>
+
+      <div class="lvl-h"><b>Poziom 43</b><em>dziewięć umiejętności</em><span class="rule"></span><span class="sp lining">0 <i>/ 378 000</i></span></div>
+      <div class="folio">— strona 2 z 9 —</div>
+    </section>
+  </div>
+</body>
+</html>
