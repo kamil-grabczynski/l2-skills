@@ -13,7 +13,7 @@ import {
   baseStats, findMonster, loadMonsters, playerMAtk, playerMDef, weaponMAtk,
   type AttackerChoice, type Monster, type TargetChoice, type TargetValues,
 } from "../lib/target";
-import { SkillIcon } from "./ClassIcon";
+import { BookLink, SkillIcon } from "./ClassIcon";
 import { Landing } from "./Landing";
 import { AttackerPicker } from "./AttackerPicker";
 import { TargetPicker } from "./TargetPicker";
@@ -284,7 +284,7 @@ function Content({ data, id, sk, cls, back }: ContentProps) {
                       <div key={`${x.l}-${x.sp}-${x.book}`}>
                         <b>{t("skill.learnLevel", { level: x.l })}</b> · {fmt(x.sp)} SP
                         <small>{x.classes.join(", ")}</small>
-                        {x.book > 0 && <span className="tag book">{data.books[x.book] ?? `item ${x.book}`}</span>}
+                        {x.book > 0 && <BookLink data={data} id={x.book} />}
                       </div>
                     )) ?? "—"}
                   </td>

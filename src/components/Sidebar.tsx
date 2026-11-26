@@ -2,7 +2,7 @@ import { useTranslation } from "react-i18next";
 import type { ChronicleData, LevelRange, Preset, Row } from "../types";
 import { raceLabel, tierLabel } from "../lib/data";
 import { fmt } from "../lib/format";
-import { ClassIcon } from "./ClassIcon";
+import { BookLink, ClassIcon } from "./ClassIcon";
 import { LevelInput } from "./LevelInput";
 
 export interface Totals {
@@ -171,7 +171,7 @@ export function Sidebar(p: Props) {
           {p.totals.books.length ? (
             p.totals.books.map((r) => (
               <li key={r.key}>
-                {p.data.books[r.book] ?? `item ${r.book}`}{" "}
+                <BookLink data={p.data} id={r.book} />{" "}
                 <span className="lv">
                   {t("sidebar.bookFor", { skill: r.sk.n, lv: r.lv, level: r.l })}
                 </span>

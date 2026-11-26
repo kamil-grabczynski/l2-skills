@@ -1,10 +1,16 @@
-import type { ChronicleData, ChronicleRef, Evolution, Preset, Row } from "../types";
+import type { BookInfo, ChronicleData, ChronicleRef, Evolution, Preset, Row } from "../types";
 import i18n from "../i18n";
 
 const BASE = import.meta.env.BASE_URL;
 
 export const skillIconUrl = (file: string) => `${BASE}icons/skills/${file}`;
 export const classIconUrl = (icon: string) => `${BASE}icons/classes/${icon}.svg`;
+export const itemIconUrl = (icon: string) => `${BASE}icons/items/${icon}.png`;
+
+/** Item name as the game shows it, a fallback when the wiki has no page for the item. */
+export const bookName = (data: ChronicleData, id: number | string) => data.books[id] || `item ${id}`;
+/** Kind of item from the first word of its name: Spellbook, Amulet, Ancient Book, Forgotten Scroll… */
+export const bookKind = (name: string) => (name.includes(":") ? name.split(":")[0].trim() : "");
 
 export const RACE_ORDER = ["Human", "Elf", "Elven", "Dark Elf", "Dark Elven", "Orc", "Dwarf", "Dwarven", "Kamael"];
 /** The wiki names some races in two ways; both use one translation key. */
@@ -56,6 +62,18 @@ export function loadChronicle(slug: string): Promise<ChronicleData> {
     p = getJson<ChronicleData>(`data/${slug}.json`);
     p.catch(() => cache.delete(slug));
     cache.set(slug, p);
+  }
+  return p;
+}
+
+const bookCache = new Map<string, Promise<Record<string, BookInfo>>>();
+/** Shops and drops of the chronicle's spellbooks, loaded when a book page opens. */
+export function loadBooks(slug: string): Promise<Record<string, BookInfo>> {
+  let p = bookCache.get(slug);
+  if (!p) {
+    p = getJson<Record<string, BookInfo>>(`data/books/${slug}.json`);
+    p.catch(() => bookCache.delete(slug));
+    bookCache.set(slug, p);
   }
   return p;
 }

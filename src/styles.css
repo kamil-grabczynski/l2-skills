@@ -168,7 +168,7 @@ button { cursor: pointer; }
 }
 .panel::before { top: -1px; left: -1px; border-right: 0; border-bottom: 0; border-top-left-radius: 6px; }
 .panel::after { bottom: -1px; right: -1px; border-left: 0; border-top: 0; border-bottom-right-radius: 6px; }
-.controls { padding: 16px; align-self: start; position: sticky; top: 12px; max-height: calc(100vh - 24px); overflow: auto; scrollbar-width: thin; }
+.controls { padding: 16px; align-self: start; position: sticky; top: 12px; max-height: calc(100vh - 24px); overflow: hidden auto; scrollbar-width: thin; }
 @media (max-width: 860px) { .controls { position: static; max-height: none; } }
 
 /* ---------- class card ---------- */
@@ -760,4 +760,65 @@ input[type=checkbox]:indeterminate::after { content: ""; position: absolute; lef
   .sk-head .icon { width: 54px; height: 54px; }
   .sk-head h2 { font-size: 22px; }
   .sk-chance { flex: 1 1 100%; position: static; }
+}
+
+/* ---------- spellbooks, amulets: item icons and book page ---------- */
+.item-icon {
+  display: inline-block; flex: none; width: 22px; height: 22px; padding: 1px; border-radius: 3px; vertical-align: middle;
+  background: var(--frame); box-shadow: 0 1px 3px rgba(0, 0, 0, .7), inset 0 0 0 1px rgba(0, 0, 0, .6);
+}
+span.item-icon { background: linear-gradient(135deg, #5b3b78, #2a1a3a); }
+.book-link {
+  display: inline-flex; align-items: center; gap: 7px; max-width: 100%; color: var(--text); text-decoration: none;
+  font-size: 12.5px; font-weight: 600; vertical-align: middle;
+}
+.book-link > span:last-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.book-link:hover > span:last-child { color: var(--gold-300); text-decoration: underline; text-decoration-color: var(--bronze-500); text-underline-offset: 3px; }
+.book-pill {
+  display: inline-flex; align-items: center; gap: 4px; height: 22px; padding: 0 7px 0 2px; border-radius: 3px; text-decoration: none;
+  font-size: 9.5px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--book);
+  border: 1px solid color-mix(in srgb, var(--book) 60%, transparent); background: color-mix(in srgb, var(--book) 12%, transparent);
+}
+.book-pill .item-icon { width: 18px; height: 18px; }
+.book-pill:hover { border-color: var(--book); color: #e3cbff; }
+.details .book-link { margin-top: 4px; }
+.books .book-link { font-weight: 500; }
+.books li { display: flex; flex-wrap: wrap; align-items: center; gap: 2px 6px; }
+.books { list-style: none; padding-left: 0; }
+.sk-levels .learn .book-link { display: flex; margin-top: 4px; font-size: 12px; }
+
+.sk-head .item-lg { width: 68px; height: 68px; padding: 3px; border-radius: 6px; image-rendering: auto; }
+.book-desc { margin: 8px 0 0; color: var(--text-2); font-size: 13.5px; }
+.book-uses { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 8px; }
+.book-uses li {
+  display: flex; align-items: center; gap: 12px; padding: 8px 10px; border-radius: 4px;
+  background: linear-gradient(180deg, rgba(0, 0, 0, .3), rgba(0, 0, 0, .18)); border: 1px solid rgba(0, 0, 0, .6);
+}
+.book-uses li > span { min-width: 0; }
+.book-uses .gold { color: var(--gold-400); font-size: 12.5px; }
+.book-uses small { display: block; margin-top: 2px; color: var(--muted); font-size: 11.5px; }
+.book-table td:first-child { color: var(--text); font-weight: 600; }
+.book-table td small { display: block; color: var(--muted); font-weight: 400; font-size: 11px; }
+.book-table .adena { color: var(--gold-300); font-weight: 700; }
+.book-table td.n { text-align: right; }
+.book-table th.n { text-align: right; }
+.chance-bar {
+  display: inline-block; vertical-align: middle; width: 60px; height: 6px; margin-right: 8px; border-radius: 1px; position: relative;
+  background: rgba(0, 0, 0, .55); box-shadow: inset 0 0 0 1px rgba(0, 0, 0, .6);
+}
+.chance-bar::after { content: ""; position: absolute; inset: 0 auto 0 0; width: var(--w); border-radius: 1px; background: linear-gradient(90deg, #8a6a2c, #e8c46e); }
+.book-more { margin-top: 12px; }
+.book-source { margin: 12px 0 0; font-size: 11.5px; }
+.book-quests { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.book-quests li {
+  display: flex; gap: 12px; align-items: flex-start; padding: 10px 12px; border-radius: 4px;
+  background: linear-gradient(180deg, rgba(0, 0, 0, .3), rgba(0, 0, 0, .18)); border: 1px solid rgba(0, 0, 0, .6);
+}
+.book-quests b { color: var(--gold-100); font-size: 14px; }
+.book-quests small { display: block; margin-top: 2px; color: var(--muted); font-size: 12px; }
+.book-quests p { margin: 6px 0 0; font-size: 13px; color: var(--text-2); }
+.quest-mark {
+  flex: none; display: grid; place-items: center; width: 26px; height: 26px; border-radius: 50%;
+  font: 800 15px/1 var(--f-display); color: var(--accent-ink); background: var(--gold-btn);
+  box-shadow: 0 0 10px rgba(221, 184, 102, .45), inset 0 1px 0 rgba(255, 255, 255, .5);
 }

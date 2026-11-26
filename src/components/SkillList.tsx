@@ -3,8 +3,9 @@ import { useTranslation } from "react-i18next";
 import type { ChronicleData, Row, SelMap } from "../types";
 import { fmt, short, skillMeta } from "../lib/format";
 import { skillDescription, skillEffect } from "../lib/skillText";
-import { skillHref } from "../lib/route";
-import { SkillIcon } from "./ClassIcon";
+import { bookHref, skillHref } from "../lib/route";
+import { bookKind, bookName } from "../lib/data";
+import { BookLink, ItemIcon, SkillIcon } from "./ClassIcon";
 import { TriCheckbox } from "./TriCheckbox";
 
 export interface Section {
@@ -107,8 +108,7 @@ function LevelSection({ data, section, sel, closed, opened, levelsInRange, actio
               group={g}
               mask={g.map((r) => (sel[r.key] ? "1" : "0")).join("")}
               open={opened.has(`${l}:${g[0].id}`)}
-              books={data.books}
-              slug={data.slug}
+              data={data}
               everywhere={levelsInRange.get(g[0].id) ?? 0}
               actions={actions}
             />
@@ -125,21 +125,21 @@ interface RowProps {
   /** "1" per selected skill level - lets memo skip rows whose selection did not change */
   mask: string;
   open: boolean;
-  books: Record<string, string>;
-  slug: string;
+  data: ChronicleData;
   everywhere: number;
   actions: SkillActions;
 }
 
-const SkillRow = memo(function SkillRow({ l, group, mask, open, books, slug, everywhere, actions }: RowProps) {
+const SkillRow = memo(function SkillRow({ l, group, mask, open, data, everywhere, actions }: RowProps) {
   const { t } = useTranslation();
   const sk = group[0].sk;
   const id = group[0].id;
   const isOn = (i: number) => mask[i] === "1";
-  let on = 0, sp = 0, total = 0, bookCount = 0;
+  let on = 0, sp = 0, total = 0;
+  const bookIds: number[] = [];
   group.forEach((r, i) => {
     total += r.sp;
-    if (r.book) bookCount++;
+    if (r.book && !bookIds.includes(r.book)) bookIds.push(r.book);
     if (isOn(i)) {
       on++;
       sp += r.sp;
@@ -157,12 +157,24 @@ const SkillRow = memo(function SkillRow({ l, group, mask, open, books, slug, eve
         <SkillIcon file={sk.i} />
         <div className="sname">
           <div className="line1">
-            <a className="skill-link" href={skillHref(slug, id)} title={t("list.skillPage")}>
+            <a className="skill-link" href={skillHref(data.slug, id)} title={t("list.skillPage")}>
               {sk.n}
             </a>
             <span className={`tag ${sk.p ? "p" : "a"}`}>{sk.p ? t("common.passive") : t("common.active")}</span>
             {group.length === 1 && <span className="lvl-meta">Lv {group[0].lv}</span>}
-            {bookCount > 0 && <span className="tag book">{t("list.book")}{bookCount > 1 ? ` ×${bookCount}` : ""}</span>}
+            {bookIds.length > 0 && (
+              <a
+                className="book-pill"
+                href={bookHref(data.slug, bookIds[0])}
+                title={[...bookIds.map((b) => bookName(data, b)), t("book.whereToGet")].join("\n")}
+              >
+                {bookIds.slice(0, 3).map((b) => (
+                  <ItemIcon key={b} icon={data.bi?.[b]} />
+                ))}
+                {bookKind(bookName(data, bookIds[0])) || t("list.book")}
+                {bookIds.length > 1 ? ` ×${bookIds.length}` : ""}
+              </a>
+            )}
             <button type="button" className="more" aria-expanded={open} onClick={() => actions.toggleOpen(l, id)}>
               {open ? `${t("list.collapse")} ▴` : `${t("list.details")} ▾`}
             </button>
@@ -181,7 +193,7 @@ const SkillRow = memo(function SkillRow({ l, group, mask, open, books, slug, eve
                   key={r.key}
                   className={`chip${isOn(i) ? " on" : ""}${r.book ? " book" : ""}`}
                   aria-pressed={isOn(i)}
-                  title={`${sk.n} Lv ${r.lv}: ${fmt(r.sp)} SP${r.book ? ` · ${books[r.book] ?? ""}` : ""}
+                  title={`${sk.n} Lv ${r.lv}: ${fmt(r.sp)} SP${r.book ? ` · ${bookName(data, r.book)}` : ""}
 ${sk.e?.[r.lv] ? skillEffect(sk.e[r.lv]) : skillDescription(sk.d[r.lv])}`}
                   onClick={() => actions.toggleKey(r.key)}
                 >
@@ -219,7 +231,7 @@ ${sk.e?.[r.lv] ? skillEffect(sk.e[r.lv]) : skillDescription(sk.d[r.lv])}`}
                     {r.book > 0 && (
                       <>
                         <br />
-                        <span className="tag book">{books[r.book] ?? `item ${r.book}`}</span>
+                        <BookLink data={data} id={r.book} />
                       </>
                     )}
                   </td>

@@ -324,5 +324,30 @@
     "level": "Twój poziom",
     "weapon": "M.Atk broni",
     "hint": "Bazowe statystyki rasy i klasy. M.Atk liczy się z broni, INT, poziomu i pasywów, bez buffów; domyślna broń to jednoręczna magiczna z rangi dla tego poziomu. Każdą wartość możesz zmienić."
+  },
+  "book": {
+    "whereToGet": "Kliknij, aby zobaczyć, skąd ją wziąć",
+    "missing": "Tego przedmiotu nie ma w {{chronicle}}",
+    "price": "cena bazowa {{price}} adeny",
+    "teaches": "Czego uczy",
+    "noUse": "W tej kronice żadna klasa nie uczy się z tym przedmiotem żadnego skila.",
+    "shops": "Sklepy ({{n}})",
+    "npc": "Kupiec",
+    "town": "Miasto",
+    "cost": "Cena (adena, z podatkiem)",
+    "noShop": "Żaden kupiec tego nie sprzedaje.",
+    "drops": "Drop z potworów ({{n}})",
+    "monster": "Potwór",
+    "chance": "Szansa",
+    "count": "Ilość",
+    "allDrops": "Pokaż wszystkie potwory ({{n}})",
+    "fewerDrops": "Pokaż mniej",
+    "noDrop": "Żaden potwór tego nie dropi. Może pochodzić z questa, eventu albo craftu.",
+    "source": "Sklepy i drop pochodzą z danych serwera na lineage2wiki.org. Serwery prywatne często je zmieniają.",
+    "quests": "Nagroda z questa ({{n}})",
+    "questLevel": "od poziomu {{level}}",
+    "questStart": "Zaczyna się u {{npc}}",
+    "quest334": "Powtarzalny. Matild stoi na północny wschód od Ivory Tower. Zbierz składniki, odbierz Wish Potion i wypij go z życzeniem „Wish for Wisdom”: losowo daje Spellbook: Ice Bolt, Spellbook: Battle Heal albo Amulet: Pa'agrio's Heart (albo przywołuje Wisdom Chest).",
+    "noDropQuest": "Żaden potwór tego nie dropi: zdobędziesz to z questa powyżej."
   }
 }

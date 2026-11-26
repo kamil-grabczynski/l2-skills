@@ -316,5 +316,30 @@
     "level": "Your level",
     "weapon": "Weapon M.Atk",
     "hint": "Base stats of the race and class. M.Atk is counted from the weapon, INT, level and passives, without buffs; the default weapon is a one-handed magic one of the grade for this level. You can change every value."
+  },
+  "book": {
+    "whereToGet": "Click to see where to get it",
+    "missing": "This item is not in {{chronicle}}",
+    "price": "base price {{price}} adena",
+    "teaches": "Teaches",
+    "noUse": "No class learns a skill with this item in this chronicle.",
+    "shops": "Shops ({{n}})",
+    "npc": "Merchant",
+    "town": "Town",
+    "cost": "Price (adena, with tax)",
+    "noShop": "No merchant sells it.",
+    "drops": "Drops from monsters ({{n}})",
+    "monster": "Monster",
+    "chance": "Chance",
+    "count": "Count",
+    "allDrops": "Show all {{n}} monsters",
+    "fewerDrops": "Show fewer",
+    "noDrop": "No monster drops it. It may come from a quest, an event or a craft.",
+    "source": "Shops and drops come from the server data on lineage2wiki.org. Private servers often change them.",
+    "quests": "Quest rewards ({{n}})",
+    "questLevel": "from level {{level}}",
+    "questStart": "Starts with {{npc}}",
+    "quest334": "Repeatable. Matild stands northeast of the Ivory Tower. Collect the ingredients, get a Wish Potion and drink it with the wish „Wish for Wisdom”: it gives at random Spellbook: Ice Bolt, Spellbook: Battle Heal or Amulet: Pa'agrio's Heart (or spawns a Wisdom Chest).",
+    "noDropQuest": "No monster drops it: get it from the quest above."
   }
 }

@@ -17,6 +17,7 @@ import { ChronicleBar } from "./components/ChronicleBar";
 import { ChronicleTable } from "./components/ChronicleTable";
 import { SkillToolbar } from "./components/SkillToolbar";
 import { SkillPage } from "./components/SkillPage";
+import { BookPage } from "./components/BookPage";
 import { SkillList, type Section, type SkillActions } from "./components/SkillList";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/react";
@@ -91,7 +92,8 @@ export default function App() {
 
   const ready = textsReady && !!data && data.slug === activeSlug;
   const cls = ready && route.cls && data.classes[route.cls] ? route.cls : null;
-  const view: "loading" | "picker" | "calc" | "skill" = !ready ? "loading" : route.skill ? "skill" : cls ? "calc" : "picker";
+  const view: "loading" | "picker" | "calc" | "skill" | "book" =
+    !ready ? "loading" : route.skill ? "skill" : route.book ? "book" : cls ? "calc" : "picker";
   /** class to return to from a skill page */
   const lastCls = ready && data.classes[prefs.cls[data.slug]] ? prefs.cls[data.slug] : null;
 
@@ -145,6 +147,10 @@ export default function App() {
         navigate(slug, `skill/${route.skill}`);
         return;
       }
+      if (route.book) {
+        navigate(slug, `book/${route.book}`);
+        return;
+      }
       if (view !== "calc") {
         navigate(slug);
         return;
@@ -161,7 +167,7 @@ export default function App() {
         setError(e as Error);
       }
     },
-    [view, cls, data, route.skill, prefs.wanted, setPrefs],
+    [view, cls, data, route.skill, route.book, prefs.wanted, setPrefs],
   );
 
   // ---------- derived data ----------
@@ -188,7 +194,7 @@ export default function App() {
   const listScroll = useRef<{ key: string | null; y: number; back: boolean }>({ key: null, y: 0, back: false });
   useLayoutEffect(() => {
     const pos = listScroll.current;
-    if (view === "skill") {
+    if (view === "skill" || view === "book") {
       pos.back = true;
       window.scrollTo(0, 0);
       return;
@@ -203,7 +209,7 @@ export default function App() {
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
-  }, [view, key, route.skill]);
+  }, [view, key, route.skill, route.book]);
 
   // v3: selection stores the skill levels that ARE counted (default: none)
   const [sel, updateSel] = useSelection(cls && activeSlug ? `spcalc:sel3:${activeSlug}:${cls}` : null);
@@ -342,6 +348,7 @@ export default function App() {
   const pageRoute =
     view === "loading" ? null
     : view === "skill" ? "/[chronicle]/skill/[id]"
+    : view === "book" ? "/[chronicle]/book/[id]"
     : view === "calc" ? "/[chronicle]/[class]"
     : "/[chronicle]";
   const nSkills = useMemo(() => new Set(inRange.map((r) => r.id)).size, [inRange]);
@@ -380,6 +387,7 @@ export default function App() {
         path={
           view === "loading" ? null
           : view === "skill" ? `/${activeSlug}/skill/${route.skill}`
+          : view === "book" ? `/${activeSlug}/book/${route.book}`
           : view === "calc" ? `/${activeSlug}/${cls}`
           : `/${activeSlug}`
         }
@@ -403,6 +411,8 @@ export default function App() {
       )}
 
       {view === "skill" && data && route.skill && <SkillPage data={data} id={route.skill} cls={lastCls} />}
+
+      {view === "book" && data && route.book && <BookPage data={data} id={route.book} cls={lastCls} />}
 
       {view === "calc" && data && cls && (
         <>

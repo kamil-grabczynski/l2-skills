@@ -57,6 +57,8 @@ export interface ChronicleData {
   skills: Record<string, SkillInfo>;
   /** spellbook item id -> item name */
   books: Record<string, string>;
+  /** spellbook item id -> icon file in public/icons/items (without .png) */
+  bi?: Record<string, string>;
   classes: Record<string, ClassInfo>;
 }
 
@@ -100,4 +102,18 @@ export interface Evolution {
   classes: Record<string, [number, (number | null)[]][]>;
   /** class -> name, icon, parent (newest chronicle) and s = first chronicle that has the class */
   classInfo: Record<string, { n: string; i: string; p: string | null; s: string }>;
+}
+
+/** public/data/books/<chronicle>.json: where a spellbook (amulet, ancient book…) comes from. */
+export interface BookInfo {
+  /** item description */
+  d: string;
+  /** base shop price in adena */
+  p: number;
+  /** [npc, npc title, town, price with the town tax] */
+  shop: [string, string, string, number][];
+  /** [npc id, monster, level, chance %, min, max], highest chance first */
+  drop: [number, string, number, number, number, number][];
+  /** quests that give it as a reward: [quest id, title, min level, start npc] */
+  quest?: [number, string, number, string][];
 }
