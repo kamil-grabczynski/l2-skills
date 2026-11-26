@@ -24,7 +24,7 @@ These are mockups of a new look for the app. They are static HTML pages that use
 
 - The mockups load Cinzel and Inter from Google Fonts. The app should ship them as local woff2 files so it still makes no external requests.
 - The tokens in `l2.css` (`:root`) can replace the variables at the top of `src/styles.css`.
-- Some numbers and texts in the mockups are made up, such as the selected SP, the monster and the learn levels. The SP totals per class on the class picker are real C2 values.
+- Some numbers and texts in the mockups are made up, such as the selected SP, the monster and the learn levels.
 
 ## Export PNGs
 
