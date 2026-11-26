@@ -1,0 +1,335 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<title>Redesign · Kalkulator SP</title>
+<link rel="stylesheet" href="l2.css">
+<style>
+  body { width: 1440px; }
+  .layout { display: grid; grid-template-columns: 340px 1fr; gap: 20px; padding: 22px 28px 40px; align-items: start; }
+
+  /* ---- character window ---- */
+  .hero { display: flex; gap: 14px; align-items: center; }
+  .hero .who b { display: block; font: 700 22px/1.1 var(--f-display); letter-spacing: .04em; color: var(--gold-100); }
+  .hero .who .eyebrow { color: var(--gold-500); }
+  .hero .who small { color: var(--ink-3); font-size: 12px; }
+  .chain { display: flex; align-items: center; gap: 6px; margin: 14px 0 4px; font-size: 12px; color: var(--ink-3); }
+  .chain span.on { color: var(--gold-300); }
+  .chain .sep { width: 10px; height: 1px; background: var(--bronze-500); }
+  .chain .sep::after { content: ""; }
+
+  .presets { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; margin: 10px 0 14px; }
+  .presets button {
+    padding: 7px 0 6px; border-radius: var(--r-sm); border: 1px solid #2a3344; background: rgba(0,0,0,.3);
+    color: var(--ink-2); font: 600 11.5px/1.1 var(--f-ui); cursor: pointer;
+  }
+  .presets button small { display: block; margin-top: 3px; font-weight: 500; font-size: 10px; color: var(--ink-3); }
+  .presets button.on { border-color: var(--gold-500); color: var(--gold-100); background: linear-gradient(180deg, rgba(240,213,142,.16), rgba(240,213,142,.04)); box-shadow: inset 0 0 0 1px rgba(240,213,142,.12), 0 0 12px rgba(221,184,102,.18); }
+  .presets button.on small { color: var(--gold-500); }
+  .lvls { display: grid; grid-template-columns: 1fr 22px 1fr; gap: 8px; align-items: center; margin-bottom: 12px; }
+  .lvls .field { height: 32px; justify-content: space-between; }
+  .lvls .field b { color: var(--ink); font-size: 15px; }
+  .lvls .dash { height: 1px; background: var(--bronze-500); }
+
+  .total { padding: 16px; text-align: center; margin-top: 14px; position: relative; overflow: hidden; }
+  .total::before {
+    content: ""; position: absolute; inset: -40% 10% auto; height: 120px;
+    background: radial-gradient(closest-side, rgba(221,184,102,.18), transparent); pointer-events: none;
+  }
+  .total .eyebrow { color: var(--gold-500); }
+  .total .big { display: block; margin: 8px 0 2px; font: 800 38px/1 var(--f-display); letter-spacing: .02em; }
+  .total .of { color: var(--ink-3); font-size: 12px; }
+  .total .bar { margin-top: 12px; }
+
+  .stats { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 10px; }
+  .stat { padding: 10px 12px; }
+  .stat .eyebrow { font-size: 9.5px; }
+  .stat b { display: block; margin-top: 6px; font: 700 18px/1 var(--f-ui); }
+  .stat b em { font-style: normal; font-size: 11px; color: var(--ink-3); font-weight: 500; }
+
+  .sec-h { display: flex; align-items: center; gap: 8px; margin: 18px 0 10px; }
+  .sec-h h4 { margin: 0; font: 700 11px/1 var(--f-display); letter-spacing: .14em; text-transform: uppercase; color: var(--gold-300); }
+  .sec-h .line { flex: 1; height: 1px; background: linear-gradient(90deg, var(--bronze-700), transparent); }
+
+  .spark { display: flex; align-items: flex-end; gap: 3px; height: 70px; padding: 8px 10px 0; }
+  .spark i { flex: 1; border-radius: 1px 1px 0 0; background: linear-gradient(180deg, #e8c46e, #6b5128); opacity: .9; }
+  .spark i.z { background: #222a38; }
+  .spark-x { display: flex; justify-content: space-between; padding: 5px 10px 8px; font-size: 10px; color: var(--ink-3); }
+
+  .books li { display: flex; align-items: center; gap: 10px; padding: 7px 0; border-bottom: 1px dashed #222a38; font-size: 12.5px; }
+  .books { list-style: none; margin: 0; padding: 0; }
+  .books .bk {
+    width: 22px; height: 22px; border-radius: 3px; flex: none;
+    background: linear-gradient(135deg, #5b3b78, #2a1a3a); border: 1px solid #8e6bb0; box-shadow: inset 0 1px 0 rgba(255,255,255,.2);
+  }
+  .books .n { margin-left: auto; color: var(--ink-3); font-size: 11.5px; }
+
+  /* ---- skills window ---- */
+  .toolbar { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; padding: 14px 16px; border-bottom: 1px solid var(--bronze-900); }
+  .toolbar .field { flex: 1 1 280px; }
+  .toolbar .opt { display: flex; align-items: center; gap: 8px; color: var(--ink-2); font-size: 12.5px; margin-left: 4px; }
+  .summary { display: flex; align-items: center; gap: 18px; padding: 9px 16px; font-size: 12px; color: var(--ink-3); background: rgba(0,0,0,.25); border-bottom: 1px solid var(--bronze-900); }
+  .summary b { color: var(--ink-2); font-weight: 600; }
+  .summary .right { margin-left: auto; display: flex; gap: 6px; }
+
+  .group { border-bottom: 1px solid var(--bronze-900); }
+  .g-head {
+    display: flex; align-items: center; gap: 12px; height: 46px; padding: 0 16px;
+    background: linear-gradient(90deg, rgba(240,213,142,.08), rgba(240,213,142,0) 60%);
+  }
+  .g-head .chev { width: 8px; height: 8px; border: solid var(--gold-500); border-width: 0 1.5px 1.5px 0; transform: rotate(45deg) translate(-2px,-2px); }
+  .g-head .lvl { font: 700 15px/1 var(--f-display); letter-spacing: .06em; color: var(--gold-300); }
+  .g-head .lvl em { font-style: normal; color: var(--ink-3); font: 500 12px var(--f-ui); letter-spacing: 0; margin-left: 8px; }
+  .g-head .grow { flex: 1; }
+  .g-head .mini { width: 140px; }
+  .g-head .sp { font-size: 12.5px; color: var(--ink-3); min-width: 150px; text-align: right; }
+  .g-head .sp b { color: var(--gold-300); font-size: 14px; }
+
+  .row { display: grid; grid-template-columns: 16px 44px 1fr auto; gap: 14px; align-items: center; padding: 10px 16px; border-top: 1px solid rgba(255,255,255,.03); }
+  .row.sel { background: linear-gradient(90deg, rgba(240,213,142,.07), transparent 70%); box-shadow: inset 2px 0 0 var(--gold-400); }
+  .row:hover { background: rgba(255,255,255,.025); }
+  .row .name { display: flex; align-items: center; gap: 8px; }
+  .row .name b { font-size: 14px; font-weight: 600; color: var(--ink); }
+  .row.sel .name b { color: var(--gold-100); }
+  .row .name a { color: var(--ink-3); font-size: 11.5px; text-decoration: none; margin-left: 2px; }
+  .row .desc { margin-top: 3px; color: var(--ink-2); font-size: 12.5px; }
+  .row .desc .lv { color: var(--gold-500); font-weight: 600; margin-right: 4px; }
+  .row .meta { display: flex; gap: 12px; margin-top: 5px; font-size: 11px; color: var(--ink-3); }
+  .row .meta span b { color: var(--mp); font-weight: 600; }
+  .levels { display: flex; gap: 4px; margin-top: 7px; }
+  .lchip {
+    display: inline-flex; align-items: baseline; gap: 5px; height: 22px; padding: 0 8px; border-radius: 3px;
+    font: 600 11px/22px var(--f-ui); color: var(--ink-2);
+    background: rgba(0,0,0,.35); border: 1px solid #2a3344;
+  }
+  .lchip small { font-weight: 500; font-size: 10px; color: var(--ink-3); }
+  .lchip.on { color: var(--gold-100); border-color: var(--gold-500); background: rgba(240,213,142,.1); }
+  .lchip.on small { color: var(--gold-500); }
+  .row .cost { text-align: right; }
+  .row .cost b { display: block; font-size: 15px; font-weight: 700; color: var(--ink); }
+  .row.sel .cost b { color: var(--gold-300); }
+  .row .cost small { color: var(--ink-3); font-size: 11px; }
+</style>
+</head>
+<body>
+<div class="world">
+
+  <header class="hdr">
+    <a class="logo">
+      <span class="mark"><svg width="36" height="36" viewBox="0 0 36 36"><defs><linearGradient id="g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fbe6a6"/><stop offset=".5" stop-color="#c9a253"/><stop offset="1" stop-color="#7a6237"/></linearGradient></defs><path d="M18 1 35 18 18 35 1 18Z" fill="#0d121c" stroke="url(#g)" stroke-width="1.5"/><path d="M18 6 30 18 18 30 6 18Z" fill="none" stroke="#4a3c24"/><path d="M18 8v17M14.5 21.5h7M18 25v3" stroke="url(#g)" stroke-width="2" stroke-linecap="round"/><path d="M18 8l-1.6 3h3.2Z" fill="#fbe6a6"/></svg></span>
+      <span><b class="display">Lineage II</b><small>Skills · SP Calculator</small></span>
+    </a>
+    <div class="field" style="max-width:520px;width:100%;justify-self:center">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#c9a253" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>
+      <input placeholder="Szukaj skila wszystkich klas…">
+      <span class="kbd">/</span>
+    </div>
+    <div style="display:flex;gap:10px;align-items:center">
+      <div class="seg"><button class="on">PL</button><button>EN</button></div>
+    </div>
+  </header>
+
+  <nav class="chron-bar">
+    <span class="eyebrow">Kronika</span>
+    <span class="chron">C1</span>
+    <span class="chron on">C2 · Age of Splendor</span>
+    <span class="chron">C3</span><span class="chron">C4</span><span class="chron">C5</span>
+    <span class="chron">Interlude</span><span class="chron">Kamael</span><span class="chron">Hellbound</span>
+    <span class="chron">Gracia 1</span><span class="chron">Gracia 2</span><span class="chron">Final</span><span class="chron">Epilogue</span>
+    <span class="chron">Freya</span><span class="chron">High Five</span>
+  </nav>
+
+  <div class="layout">
+    <!-- ============ character ============ -->
+    <aside class="win">
+      <div class="win-title"><span class="diamond"></span><h3>Postać</h3><span class="spacer"></span><button class="btn ghost sm">Zmień klasę</button></div>
+      <div class="win-body">
+        <div class="hero">
+          <span class="crest lg on"><img src="../public/icons/classes/gladiator.svg" alt=""></span>
+          <div class="who">
+            <span class="eyebrow">2. profesja · Człowiek</span>
+            <b>Gladiator</b>
+            <small>Kronika C2 · Age of Splendor</small>
+          </div>
+        </div>
+        <div class="chain"><span>Fighter</span><i class="sep"></i><span>Warrior</span><i class="sep"></i><span class="on">Gladiator</span></div>
+
+        <div class="sec-h"><h4>Zakres poziomów</h4><span class="line"></span></div>
+        <div class="presets">
+          <button>Fighter<small>1–19</small></button>
+          <button>Warrior<small>20–39</small></button>
+          <button class="on">Gladiator<small>40–74</small></button>
+          <button>Całość<small>1–74</small></button>
+        </div>
+        <div class="lvls">
+          <div class="field"><span class="eyebrow">Od</span><b>40</b></div>
+          <span class="dash"></span>
+          <div class="field"><span class="eyebrow">Do</span><b>74</b></div>
+        </div>
+        <div class="range">
+          <span class="track"></span>
+          <span class="fill" style="left:53%;right:0"></span>
+          <span class="grip" style="left:53%"></span>
+          <span class="grip" style="left:100%"></span>
+        </div>
+
+        <div class="total well">
+          <span class="eyebrow">Potrzebne SP</span>
+          <b class="big display num">4 218 000</b>
+          <span class="of num">z 83 020 000 SP dostępnych w zakresie</span>
+          <div class="bar sp tall"><span style="width:5.1%"></span></div>
+        </div>
+
+        <div class="stats">
+          <div class="stat well"><span class="eyebrow">Skille</span><b class="num">9 <em>/ 24</em></b></div>
+          <div class="stat well"><span class="eyebrow">Poziomy skili</span><b class="num">31 <em>/ 463</em></b></div>
+          <div class="stat well"><span class="eyebrow">Księgi</span><b class="num">2</b></div>
+          <div class="stat well"><span class="eyebrow">Niezaznaczone SP</span><b class="num">78,8 mln</b></div>
+        </div>
+
+        <div class="sec-h"><h4>SP na poziom</h4><span class="line"></span></div>
+        <div class="well">
+          <div class="spark">
+            <i style="height:62%"></i><i class="z" style="height:4%"></i><i style="height:28%"></i><i class="z" style="height:4%"></i><i style="height:44%"></i><i class="z" style="height:4%"></i><i style="height:36%"></i><i style="height:12%"></i><i style="height:58%"></i><i class="z" style="height:4%"></i><i style="height:70%"></i><i style="height:22%"></i><i style="height:84%"></i><i class="z" style="height:4%"></i><i style="height:52%"></i><i style="height:96%"></i><i style="height:40%"></i><i style="height:66%"></i>
+          </div>
+          <div class="spark-x"><span>40</span><span>52</span><span>62</span><span>74</span></div>
+        </div>
+
+        <div class="sec-h"><h4>Potrzebne księgi</h4><span class="line"></span></div>
+        <ul class="books">
+          <li><span class="bk"></span>Spellbook: Focus Sonic<span class="n">Lv 40</span></li>
+          <li><span class="bk"></span>Spellbook: Vicious Stance<span class="n">Lv 40</span></li>
+        </ul>
+      </div>
+    </aside>
+
+    <!-- ============ skills ============ -->
+    <section class="win">
+      <div style="padding:10px 16px 0"><div class="tabs"><button class="on">Skille do nauczenia</button><button>Nowe skille w kronikach</button></div></div>
+      <div class="toolbar">
+        <div class="field focus">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#c9a253" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>
+          <input value="" placeholder="Filtruj skille tej klasy…">
+        </div>
+        <div class="seg"><button class="on">Wszystkie</button><button>Aktywne</button><button>Pasywne</button></div>
+        <label class="opt"><span class="switch"></span>pokaż 0 SP</label>
+      </div>
+      <div class="summary">
+        <span>Poziomy <b>40–74</b></span><span><b>24</b> skile</span><span><b>463</b> poziomy skili</span><span>ukryte przez filtry: <b>4</b></span>
+        <span class="right"><button class="btn sm">Zaznacz widoczne</button><button class="btn sm">Odznacz</button><button class="btn sm ghost">Zwiń poziomy</button></span>
+      </div>
+
+      <div class="group">
+        <div class="g-head">
+          <span class="check mixed"></span><span class="chev"></span>
+          <span class="lvl">Poziom 40<em>12 skili · Gladiator</em></span>
+          <span class="grow"></span>
+          <div class="bar sp mini"><span style="width:62%"></span></div>
+          <span class="sp num"><b>268 000</b> / 432 000 SP</span>
+        </div>
+
+        <div class="row sel">
+          <span class="check on"></span>
+          <span class="slot on"><img src="../public/icons/skills/skill0001.png" alt=""><span class="lv">3</span></span>
+          <div>
+            <div class="name"><b>Triple Slash</b><span class="tag a">Aktywny</span><a>szczegóły ›</a></div>
+            <div class="desc"><span class="lv">Lv 3</span>Trzy szybkie cięcia. Wymaga broni typu dual sword. Moc 1 247.</div>
+            <div class="meta"><span>MP <b>48</b></span><span>Rzucanie 1,8 s</span><span>Odnowienie 13 s</span><span>Zasięg 40</span></div>
+            <div class="levels"><span class="lchip on">Lv 1 <small>12k</small></span><span class="lchip on">Lv 2 <small>12k</small></span><span class="lchip on">Lv 3 <small>12k</small></span></div>
+          </div>
+          <div class="cost"><b class="num">36 000</b><small class="num">z 36 000</small></div>
+        </div>
+
+        <div class="row sel">
+          <span class="check on"></span>
+          <span class="slot passive on"><img src="../public/icons/skills/skill0144.png" alt=""><span class="lv">3</span></span>
+          <div>
+            <div class="name"><b>Dual Weapon Mastery</b><span class="tag p">Pasywny</span><a>szczegóły ›</a></div>
+            <div class="desc"><span class="lv">Lv 3</span>+27,1 P. Atk. przy broni dwuręcznej podwójnej.</div>
+            <div class="levels"><span class="lchip on">Lv 1 <small>12k</small></span><span class="lchip on">Lv 2 <small>12k</small></span><span class="lchip on">Lv 3 <small>12k</small></span></div>
+          </div>
+          <div class="cost"><b class="num">36 000</b><small class="num">z 36 000</small></div>
+        </div>
+
+        <div class="row">
+          <span class="check mixed"></span>
+          <span class="slot"><img src="../public/icons/skills/skill0190.png" alt=""><span class="lv">3</span></span>
+          <div>
+            <div class="name"><b>Fatal Strike</b><span class="tag a">Aktywny</span><a>szczegóły ›</a></div>
+            <div class="desc"><span class="lv">Lv 3</span>Zbiera siły do mocnego uderzenia. Wymaga miecza lub broni obuchowej. Moc 417. Możliwy over-hit.</div>
+            <div class="meta"><span>MP <b>21</b></span><span>Rzucanie 1,08 s</span><span>Odnowienie 11 s</span><span>Zasięg 40</span></div>
+            <div class="levels"><span class="lchip on">Lv 1 <small>12k</small></span><span class="lchip">Lv 2 <small>12k</small></span><span class="lchip">Lv 3 <small>12k</small></span></div>
+          </div>
+          <div class="cost"><b class="num">12 000</b><small class="num">z 36 000</small></div>
+        </div>
+
+        <div class="row">
+          <span class="check"></span>
+          <span class="slot"><img src="../public/icons/skills/skill0260.png" alt=""><span class="lv">3</span></span>
+          <div>
+            <div class="name"><b>Hammer Crush</b><span class="tag a">Aktywny</span><span class="tag d">Debuff</span><a>szczegóły ›</a></div>
+            <div class="desc"><span class="lv">Lv 3</span>Atak, który ogłusza wroga. Wymaga broni obuchowej. Moc 395. Możliwy over-hit.</div>
+            <div class="meta"><span>MP <b>23</b></span><span>Szansa wejścia <b style="color:var(--gold-300)">40%</b></span><span>Odnowienie 13 s</span></div>
+            <div class="levels"><span class="lchip">Lv 1 <small>12k</small></span><span class="lchip">Lv 2 <small>12k</small></span><span class="lchip">Lv 3 <small>12k</small></span></div>
+          </div>
+          <div class="cost"><b class="num" style="color:var(--ink-3)">0</b><small class="num">z 36 000</small></div>
+        </div>
+
+        <div class="row sel">
+          <span class="check on"></span>
+          <span class="slot on"><img src="../public/icons/skills/skill0008.png" alt=""><span class="lv">1</span></span>
+          <div>
+            <div class="name"><b>Focus Sonic</b><span class="tag a">Aktywny</span><span class="tag b">Księga</span><a>szczegóły ›</a></div>
+            <div class="desc"><span class="lv">Lv 1</span>Ładuje promień. Działa do poziomu 4.</div>
+            <div class="levels"><span class="lchip on">Lv 1 <small>37k</small></span></div>
+          </div>
+          <div class="cost"><b class="num">37 000</b><small class="num">z 37 000</small></div>
+        </div>
+
+        <div class="row">
+          <span class="check"></span>
+          <span class="slot passive"><img src="../public/icons/skills/skill0231.png" alt=""><span class="lv">16</span></span>
+          <div>
+            <div class="name"><b>Heavy Armor Mastery</b><span class="tag p">Pasywny</span><a>szczegóły ›</a></div>
+            <div class="desc"><span class="lv">Lv 16</span>+22,8 P. Def. w ciężkim pancerzu.</div>
+            <div class="levels"><span class="lchip">Lv 14 <small>12k</small></span><span class="lchip">Lv 15 <small>12k</small></span><span class="lchip">Lv 16 <small>12k</small></span></div>
+          </div>
+          <div class="cost"><b class="num" style="color:var(--ink-3)">0</b><small class="num">z 36 000</small></div>
+        </div>
+
+        <div class="row">
+          <span class="check"></span>
+          <span class="slot"><img src="../public/icons/skills/skill0312.png" alt=""><span class="lv">6</span></span>
+          <div>
+            <div class="name"><b>Vicious Stance</b><span class="tag a">Aktywny</span><span class="tag t">Toggle</span><span class="tag b">Księga</span><a>szczegóły ›</a></div>
+            <div class="desc"><span class="lv">Lv 6</span>Zwiększa obrażenia krytyczne. Stale zużywa MP.</div>
+            <div class="levels"><span class="lchip">Lv 6 <small>33k</small></span></div>
+          </div>
+          <div class="cost"><b class="num" style="color:var(--ink-3)">0</b><small class="num">z 33 000</small></div>
+        </div>
+      </div>
+
+      <div class="group">
+        <div class="g-head">
+          <span class="check"></span><span class="chev"></span>
+          <span class="lvl">Poziom 43<em>9 skili · Gladiator</em></span>
+          <span class="grow"></span>
+          <div class="bar sp mini"><span style="width:0%"></span></div>
+          <span class="sp num"><b>0</b> / 378 000 SP</span>
+        </div>
+        <div class="row">
+          <span class="check"></span>
+          <span class="slot"><img src="../public/icons/skills/skill0006.png" alt=""><span class="lv">6</span></span>
+          <div>
+            <div class="name"><b>Sonic Blaster</b><span class="tag a">Aktywny</span><a>szczegóły ›</a></div>
+            <div class="desc"><span class="lv">Lv 6</span>Atakuje odległego wroga energią miecza. Wymaga miecza.</div>
+            <div class="levels"><span class="lchip">Lv 4 <small>14k</small></span><span class="lchip">Lv 5 <small>14k</small></span><span class="lchip">Lv 6 <small>14k</small></span></div>
+          </div>
+          <div class="cost"><b class="num" style="color:var(--ink-3)">0</b><small class="num">z 42 000</small></div>
+        </div>
+      </div>
+    </section>
+  </div>
+</div>
+</body>
+</html>

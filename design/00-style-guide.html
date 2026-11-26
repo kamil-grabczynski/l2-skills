@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<title>Redesign · Style guide</title>
+<link rel="stylesheet" href="l2.css">
+<style>
+  body { width: 1440px; }
+  .page { width: 1240px; margin: 0 auto; padding: 50px 0 70px; }
+  .top { display: flex; align-items: flex-end; justify-content: space-between; margin-bottom: 34px; }
+  .top h1 { margin: 10px 0 0; font-size: 46px; line-height: 1; }
+  .top p { margin: 10px 0 0; max-width: 560px; color: var(--ink-2); }
+  .top .eyebrow { color: var(--gold-500); }
+  .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .full { grid-column: 1 / -1; }
+  h5 { margin: 18px 0 10px; font: 600 10.5px/1 var(--f-ui); letter-spacing: .16em; text-transform: uppercase; color: var(--ink-3); }
+  h5:first-child { margin-top: 0; }
+
+  .sw { display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px; }
+  .sw div { border-radius: 5px; overflow: hidden; border: 1px solid #222a38; }
+  .sw i { display: block; height: 58px; }
+  .sw span { display: block; padding: 7px 9px; font-size: 11px; background: rgba(0,0,0,.35); }
+  .sw span b { display: block; font-size: 11.5px; color: var(--ink); }
+  .sw span em { font-style: normal; color: var(--ink-3); font-family: ui-monospace, Consolas, monospace; font-size: 10.5px; }
+
+  .type div { display: flex; align-items: baseline; gap: 18px; padding: 10px 0; border-bottom: 1px dashed #222a38; }
+  .type small { width: 150px; flex: none; color: var(--ink-3); font-size: 11px; }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+  .stack { display: flex; flex-direction: column; gap: 10px; }
+  .bars { display: grid; grid-template-columns: 40px 1fr 90px; gap: 8px 12px; align-items: center; font-size: 12px; }
+  .bars span:nth-child(3n) { text-align: right; color: var(--ink-3); }
+  .slots .slot { --s: 44px; }
+  .note { margin-top: 10px; color: var(--ink-3); font-size: 12px; }
+  .note b { color: var(--ink-2); }
+  .tooltip { width: 300px; padding: 12px 14px; font-size: 12.5px; background: rgba(6,9,14,.96); border: 1px solid var(--bronze-500); border-radius: 4px; box-shadow: 0 12px 30px rgba(0,0,0,.8); }
+  .tooltip .h { display: flex; gap: 10px; align-items: center; margin-bottom: 8px; }
+  .tooltip .h b { color: #fff; font-size: 13.5px; }
+  .tooltip .h small { display: block; color: var(--gold-400); font-size: 11px; }
+  .tooltip p { margin: 6px 0 0; color: var(--ink-2); }
+  .tooltip .kv { display: grid; grid-template-columns: 1fr auto; gap: 3px; margin-top: 8px; padding-top: 8px; border-top: 1px solid #222a38; color: var(--ink-3); }
+  .tooltip .kv b { color: var(--ink); font-weight: 600; text-align: right; }
+  .tooltip .kv b.mp { color: #8fb8f0; }
+</style>
+</head>
+<body>
+<div class="world">
+  <div class="page">
+    <div class="top">
+      <div>
+        <span class="eyebrow">Lineage II Skills SP · Redesign 2026</span>
+        <h1 class="display">Style guide</h1>
+        <p>Nocne niebo, mosiężne ramy, złoto Adeny. Okna jak w interfejsie gry, ale z nowoczesnym rytmem odstępów, szkłem i czytelną typografią.</p>
+      </div>
+      <div class="rule" style="width:300px"><i></i></div>
+    </div>
+
+    <div class="cols">
+      <section class="win full">
+        <div class="win-title"><span class="diamond"></span><h3>Kolory</h3></div>
+        <div class="win-body">
+          <h5>Noc · tła i szkło</h5>
+          <div class="sw">
+            <div><i style="background:#05070b"></i><span><b>Night 0</b><em>#05070B</em></span></div>
+            <div><i style="background:#0a0e15"></i><span><b>Night 1</b><em>#0A0E15</em></span></div>
+            <div><i style="background:#111722"></i><span><b>Night 2</b><em>#111722</em></span></div>
+            <div><i style="background:#18202e"></i><span><b>Night 3</b><em>#18202E</em></span></div>
+            <div><i style="background:linear-gradient(180deg,rgba(22,29,42,.72),rgba(14,19,28,.78)),#0a0e15"></i><span><b>Glass</b><em>rgba 14,19,28 .78</em></span></div>
+            <div><i style="background:linear-gradient(180deg,rgba(0,0,0,.35),rgba(0,0,0,.22)),#111722"></i><span><b>Well</b><em>czarny 35% → 22%</em></span></div>
+          </div>
+          <h5>Metal · ramy i akcent</h5>
+          <div class="sw">
+            <div><i style="background:#2a2214"></i><span><b>Bronze 900</b><em>#2A2214</em></span></div>
+            <div><i style="background:#4a3c24"></i><span><b>Bronze 700</b><em>#4A3C24</em></span></div>
+            <div><i style="background:#7a6237"></i><span><b>Bronze 500</b><em>#7A6237</em></span></div>
+            <div><i style="background:#c9a253"></i><span><b>Gold 500</b><em>#C9A253</em></span></div>
+            <div><i style="background:#f0d58e"></i><span><b>Gold 300</b><em>#F0D58E</em></span></div>
+            <div><i style="background:var(--gold-grad)"></i><span><b>Gold gradient</b><em>tytuły, CTA, suma SP</em></span></div>
+          </div>
+          <h5>Znaczenia z gry</h5>
+          <div class="sw">
+            <div><i style="background:#e0b45a"></i><span><b>Aktywny</b><em>#E0B45A</em></span></div>
+            <div><i style="background:#6f9de0"></i><span><b>Pasywny / MP</b><em>#6F9DE0</em></span></div>
+            <div><i style="background:#d8584e"></i><span><b>Debuff / HP</b><em>#D8584E</em></span></div>
+            <div><i style="background:#5fbf7d"></i><span><b>Toggle / plus</b><em>#5FBF7D</em></span></div>
+            <div><i style="background:#b98ae0"></i><span><b>Księga</b><em>#B98AE0</em></span></div>
+            <div><i style="background:#ece4d2"></i><span><b>Ink</b><em>#ECE4D2</em></span></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="win">
+        <div class="win-title"><span class="diamond"></span><h3>Typografia</h3></div>
+        <div class="win-body type">
+          <div><small>Display · Cinzel 700</small><span class="display" style="font-size:34px">Gladiator</span></div>
+          <div><small>Tytuł okna · Cinzel 12 / .14em</small><span style="font:700 12px var(--f-display);letter-spacing:.14em;color:var(--gold-300)">ZAKRES POZIOMÓW</span></div>
+          <div><small>Liczby · Cinzel 800</small><span class="display num" style="font-size:30px">4 218 000</span></div>
+          <div><small>UI · Inter 14 / 600</small><span style="font-weight:600">Triple Slash</span></div>
+          <div><small>Treść · Inter 13</small><span class="muted" style="color:var(--ink-2)">Trzy szybkie cięcia. Moc 1 247.</span></div>
+          <div><small>Etykieta · Inter 10,5 caps</small><span class="eyebrow">Potrzebne SP</span></div>
+          <p class="note"><b>Cinzel</b> tylko dla nagłówków, nazw klas i dużych liczb. Reszta w <b>Inter</b> z cyframi tabelarycznymi. Oba fonty hostowane lokalnie (woff2), bez zapytań do Google.</p>
+        </div>
+      </section>
+
+      <section class="win">
+        <div class="win-title"><span class="diamond"></span><h3>Przyciski i pola</h3></div>
+        <div class="win-body stack">
+          <div class="row"><button class="btn gold">Otwórz kalkulator</button><button class="btn">Zaznacz widoczne</button><button class="btn ghost">Zwiń poziomy</button><button class="btn sm">Mały</button></div>
+          <div class="row"><div class="seg"><button class="on">Wszystkie</button><button>Aktywne</button><button>Pasywne</button></div><div class="seg"><button class="on">PL</button><button>EN</button></div></div>
+          <div class="field" style="width:100%"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#c9a253" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg><input placeholder="Szukaj skila…"><span class="kbd">/</span></div>
+          <div class="field focus" style="width:100%"><input value="Hammer"><span class="muted" style="font-size:11px">3 wyniki</span></div>
+          <div class="row" style="gap:18px"><span class="check"></span><span class="check on"></span><span class="check mixed"></span><span class="switch"></span><span class="switch on"></span></div>
+          <div class="range" style="margin-top:4px"><span class="track"></span><span class="fill" style="left:20%;right:30%"></span><span class="grip" style="left:20%"></span><span class="grip" style="left:70%"></span></div>
+        </div>
+      </section>
+
+      <section class="win">
+        <div class="win-title"><span class="diamond"></span><h3>Sloty, herby, znaczniki</h3></div>
+        <div class="win-body stack">
+          <h5>Slot skila · aktywny / pasywny / wybrany / niedostępny</h5>
+          <div class="row slots">
+            <span class="slot"><img src="../public/icons/skills/skill0001.png"><span class="lv">3</span></span>
+            <span class="slot passive"><img src="../public/icons/skills/skill0144.png"><span class="lv">3</span></span>
+            <span class="slot on"><img src="../public/icons/skills/skill0260.png"><span class="lv">37</span></span>
+            <span class="slot dim"><img src="../public/icons/skills/skill0312.png"></span>
+            <span class="slot lg on"><img src="../public/icons/skills/skill0006.png"></span>
+          </div>
+          <h5>Herb klasy</h5>
+          <div class="row"><span class="crest"><img src="../public/icons/classes/knight.svg"></span><span class="crest"><img src="../public/icons/classes/necromancer.svg"></span><span class="crest"><img src="../public/icons/classes/spellsinger.svg"></span><span class="crest on"><img src="../public/icons/classes/gladiator.svg"></span><span class="crest lg on"><img src="../public/icons/classes/bishop.svg"></span></div>
+          <h5>Znaczniki</h5>
+          <div class="row"><span class="tag a">Aktywny</span><span class="tag p">Pasywny</span><span class="tag d">Debuff</span><span class="tag t">Toggle</span><span class="tag b">Księga</span><span class="tag plain">Fizyczny</span></div>
+          <h5>Kroniki</h5>
+          <div class="row"><span class="chron">C1</span><span class="chron on">C2 · Age of Splendor</span><span class="chron">Interlude</span><span class="chron">High Five</span></div>
+        </div>
+      </section>
+
+      <section class="win">
+        <div class="win-title"><span class="diamond"></span><h3>Paski i tooltip</h3></div>
+        <div class="win-body">
+          <div class="bars">
+            <span>SP</span><div class="bar sp tall"><span style="width:62%"></span></div><span>268k / 432k</span>
+            <span>CP</span><div class="bar"><span style="width:88%"></span></div><span>2 210</span>
+            <span>HP</span><div class="bar hp"><span style="width:74%"></span></div><span>3 980</span>
+            <span>MP</span><div class="bar mp"><span style="width:41%"></span></div><span>612</span>
+          </div>
+          <h5 style="margin-top:22px">Tooltip skila (hover na slocie)</h5>
+          <div class="tooltip">
+            <div class="h"><span class="slot" style="--s:34px"><img src="../public/icons/skills/skill0260.png"></span><span><b>Hammer Crush</b><small>Lv 37 · Aktywny · Debuff</small></span></div>
+            <p>Atak, który ogłusza wroga. Wymaga broni obuchowej. Moc 609. Możliwy over-hit.</p>
+            <div class="kv"><span>Zużycie MP</span><b class="mp">69</b><span>Odnowienie</span><b>13 s</b><span>Nauka</span><b>Lv 74 · 350 000 SP</b></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="win full">
+        <div class="win-title"><span class="diamond"></span><h3>Zasady</h3></div>
+        <div class="win-body" style="display:grid;grid-template-columns:repeat(4,1fr);gap:20px;font-size:13px;color:var(--ink-2)">
+          <div><b class="gold">Okno = sekcja.</b><br>Każdy panel to okno z paskiem tytułu w Cinzel i złotymi narożnikami. Wnętrze ciemniejsze „studnie” (well) na liczby i formularze.</div>
+          <div><b class="gold">Złoto oszczędnie.</b><br>Złoty gradient tylko na: suma SP, główny CTA, wybrana klasa / kronika / skill. Reszta brąz i stal.</div>
+          <div><b class="gold">Kolory z gry.</b><br>MP niebieski, debuff czerwony, pasywne stalowe ramki slotów. Gracz rozpoznaje znaczenie bez czytania.</div>
+          <div><b class="gold">Tylko tryb ciemny.</b><br>Styl L2 to noc. Kontrast tekstu min. 4.5:1, fokus = złota obwódka 3 px, animacje ≤ 200 ms i wyłączane przez prefers-reduced-motion.</div>
+        </div>
+      </section>
+    </div>
+  </div>
+</div>
+</body>
+</html>

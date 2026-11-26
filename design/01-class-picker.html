@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<title>Redesign · Wybór klasy</title>
+<link rel="stylesheet" href="l2.css">
+<style>
+  body { width: 1440px; }
+  .intro { text-align: center; padding: 56px 0 30px; }
+  .intro .eyebrow { color: var(--gold-500); }
+  .intro h1 { margin: 14px 0 10px; font-size: 52px; line-height: 1; }
+  .intro p { margin: 0 auto; max-width: 560px; color: var(--ink-2); font-size: 15px; }
+  .intro .rule { width: 420px; margin: 22px auto 0; }
+
+  .races { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; width: 1240px; margin: 10px auto 22px; }
+  .race {
+    position: relative; height: 92px; padding: 16px 18px; border-radius: var(--r-md); overflow: hidden; cursor: pointer;
+    border: 1px solid #263045; background: linear-gradient(180deg, rgba(22,29,42,.8), rgba(10,14,21,.85));
+  }
+  .race::before { /* race tint */
+    content: ""; position: absolute; inset: 0; opacity: .5;
+    background: radial-gradient(120% 90% at 100% 100%, var(--tint), transparent 60%);
+  }
+  .race b { position: relative; display: block; font: 700 17px/1 var(--f-display); letter-spacing: .08em; color: var(--ink); }
+  .race small { position: relative; display: block; margin-top: 8px; color: var(--ink-3); font-size: 12px; }
+  .race .glyph { position: absolute; right: 14px; bottom: 10px; opacity: .55; }
+  .race.on { border-color: var(--gold-400); box-shadow: var(--glow-gold); }
+  .race.on b { color: var(--gold-100); }
+  .race.on::after { content: ""; position: absolute; left: 18px; right: 18px; bottom: 0; height: 2px; background: linear-gradient(90deg, transparent, var(--gold-300), transparent); }
+
+  .main { display: grid; grid-template-columns: 1fr 330px; gap: 20px; width: 1240px; margin: 0 auto 60px; align-items: start; }
+
+  .tree { padding: 22px 24px 26px; }
+  .heads { display: grid; grid-template-columns: 224px 244px 1fr; margin-bottom: 16px; }
+  .heads .eyebrow { color: var(--gold-500); }
+  .branch + .branch { margin-top: 18px; padding-top: 18px; border-top: 1px dashed #222a38; }
+  /* tree: parent node + column of children, lines drawn by each child */
+  .p { display: flex; align-items: center; }
+  .p > .node { flex: none; margin-right: 22px; }
+  .p > .node::after { content: ""; position: absolute; right: -23px; top: 50%; width: 22px; height: 1px; background: var(--bronze-500); }
+  .p > .node.path::after { background: var(--gold-400); box-shadow: 0 0 6px rgba(240,213,142,.6); }
+  .kids { display: flex; flex-direction: column; }
+  .k { position: relative; padding: 5px 0 5px 22px; }
+  .k::before { content: ""; position: absolute; left: 0; top: 50%; width: 22px; height: 1px; background: var(--bronze-500); }
+  .k::after { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 1px; background: var(--bronze-500); }
+  .k:first-child::after { top: 50%; }
+  .k:last-child::after { bottom: 50%; }
+  .k:only-child::after { display: none; }
+  .k.path::before { background: var(--gold-400); box-shadow: 0 0 6px rgba(240,213,142,.6); }
+  .k > .node::before { content: ""; position: absolute; left: -4px; top: calc(50% - 3px); width: 6px; height: 6px; transform: rotate(45deg); background: var(--bronze-500); }
+  .k.path > .node::before { background: var(--gold-300); }
+  .w0 { width: 180px; } .w1 { width: 200px; } .w2 { width: 254px; }
+  .node {
+    position: relative; display: flex; align-items: center; gap: 12px; height: 54px; padding: 0 12px 0 10px;
+    border-radius: var(--r-md); border: 1px solid #263045;
+    background: linear-gradient(180deg, rgba(28,36,52,.75), rgba(13,18,27,.85));
+  }
+  .node b { display: block; font-size: 14px; font-weight: 600; white-space: nowrap; }
+  .node small { display: block; margin-top: 2px; font-size: 10.5px; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-3); }
+  .node .sp { margin-left: auto; text-align: right; font-size: 10.5px; color: var(--ink-3); white-space: nowrap; }
+  .node .sp b { display: inline; font-size: 12.5px; color: var(--ink-2); }
+  .node.path { border-color: var(--bronze-500); }
+  .node.path b { color: var(--gold-300); }
+  .node.on { border-color: var(--gold-300); background: linear-gradient(180deg, rgba(240,213,142,.2), rgba(240,213,142,.05)); box-shadow: var(--glow-gold); }
+  .node.on b { color: var(--gold-100); }
+  .node.on .sp b { color: var(--gold-300); }
+
+  /* preview card */
+  .preview .win-body { padding: 18px; }
+  .pv-top { display: flex; flex-direction: column; align-items: center; text-align: center; padding: 6px 0 14px; }
+  .pv-top .crest { margin-bottom: 12px; }
+  .pv-top b { font: 700 26px/1 var(--f-display); letter-spacing: .05em; }
+  .pv-top small { margin-top: 6px; color: var(--ink-3); font-size: 12px; }
+  .kv { display: grid; grid-template-columns: 1fr auto; gap: 8px 12px; padding: 12px 14px; font-size: 13px; }
+  .kv span { color: var(--ink-3); }
+  .kv b { text-align: right; }
+  .icons { display: flex; flex-wrap: wrap; gap: 4px; padding: 12px 0 2px; }
+  .icons .slot { --s: 31px; }
+  .preview .btn.gold { width: 100%; height: 40px; margin-top: 16px; font-size: 13.5px; letter-spacing: .06em; text-transform: uppercase; }
+  .recent { margin-top: 14px; }
+  .recent li { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px dashed #222a38; font-size: 13px; }
+  .recent ul { list-style: none; margin: 0; padding: 0; }
+  .recent li .crest { --s: 26px; box-shadow: none; }
+  .recent li small { margin-left: auto; color: var(--ink-3); font-size: 11px; }
+</style>
+</head>
+<body>
+<div class="world">
+  <header class="hdr">
+    <a class="logo">
+      <span class="mark"><svg width="36" height="36" viewBox="0 0 36 36"><defs><linearGradient id="g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fbe6a6"/><stop offset=".5" stop-color="#c9a253"/><stop offset="1" stop-color="#7a6237"/></linearGradient></defs><path d="M18 1 35 18 18 35 1 18Z" fill="#0d121c" stroke="url(#g)" stroke-width="1.5"/><path d="M18 6 30 18 18 30 6 18Z" fill="none" stroke="#4a3c24"/><path d="M18 8v17M14.5 21.5h7M18 25v3" stroke="url(#g)" stroke-width="2" stroke-linecap="round"/><path d="M18 8l-1.6 3h3.2Z" fill="#fbe6a6"/></svg></span>
+      <span><b class="display">Lineage II</b><small>Skills · SP Calculator</small></span>
+    </a>
+    <div class="field" style="max-width:520px;width:100%;justify-self:center">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#c9a253" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>
+      <input placeholder="Szukaj skila wszystkich klas…"><span class="kbd">/</span>
+    </div>
+    <div class="seg"><button class="on">PL</button><button>EN</button></div>
+  </header>
+  <nav class="chron-bar">
+    <span class="eyebrow">Kronika</span>
+    <span class="chron">C1</span><span class="chron on">C2 · Age of Splendor</span>
+    <span class="chron">C3</span><span class="chron">C4</span><span class="chron">C5</span>
+    <span class="chron">Interlude</span><span class="chron">Kamael</span><span class="chron">Hellbound</span>
+    <span class="chron">Gracia 1</span><span class="chron">Gracia 2</span><span class="chron">Final</span><span class="chron">Epilogue</span>
+    <span class="chron">Freya</span><span class="chron">High Five</span>
+  </nav>
+
+  <section class="intro">
+    <span class="eyebrow">Kronika C2 · Age of Splendor</span>
+    <h1 class="display">Wybierz klasę</h1>
+    <p>Kliknij profesję, aby policzyć SP potrzebne na skille w wybranym zakresie poziomów.</p>
+    <div class="rule"><i></i></div>
+  </section>
+
+  <div class="races">
+    <div class="race on" style="--tint:rgba(214,170,80,.55)"><b>Człowiek</b><small>Fighter · Mage</small>
+      <svg class="glyph" width="40" height="40" viewBox="0 0 40 40" fill="none" stroke="#f0d58e" stroke-width="1.4"><path d="M20 4 34 12v10c0 8-6 13-14 15C12 35 6 30 6 22V12Z"/><path d="M20 10v20M13 17h14"/></svg></div>
+    <div class="race" style="--tint:rgba(70,170,130,.5)"><b>Elf</b><small>Fighter · Mystic</small>
+      <svg class="glyph" width="40" height="40" viewBox="0 0 40 40" fill="none" stroke="#8fd6b4" stroke-width="1.4"><path d="M20 4c8 8 10 18 0 32C10 22 12 12 20 4Z"/><path d="M20 10v24"/></svg></div>
+    <div class="race" style="--tint:rgba(140,90,200,.55)"><b>Mroczny Elf</b><small>Fighter · Mystic</small>
+      <svg class="glyph" width="40" height="40" viewBox="0 0 40 40" fill="none" stroke="#c3a2ef" stroke-width="1.4"><path d="M27 6a14 14 0 1 0 6 20A11 11 0 0 1 27 6Z"/><path d="m16 15 1 3 3 1-3 1-1 3-1-3-3-1 3-1Z"/></svg></div>
+    <div class="race" style="--tint:rgba(200,70,60,.5)"><b>Ork</b><small>Fighter · Mystic</small>
+      <svg class="glyph" width="40" height="40" viewBox="0 0 40 40" fill="none" stroke="#ef9a90" stroke-width="1.4"><path d="M8 30c2-12 6-20 12-24 6 4 10 12 12 24"/><path d="M14 30c0-6 2-10 6-13 4 3 6 7 6 13M8 30h24"/></svg></div>
+    <div class="race" style="--tint:rgba(200,140,60,.5)"><b>Krasnolud</b><small>Fighter</small>
+      <svg class="glyph" width="40" height="40" viewBox="0 0 40 40" fill="none" stroke="#f0c48e" stroke-width="1.4"><path d="M10 8h20v8H10ZM20 16v18M15 34h10"/><path d="M10 12H6M30 12h4"/></svg></div>
+  </div>
+
+  <div class="main">
+    <section class="win tree">
+      <div class="heads"><span class="eyebrow">Klasa bazowa</span><span class="eyebrow">1. profesja · Lv 20</span><span class="eyebrow">2. profesja · Lv 40</span></div>
+      <div class="branch"><div class="p"><div class="node w0 path"><span class="crest"><img src="../public/icons/classes/fighter.svg"></span><span><b>Fighter</b><small>Bazowa</small></span></div><div class="kids"><div class="k"><div class="p"><div class="node w1 "><span class="crest"><img src="../public/icons/classes/knight.svg"></span><span><b>Knight</b><small>1. profesja</small></span></div><div class="kids"><div class="k"><div class="node w2 "><span class="crest"><img src="../public/icons/classes/knight.svg"></span><span><b>Paladin</b><small>2. profesja</small></span><span class="sp"><b>78,5 mln</b> SP</span></div></div><div class="k"><div class="node w2 "><span class="crest"><img src="../public/icons/classes/knight.svg"></span><span><b>Dark Avenger</b><small>2. profesja</small></span><span class="sp"><b>74,8 mln</b> SP</span></div></div></div></div></div><div class="k"><div class="p"><div class="node w1 "><span class="crest"><img src="../public/icons/classes/rogue.svg"></span><span><b>Rogue</b><small>1. profesja</small></span></div><div class="kids"><div class="k"><div class="node w2 "><span class="crest"><img src="../public/icons/classes/treasure_hunter.svg"></span><span><b>Treasure Hunter</b><small>2. profesja</small></span><span class="sp"><b>64,2 mln</b> SP</span></div></div><div class="k"><div class="node w2 "><span class="crest"><img src="../public/icons/classes/hawkeye.svg"></span><span><b>Hawkeye</b><small>2. profesja</small></span><span class="sp"><b>86,1 mln</b> SP</span></div></div></div></div></div><div class="k path"><div class="p"><div class="node w1 path"><span class="crest"><img src="../public/icons/classes/warrior.svg"></span><span><b>Warrior</b><small>1. profesja</small></span></div><div class="kids"><div class="k path"><div class="node w2 on"><span class="crest on"><img src="../public/icons/classes/gladiator.svg"></span><span><b>Gladiator</b><small>2. profesja</small></span><span class="sp"><b>83,9 mln</b> SP</span></div></div><div class="k"><div class="node w2 "><span class="crest"><img src="../public/icons/classes/warlord.svg"></span><span><b>Warlord</b><small>2. profesja</small></span><span class="sp"><b>80,4 mln</b> SP</span></div></div></div></div></div></div></div></div>
+      <div class="branch"><div class="p"><div class="node w0 "><span class="crest"><img src="../public/icons/classes/mystic.svg"></span><span><b>Mage</b><small>Bazowa</small></span></div><div class="kids"><div class="k"><div class="p"><div class="node w1 "><span class="crest"><img src="../public/icons/classes/cleric.svg"></span><span><b>Cleric</b><small>1. profesja</small></span></div><div class="kids"><div class="k"><div class="node w2 "><span class="crest"><img src="../public/icons/classes/bishop.svg"></span><span><b>Bishop</b><small>2. profesja</small></span><span class="sp"><b>66,1 mln</b> SP</span></div></div><div class="k"><div class="node w2 "><span class="crest"><img src="../public/icons/classes/cleric.svg"></span><span><b>Prophet</b><small>2. profesja</small></span><span class="sp"><b>85,1 mln</b> SP</span></div></div></div></div></div><div class="k"><div class="p"><div class="node w1 "><span class="crest"><img src="../public/icons/classes/wizard.svg"></span><span><b>Wizard</b><small>1. profesja</small></span></div><div class="kids"><div class="k"><div class="node w2 "><span class="crest"><img src="../public/icons/classes/sorcerer.svg"></span><span><b>Sorcerer</b><small>2. profesja</small></span><span class="sp"><b>64,7 mln</b> SP</span></div></div><div class="k"><div class="node w2 "><span class="crest"><img src="../public/icons/classes/necromancer.svg"></span><span><b>Necromancer</b><small>2. profesja</small></span><span class="sp"><b>47,1 mln</b> SP</span></div></div><div class="k"><div class="node w2 "><span class="crest"><img src="../public/icons/classes/warlock.svg"></span><span><b>Warlock</b><small>2. profesja</small></span><span class="sp"><b>66,5 mln</b> SP</span></div></div></div></div></div></div></div></div>
+    </section>
+
+    <aside>
+      <section class="win preview">
+        <div class="win-title"><span class="diamond"></span><h3>Podgląd klasy</h3></div>
+        <div class="win-body">
+          <div class="pv-top">
+            <span class="crest lg on"><img src="../public/icons/classes/gladiator.svg"></span>
+            <b class="display">Gladiator</b>
+            <small>Fighter › Warrior › Gladiator</small>
+          </div>
+          <div class="kv well">
+            <span>Zakres poziomów</span><b class="num">40 – 74</b>
+            <span>Skille</span><b class="num">24</b>
+            <span>Poziomy skili</span><b class="num">463</b>
+            <span>Księgi</span><b class="num">2</b>
+            <span>Całe SP</span><b class="num gold">83 020 000</b>
+          </div>
+          <div class="icons">
+            <span class="slot"><img src="../public/icons/skills/skill0001.png"></span>
+            <span class="slot"><img src="../public/icons/skills/skill0006.png"></span>
+            <span class="slot"><img src="../public/icons/skills/skill0190.png"></span>
+            <span class="slot"><img src="../public/icons/skills/skill0260.png"></span>
+            <span class="slot"><img src="../public/icons/skills/skill0312.png"></span>
+            <span class="slot passive"><img src="../public/icons/skills/skill0144.png"></span>
+            <span class="slot passive"><img src="../public/icons/skills/skill0231.png"></span>
+            <span class="slot passive"><img src="../public/icons/skills/skill0257.png"></span>
+          </div>
+          <button class="btn gold">Otwórz kalkulator</button>
+        </div>
+      </section>
+
+      <section class="win recent">
+        <div class="win-title"><span class="diamond"></span><h3>Ostatnio</h3></div>
+        <div class="win-body" style="padding-top:4px">
+          <ul>
+            <li><span class="crest"><img src="../public/icons/classes/gladiator.svg"></span>Gladiator<small>C2 · 40–74</small></li>
+            <li><span class="crest"><img src="../public/icons/classes/necromancer.svg"></span>Necromancer<small>Interlude · 40–76</small></li>
+            <li><span class="crest"><img src="../public/icons/classes/spellsinger.svg"></span>Spellsinger<small>C4 · 1–76</small></li>
+          </ul>
+        </div>
+      </section>
+    </aside>
+  </div>
+</div>
+</body>
+</html>
