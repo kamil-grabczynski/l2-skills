@@ -339,7 +339,7 @@
     "quests": "Quest rewards ({{n}})",
     "questLevel": "from level {{level}}",
     "questStart": "Starts with {{npc}}",
-    "quest334": "Repeatable. Matild stands northeast of the Ivory Tower. Collect the ingredients, get a Wish Potion and drink it with the wish „Wish for Wisdom”: it gives at random Spellbook: Ice Bolt, Spellbook: Battle Heal or Amulet: Pa'agrio's Heart (or spawns a Wisdom Chest).",
+    "quest334": "Repeatable. Matild stands northeast of the Ivory Tower. Collect the ingredients, get a Wish Potion and drink it with the wish „Wish for Wisdom”: it gives at random Spellbook: Ice Bolt, Spellbook: Battle Heal or the amulet for The Heart of Pa'agrio (Amulet: Heart of Paagrio, from C5 Amulet: Pa'agrio's Heart), or spawns a Wisdom Chest. Brew more potions until you get the reward you need.",
     "noDropQuest": "No monster drops it: get it from the quest above."
   }
 }

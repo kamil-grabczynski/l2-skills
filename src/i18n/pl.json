@@ -347,7 +347,7 @@
     "quests": "Nagroda z questa ({{n}})",
     "questLevel": "od poziomu {{level}}",
     "questStart": "Zaczyna się u {{npc}}",
-    "quest334": "Powtarzalny. Matild stoi na północny wschód od Ivory Tower. Zbierz składniki, odbierz Wish Potion i wypij go z życzeniem „Wish for Wisdom”: losowo daje Spellbook: Ice Bolt, Spellbook: Battle Heal albo Amulet: Pa'agrio's Heart (albo przywołuje Wisdom Chest).",
+    "quest334": "Powtarzalny. Matild stoi na północny wschód od Ivory Tower. Zbierz składniki, odbierz Wish Potion i wypij go z życzeniem „Wish for Wisdom”: losowo daje Spellbook: Ice Bolt, Spellbook: Battle Heal albo amulet do The Heart of Pa'agrio (Amulet: Heart of Paagrio, od C5 Amulet: Pa'agrio's Heart), albo przywołuje Wisdom Chest. Potion można warzyć ponownie, dopóki nie wypadnie potrzebna nagroda.",
     "noDropQuest": "Żaden potwór tego nie dropi: zdobędziesz to z questa powyżej."
   }
 }
