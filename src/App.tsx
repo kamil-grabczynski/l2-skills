@@ -351,8 +351,23 @@ export default function App() {
     <>
       <header className="top">
         <a className="brand" href={hrefFor(activeSlug)}>
-          <h1>Lineage 2 skills SP</h1>
-          <span className="sub">{t("app.subtitle")}</span>
+          <svg className="brand-mark" width="36" height="36" viewBox="0 0 36 36" aria-hidden="true">
+            <defs>
+              <linearGradient id="brand-gold" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0" stopColor="#fbe6a6" />
+                <stop offset=".5" stopColor="#c9a253" />
+                <stop offset="1" stopColor="#7a6237" />
+              </linearGradient>
+            </defs>
+            <path d="M18 1 35 18 18 35 1 18Z" fill="#0d121c" stroke="url(#brand-gold)" strokeWidth="1.5" />
+            <path d="M18 6 30 18 18 30 6 18Z" fill="none" stroke="#4a3c24" />
+            <path d="M18 8v17M14.5 21.5h7M18 25v3" stroke="url(#brand-gold)" strokeWidth="2" strokeLinecap="round" />
+            <path d="M18 8l-1.6 3h3.2Z" fill="#fbe6a6" />
+          </svg>
+          <span>
+            <h1>Lineage 2 skills SP</h1>
+            <span className="sub">{t("app.subtitle")}</span>
+          </span>
         </a>
         <SkillSearch data={ready ? data : null} />
         <LanguageSwitch />

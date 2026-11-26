@@ -151,7 +151,7 @@ const SkillRow = memo(function SkillRow({ l, group, mask, open, books, slug, eve
   const brief = sk.e?.[top] ? skillEffect(sk.e[top]) : skillDescription(sk.d[top]);
 
   return (
-    <div className={`skill${on ? "" : " off"}${open ? " open" : ""}`}>
+    <div className={`skill${sk.p ? " passive" : ""}${on ? "" : " off"}${open ? " open" : ""}`}>
       <div className="skill-main">
         <TriCheckbox on={on} total={group.length} label={t("list.include", { skill: sk.n })} onChange={(c) => actions.setKeys(group.map((r) => r.key), c)} />
         <SkillIcon file={sk.i} />

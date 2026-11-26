@@ -1,6 +1,6 @@
 # Redesign: "modern L2"
 
-These are mockups of a new look for the app. They are static HTML pages that use the real skill and class icons from `public/icons/`, and each page has a PNG export in `png/`. The app itself has not changed yet.
+These are mockups of a new look for the app. They are static HTML pages that use the real skill and class icons from `public/icons/`, and each page has a PNG export in `png/`. The app now uses the main direction (files 00–04); the alternative directions (05–07) are not used.
 
 | File | Screen |
 | --- | --- |
@@ -32,7 +32,7 @@ Each of these shows the SP calculator screen in a different style, so the direct
 
 ## Notes for implementation
 
-- The mockups load Cinzel and Inter from Google Fonts. The app should ship them as local woff2 files so it still makes no external requests.
+- The mockups load Cinzel and Inter from Google Fonts. The app bundles them from `@fontsource`, so it still makes no external requests.
 - The tokens in `l2.css` (`:root`) can replace the variables at the top of `src/styles.css`.
 - Some numbers and texts in the mockups are made up, such as the selected SP, the monster and the learn levels.
 
